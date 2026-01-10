@@ -2,11 +2,16 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"catetin/backend/internal/db"
+	"catetin/backend/internal/middleware"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
@@ -67,4 +72,168 @@ func (h *Handler) UpdateEntry(c echo.Context) error {
 func (h *Handler) DeleteEntry(c echo.Context) error {
 	// TODO: Implement after database setup
 	return c.JSON(http.StatusNoContent, nil)
+}
+
+// ==================== USER STATS ====================
+
+// GetUserStats returns the user's stats, creating them if they don't exist
+func (h *Handler) GetUserStats(c echo.Context) error {
+	userID, err := middleware.RequireUserID(c)
+	if err != nil {
+		return err
+	}
+
+	stats, err := h.queries.UpsertUserStats(c.Request().Context(), userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user stats")
+	}
+
+	return c.JSON(http.StatusOK, stats)
+}
+
+// ==================== SESSIONS ====================
+
+// CreateSession creates a new journaling session
+func (h *Handler) CreateSession(c echo.Context) error {
+	userID, err := middleware.RequireUserID(c)
+	if err != nil {
+		return err
+	}
+
+	session, err := h.queries.CreateSession(c.Request().Context(), userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create session")
+	}
+
+	return c.JSON(http.StatusCreated, session)
+}
+
+// ListSessions returns a paginated list of the user's sessions
+func (h *Handler) ListSessions(c echo.Context) error {
+	userID, err := middleware.RequireUserID(c)
+	if err != nil {
+		return err
+	}
+
+	// Parse pagination params
+	limit := int32(20)
+	offset := int32(0)
+
+	if l := c.QueryParam("limit"); l != "" {
+		if parsed, err := strconv.ParseInt(l, 10, 32); err == nil && parsed > 0 && parsed <= 100 {
+			limit = int32(parsed)
+		}
+	}
+	if o := c.QueryParam("offset"); o != "" {
+		if parsed, err := strconv.ParseInt(o, 10, 32); err == nil && parsed >= 0 {
+			offset = int32(parsed)
+		}
+	}
+
+	sessions, err := h.queries.ListSessionsByUser(c.Request().Context(), db.ListSessionsByUserParams{
+		UserID: userID,
+		Limit:  limit,
+		Offset: offset,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to list sessions")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"sessions": sessions,
+		"limit":    limit,
+		"offset":   offset,
+	})
+}
+
+// GetSession returns a single session with its messages
+func (h *Handler) GetSession(c echo.Context) error {
+	userID, err := middleware.RequireUserID(c)
+	if err != nil {
+		return err
+	}
+
+	sessionID := c.Param("id")
+	if sessionID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "session id is required")
+	}
+
+	// Parse UUID
+	var uuid pgtype.UUID
+	if err := uuid.Scan(sessionID); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid session id")
+	}
+
+	// Get the session (ensures it belongs to the user)
+	session, err := h.queries.GetSessionByID(c.Request().Context(), db.GetSessionByIDParams{
+		ID:     uuid,
+		UserID: userID,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusNotFound, "session not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get session")
+	}
+
+	// Get messages for the session
+	messages, err := h.queries.ListMessagesBySession(c.Request().Context(), uuid)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get messages")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"session":  session,
+		"messages": messages,
+	})
+}
+
+// UpdateSessionRequest is the request body for updating a session
+type UpdateSessionRequest struct {
+	Status string `json:"status"` // "completed" or "abandoned"
+}
+
+// UpdateSession updates a session (end it with a status)
+func (h *Handler) UpdateSession(c echo.Context) error {
+	userID, err := middleware.RequireUserID(c)
+	if err != nil {
+		return err
+	}
+
+	sessionID := c.Param("id")
+	if sessionID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "session id is required")
+	}
+
+	// Parse UUID
+	var uuid pgtype.UUID
+	if err := uuid.Scan(sessionID); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid session id")
+	}
+
+	// Parse request body
+	var req UpdateSessionRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
+	}
+
+	// Validate status
+	if req.Status != "completed" && req.Status != "abandoned" {
+		return echo.NewHTTPError(http.StatusBadRequest, "status must be 'completed' or 'abandoned'")
+	}
+
+	// End the session
+	session, err := h.queries.EndSession(c.Request().Context(), db.EndSessionParams{
+		ID:     uuid,
+		Status: req.Status,
+		UserID: userID,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusNotFound, "session not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to update session")
+	}
+
+	return c.JSON(http.StatusOK, session)
 }
