@@ -11,6 +11,7 @@ type Config struct {
 	BackendPort    string
 	BackendHost    string
 	ClerkSecretKey string
+	GeminiAPIKey   string
 }
 
 // Load returns a new Config with values from environment variables
@@ -20,6 +21,7 @@ func Load() *Config {
 		BackendPort:    getEnv("BACKEND_PORT", "8080"),
 		BackendHost:    getEnv("BACKEND_HOST", "0.0.0.0"),
 		ClerkSecretKey: getEnv("CLERK_SECRET_KEY", ""),
+		GeminiAPIKey:   getEnv("GEMINI_API_KEY", ""),
 	}
 }
 

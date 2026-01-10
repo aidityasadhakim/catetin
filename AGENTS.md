@@ -62,6 +62,78 @@ make sqlc         # Generate SQLC code
 make db-shell     # Connect to PostgreSQL
 ```
 
+## Gemini AI Integration
+
+### Client Setup
+
+```go
+import "google.golang.org/genai"
+
+// Initialize client with API key
+geminiClient, err := genai.NewClient(context.Background(), &genai.ClientConfig{
+    APIKey: os.Getenv("GEMINI_API_KEY"),
+})
+if err != nil {
+    log.Fatal("Failed to create Gemini client:", err)
+}
+```
+
+### Structured JSON Output
+
+Use `ResponseJsonSchema` to enforce structured responses:
+
+```go
+// Define schema for structured output
+quizSchema := map[string]interface{}{
+    "type": "object",
+    "properties": map[string]interface{}{
+        "question": map[string]interface{}{
+            "type":        "string",
+            "description": "The quiz question",
+        },
+        "options": map[string]interface{}{
+            "type": "array",
+            "items": map[string]interface{}{
+                "type": "string",
+            },
+            "minItems":    4,
+            "maxItems":    4,
+            "description": "Four answer options",
+        },
+        "correctAnswer": map[string]interface{}{
+            "type":        "integer",
+            "minimum":     0,
+            "maximum":     3,
+            "description": "Index of the correct answer (0-3)",
+        },
+    },
+    "required": []string{"question", "options", "correctAnswer"},
+}
+
+// Generate content with schema
+response, err := geminiClient.Models.GenerateContent(ctx,
+    "gemini-2.5-flash",
+    genai.Text("Your prompt here"),
+    &genai.GenerateContentConfig{
+        ResponseMIMEType:   "application/json",
+        ResponseJsonSchema: quizSchema,
+    },
+)
+
+// Parse response into struct
+var result MyStruct
+if err := json.Unmarshal([]byte(response.Text()), &result); err != nil {
+    return err
+}
+```
+
+### Key Patterns
+
+- **Model:** Use `gemini-2.5-flash` for fast responses
+- **JSON Mode:** Set `ResponseMIMEType: "application/json"` + `ResponseJsonSchema` for structured output
+- **Context:** Pass request context for cancellation: `c.Request().Context()`
+- **Error Handling:** Check both API errors and JSON parsing errors
+
 ## Adding New Features
 
 1. Add migration in `backend/sql/migrations/`

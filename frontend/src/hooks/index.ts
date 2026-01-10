@@ -1,0 +1,28 @@
+/**
+ * Catetin API Hooks
+ *
+ * This module exports TanStack Query hooks for all API endpoints.
+ * Import hooks from here, not from individual files.
+ *
+ * @example
+ * import { useUserStats, useSessions } from '@/hooks'
+ */
+
+// User gamification stats
+export { useUserStats } from './useUserStats'
+
+// Re-export types for convenience
+export type {
+  UserStats,
+  Session,
+  SessionStatus,
+  Message,
+  Artwork,
+  UserArtwork,
+  UserArtworkStatus,
+  UserArtworkWithDetails,
+  WeeklySummary,
+} from '../lib/api'
+
+// Re-export apiKeys for custom queries
+export { apiKeys } from '../lib/api'

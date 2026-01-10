@@ -126,12 +126,30 @@ export function useApiClient() {
 
 /**
  * Create query key factory for React Query
+ *
+ * Pattern: Each resource gets a base key and specific key factories.
+ * Use these keys with useQuery/useMutation for consistent cache management.
  */
 export const apiKeys = {
   all: ['api'] as const,
   health: () => [...apiKeys.all, 'health'] as const,
   entries: () => [...apiKeys.all, 'entries'] as const,
   entry: (id: string) => [...apiKeys.entries(), id] as const,
+  // User stats (gamification resources)
+  stats: () => [...apiKeys.all, 'stats'] as const,
+  // Sessions (journaling conversations)
+  sessions: () => [...apiKeys.all, 'sessions'] as const,
+  session: (id: string) => [...apiKeys.sessions(), id] as const,
+  sessionActive: () => [...apiKeys.sessions(), 'active'] as const,
+  // Artworks (gallery)
+  artworks: () => [...apiKeys.all, 'artworks'] as const,
+  artwork: (id: string) => [...apiKeys.artworks(), id] as const,
+  userArtworks: () => [...apiKeys.all, 'user-artworks'] as const,
+  userArtwork: (artworkId: string) => [...apiKeys.userArtworks(), artworkId] as const,
+  currentArtwork: () => [...apiKeys.userArtworks(), 'current'] as const,
+  // Weekly summaries
+  weeklySummaries: () => [...apiKeys.all, 'weekly-summaries'] as const,
+  weeklySummary: (weekStart: string) => [...apiKeys.weeklySummaries(), weekStart] as const,
 }
 
 // Type definitions for API responses
@@ -146,12 +164,116 @@ export interface JournalEntry {
   title: string
   content: string
   mood?: string
-  tags: string[]
+  tags: Array<string>
   created_at: string
   updated_at: string
 }
 
 export interface EntriesListResponse {
-  entries: JournalEntry[]
+  entries: Array<JournalEntry>
   total: number
+}
+
+/**
+ * User stats for gamification (Tinta Emas & Marmer)
+ * Matches backend user_stats table
+ */
+export interface UserStats {
+  user_id: string
+  golden_ink: number
+  marble: number
+  current_streak: number
+  longest_streak: number
+  last_active_date: string | null
+  created_at: string
+  updated_at: string
+}
+
+/**
+ * Session status enum
+ */
+export type SessionStatus = 'active' | 'completed' | 'abandoned'
+
+/**
+ * Journaling session with Sang Pujangga
+ */
+export interface Session {
+  id: string
+  user_id: string
+  status: SessionStatus
+  total_messages: number
+  golden_ink_earned: number
+  started_at: string
+  ended_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+/**
+ * Message in a journaling session
+ */
+export interface Message {
+  id: string
+  session_id: string
+  role: 'user' | 'assistant'
+  content: string
+  created_at: string
+}
+
+/**
+ * Artwork in the gallery
+ */
+export interface Artwork {
+  id: string
+  name: string
+  display_name: string
+  description: string
+  image_url: string
+  unlock_cost: number
+  reveal_cost: number
+  created_at: string
+}
+
+/**
+ * User's progress on an artwork
+ */
+export type UserArtworkStatus = 'in_progress' | 'completed'
+
+export interface UserArtwork {
+  id: string
+  user_id: string
+  artwork_id: string
+  progress: number
+  status: UserArtworkStatus
+  unlocked_at: string
+  completed_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+/**
+ * User artwork with joined artwork details
+ */
+export interface UserArtworkWithDetails extends UserArtwork {
+  name: string
+  display_name: string
+  description: string
+  image_url: string
+  unlock_cost: number
+  reveal_cost: number
+}
+
+/**
+ * Weekly emotional summary (Risalah Mingguan)
+ */
+export interface WeeklySummary {
+  id: string
+  user_id: string
+  week_start: string
+  week_end: string
+  summary: string
+  session_count: number
+  message_count: number
+  emotions: Array<string>
+  created_at: string
 }
