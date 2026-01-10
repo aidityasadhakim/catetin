@@ -5,10 +5,16 @@ export default function Hero() {
     <section className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-cream px-4 py-20">
       
       {/* Background Elements */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/assets/images/hero-writing.jpg" 
+          alt="Renaissance writing" 
+          className="w-full h-full object-cover opacity-20"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/80 to-cream" />
+      </div>
+      
       <div className="absolute inset-0 z-0 opacity-5 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--color-gold)_0%,_transparent_70%)]" />
-      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" 
-           style={{ backgroundImage: 'linear-gradient(#1A1A1A 1px, transparent 1px), linear-gradient(90deg, #1A1A1A 1px, transparent 1px)', backgroundSize: '40px 40px' }} 
-      />
       
       {/* Renaissance Ornaments */}
       <img src="/renaissance-ornament.svg" alt="" className="absolute top-0 left-0 w-32 h-32 md:w-48 md:h-48 opacity-20 transform -scale-x-100 pointer-events-none" />

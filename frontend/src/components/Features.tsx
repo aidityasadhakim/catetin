@@ -36,10 +36,13 @@ export default function Features() {
 
         {/* Visual Showcase (Abstract App Interface) */}
         <div className="flex-1 w-full relative">
-           {/* Decorative Grid */}
+           {/* Decorative Grid and Image */}
+           <div className="absolute -inset-10 z-0">
+              <img src="/assets/images/statues.jpg" alt="" className="w-full h-full object-cover opacity-10 mix-blend-multiply" />
+           </div>
            <div className="absolute -inset-4 border-2 border-black/5 z-0" style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.1 }} />
 
-           <div className="relative bg-cream border-2 border-black p-4 shadow-[8px_8px_0_#1A1A1A] max-w-md mx-auto transform rotate-1 hover:rotate-0 transition-transform duration-500">
+           <div className="relative bg-cream border-2 border-black p-4 shadow-[8px_8px_0_#1A1A1A] max-w-md mx-auto transform rotate-1 hover:rotate-0 transition-transform duration-500 z-10">
               
               {/* Fake Browser Header */}
               <div className="border-b-2 border-black pb-2 mb-4 flex justify-between items-center">

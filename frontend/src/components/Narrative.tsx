@@ -38,12 +38,12 @@ export default function Narrative() {
           {/* Step 1: Refleksi */}
           <div className="narrative-step opacity-0 transition-all duration-700">
              <div className="flex flex-col items-center text-center">
-                <div className="w-24 h-24 bg-cream border-2 border-black flex items-center justify-center mb-6 relative">
-                   <span className="font-display text-4xl">I</span>
+                <div className="w-24 h-24 bg-cream border-2 border-black flex items-center justify-center mb-6 relative p-6">
+                   <img src="/assets/icons/quill-ink.svg" alt="Refleksi" className="w-full h-full object-contain opacity-80" />
                    <div className="absolute top-0 right-0 w-2 h-2 bg-gold" />
                 </div>
                 <h3 className="font-heading text-xl mb-4">Refleksi</h3>
-                <Card variant="parchment" className="text-sm p-6 w-full min-h-[160px] flex items-center justify-center">
+                <Card variant="parchment" className="text-sm p-6 w-full min-h-[160px] flex items-center justify-center bg-[url('/assets/images/journal-detail.jpg')] bg-cover bg-center bg-blend-overlay bg-white/90">
                   "Writing is the painting of the voice."
                 </Card>
                 <p className="mt-6 font-body text-slate">
@@ -55,8 +55,8 @@ export default function Narrative() {
           {/* Step 2: Persembahan */}
           <div className="narrative-step opacity-0 transition-all duration-700 delay-200">
              <div className="flex flex-col items-center text-center">
-                <div className="w-24 h-24 bg-cream border-2 border-black flex items-center justify-center mb-6 relative">
-                   <span className="font-display text-4xl">II</span>
+                <div className="w-24 h-24 bg-cream border-2 border-black flex items-center justify-center mb-6 relative p-6">
+                   <img src="/assets/icons/book-open.svg" alt="Persembahan" className="w-full h-full object-contain opacity-80" />
                    <div className="absolute top-0 right-0 w-2 h-2 bg-coral" />
                 </div>
                 <h3 className="font-heading text-xl mb-4">Persembahan</h3>
@@ -76,13 +76,13 @@ export default function Narrative() {
           {/* Step 3: Mahakarya */}
           <div className="narrative-step opacity-0 transition-all duration-700 delay-400">
              <div className="flex flex-col items-center text-center">
-                <div className="w-24 h-24 bg-cream border-2 border-black flex items-center justify-center mb-6 relative">
-                   <span className="font-display text-4xl">III</span>
+                <div className="w-24 h-24 bg-cream border-2 border-black flex items-center justify-center mb-6 relative p-6">
+                   <img src="/assets/icons/palette.svg" alt="Mahakarya" className="w-full h-full object-contain opacity-80" />
                    <div className="absolute top-0 right-0 w-2 h-2 bg-navy" />
                 </div>
                 <h3 className="font-heading text-xl mb-4">Mahakarya</h3>
                 <Card variant="default" className="p-2 w-full min-h-[160px] bg-navy text-ivory flex items-center justify-center overflow-hidden relative">
-                   <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1578301978693-85ea400056e4?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-40 mix-blend-luminosity hover:opacity-100 transition-opacity duration-700" />
+                   <div className="absolute inset-0 bg-[url('/assets/images/art-gallery.jpg')] bg-cover bg-center opacity-40 mix-blend-luminosity hover:opacity-100 transition-opacity duration-700" />
                    <div className="relative z-10 font-heading text-2xl text-gold drop-shadow-lg">Reveal</div>
                 </Card>
                 <p className="mt-6 font-body text-slate">
