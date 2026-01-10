@@ -5,11 +5,22 @@
  * Import hooks from here, not from individual files.
  *
  * @example
- * import { useUserStats, useSessions } from '@/hooks'
+ * import { useUserStats, useSessions, useSession } from '@/hooks'
  */
 
 // User gamification stats
 export { useUserStats } from './useUserStats'
+
+// Sessions (journaling conversations)
+export {
+  useCreateSession,
+  useSessions,
+  useSession,
+  useUpdateSession,
+} from './useSessions'
+
+// Messages (within sessions)
+export { useMessages, useSendMessage } from './useMessages'
 
 // Re-export types for convenience
 export type {
