@@ -277,3 +277,31 @@ export interface WeeklySummary {
   emotions: Array<string>
   created_at: string
 }
+
+/**
+ * Rewards earned from a session
+ */
+export interface SessionRewards {
+  tinta_emas: number
+  marmer: number
+  new_streak: number
+}
+
+/**
+ * Response from the AI respond endpoint
+ */
+export interface AIRespondResponse {
+  message: Message
+  turn_number: number
+  is_complete: boolean
+  rewards: SessionRewards | null
+  user_message: Message
+}
+
+/**
+ * Response from starting a new session with AI
+ */
+export interface StartSessionResponse {
+  session: Session
+  opening_message: Message | null
+}

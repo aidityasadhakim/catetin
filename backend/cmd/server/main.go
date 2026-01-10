@@ -74,11 +74,7 @@ func main() {
 	}
 
 	// Create handler with dependencies
-	h := handlers.New(queries)
-
-	// Store services for later use (will be integrated with handlers)
-	_ = pujanggaService     // TODO: Wire into handlers when chat endpoints are added
-	_ = gamificationService // TODO: Wire into handlers when session endpoints are implemented
+	h := handlers.New(queries, pujanggaService, gamificationService)
 
 	e := echo.New()
 

@@ -7,8 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	"catetin/backend/internal/ai"
 	"catetin/backend/internal/db"
 	"catetin/backend/internal/middleware"
+	"catetin/backend/internal/services"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -17,13 +19,17 @@ import (
 
 // Handler holds dependencies for HTTP handlers
 type Handler struct {
-	queries *db.Queries
+	queries      *db.Queries
+	pujangga     *ai.PujanggaService
+	gamification *services.GamificationService
 }
 
 // New creates a new Handler with the given dependencies
-func New(queries *db.Queries) *Handler {
+func New(queries *db.Queries, pujangga *ai.PujanggaService, gamification *services.GamificationService) *Handler {
 	return &Handler{
-		queries: queries,
+		queries:      queries,
+		pujangga:     pujangga,
+		gamification: gamification,
 	}
 }
 
@@ -350,5 +356,247 @@ func (h *Handler) ListMessages(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"messages": messages,
+	})
+}
+
+// ==================== AI RESPONSE ====================
+
+// RespondRequest is the request body for AI response
+type RespondRequest struct {
+	Content string `json:"content"` // User's message content
+}
+
+// RespondResponse is the response from AI
+type RespondResponse struct {
+	Message     db.Message `json:"message"`      // The AI's response message
+	TurnNumber  int        `json:"turn_number"`  // Current turn (1, 2, or 3)
+	IsComplete  bool       `json:"is_complete"`  // Whether this was the final turn
+	Rewards     *Rewards   `json:"rewards"`      // Rewards earned (only on turn 3)
+	UserMessage db.Message `json:"user_message"` // The saved user message
+}
+
+// Rewards represents gamification rewards earned
+type Rewards struct {
+	TintaEmas int32 `json:"tinta_emas"`
+	Marmer    int32 `json:"marmer"`
+	NewStreak int32 `json:"new_streak"`
+}
+
+// Respond generates an AI response for the user's message
+func (h *Handler) Respond(c echo.Context) error {
+	userID, err := middleware.RequireUserID(c)
+	if err != nil {
+		return err
+	}
+
+	// Check if AI service is available
+	if h.pujangga == nil {
+		return echo.NewHTTPError(http.StatusServiceUnavailable, "AI service is not configured")
+	}
+
+	sessionID := c.Param("id")
+	if sessionID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "session id is required")
+	}
+
+	// Parse session UUID
+	var sessionUUID pgtype.UUID
+	if err := sessionUUID.Scan(sessionID); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid session id")
+	}
+
+	// Verify session belongs to user and get session info
+	session, err := h.queries.GetSessionByID(c.Request().Context(), db.GetSessionByIDParams{
+		ID:     sessionUUID,
+		UserID: userID,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusNotFound, "session not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get session")
+	}
+
+	// Check if session is still active
+	if session.Status != "active" {
+		return echo.NewHTTPError(http.StatusBadRequest, "session is no longer active")
+	}
+
+	// Parse request body
+	var req RespondRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
+	}
+
+	if req.Content == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "content is required")
+	}
+
+	ctx := c.Request().Context()
+
+	// Save the user's message first
+	userMessage, err := h.queries.CreateMessage(ctx, db.CreateMessageParams{
+		SessionID: sessionUUID,
+		Role:      "user",
+		Content:   req.Content,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to save user message")
+	}
+
+	// Increment message count
+	_, _ = h.queries.IncrementSessionMessages(ctx, sessionUUID)
+
+	// Get existing messages to build conversation history
+	existingMessages, err := h.queries.ListMessagesBySession(ctx, sessionUUID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get conversation history")
+	}
+
+	// Convert to AI message format
+	aiMessages := make([]ai.Message, len(existingMessages))
+	for i, msg := range existingMessages {
+		aiMessages[i] = ai.Message{
+			Role:    msg.Role,
+			Content: msg.Content,
+		}
+	}
+
+	// Calculate turn number (user messages count as turns)
+	userMessageCount := 0
+	for _, msg := range existingMessages {
+		if msg.Role == "user" {
+			userMessageCount++
+		}
+	}
+	turnNumber := userMessageCount // This includes the message we just added
+
+	// Generate AI response
+	aiResponse, err := h.pujangga.GenerateResponse(ctx, aiMessages, turnNumber)
+	if err != nil {
+		c.Logger().Errorf("AI response error: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate AI response")
+	}
+
+	// Save the AI's response
+	aiMessage, err := h.queries.CreateMessage(ctx, db.CreateMessageParams{
+		SessionID: sessionUUID,
+		Role:      "assistant",
+		Content:   aiResponse.Message,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to save AI response")
+	}
+
+	// Increment message count for AI message
+	_, _ = h.queries.IncrementSessionMessages(ctx, sessionUUID)
+
+	// Check if this is the final turn (turn 3)
+	isComplete := turnNumber >= 3
+	var rewards *Rewards
+
+	if isComplete {
+		// End the session
+		_, err = h.queries.EndSession(ctx, db.EndSessionParams{
+			ID:     sessionUUID,
+			Status: "completed",
+			UserID: userID,
+		})
+		if err != nil {
+			c.Logger().Errorf("failed to end session: %v", err)
+		}
+
+		// Calculate rewards if gamification service is available
+		if h.gamification != nil {
+			// Count total words from user messages
+			totalWords := 0
+			for _, msg := range existingMessages {
+				if msg.Role == "user" {
+					totalWords += services.CountWords(msg.Content)
+				}
+			}
+
+			calculatedRewards, err := h.gamification.CalculateRewards(ctx, userID, totalWords)
+			if err != nil {
+				c.Logger().Errorf("failed to calculate rewards: %v", err)
+			} else {
+				// Apply rewards
+				_, err = h.gamification.ApplyRewards(ctx, userID, calculatedRewards)
+				if err != nil {
+					c.Logger().Errorf("failed to apply rewards: %v", err)
+				} else {
+					rewards = &Rewards{
+						TintaEmas: calculatedRewards.TintaEmas,
+						Marmer:    calculatedRewards.Marmer,
+						NewStreak: calculatedRewards.NewStreak,
+					}
+
+					// Add earned golden ink to session
+					_, _ = h.gamification.AddSessionReward(ctx, sessionUUID, calculatedRewards.TintaEmas)
+				}
+			}
+		}
+	}
+
+	return c.JSON(http.StatusOK, RespondResponse{
+		Message:     aiMessage,
+		TurnNumber:  turnNumber,
+		IsComplete:  isComplete,
+		Rewards:     rewards,
+		UserMessage: userMessage,
+	})
+}
+
+// StartSession creates a new session and generates the opening AI message
+func (h *Handler) StartSession(c echo.Context) error {
+	userID, err := middleware.RequireUserID(c)
+	if err != nil {
+		return err
+	}
+
+	// Check if AI service is available
+	if h.pujangga == nil {
+		return echo.NewHTTPError(http.StatusServiceUnavailable, "AI service is not configured")
+	}
+
+	ctx := c.Request().Context()
+
+	// Create new session
+	session, err := h.queries.CreateSession(ctx, userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create session")
+	}
+
+	// Generate opening message from AI
+	openingResponse, err := h.pujangga.GenerateOpeningMessage(ctx)
+	if err != nil {
+		c.Logger().Errorf("failed to generate opening message: %v", err)
+		// Still return the session, just without an opening message
+		return c.JSON(http.StatusCreated, map[string]interface{}{
+			"session":         session,
+			"opening_message": nil,
+		})
+	}
+
+	// Save the opening message
+	openingMessage, err := h.queries.CreateMessage(ctx, db.CreateMessageParams{
+		SessionID: session.ID,
+		Role:      "assistant",
+		Content:   openingResponse.Message,
+	})
+	if err != nil {
+		c.Logger().Errorf("failed to save opening message: %v", err)
+		return c.JSON(http.StatusCreated, map[string]interface{}{
+			"session":         session,
+			"opening_message": nil,
+		})
+	}
+
+	// Increment message count
+	_, _ = h.queries.IncrementSessionMessages(ctx, session.ID)
+
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"session":         session,
+		"opening_message": openingMessage,
 	})
 }

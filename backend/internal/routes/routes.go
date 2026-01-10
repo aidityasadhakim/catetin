@@ -29,6 +29,7 @@ func Register(e *echo.Echo, h *handlers.Handler) {
 
 	// Sessions
 	api.POST("/sessions", h.CreateSession)
+	api.POST("/sessions/start", h.StartSession) // Creates session with AI opening
 	api.GET("/sessions", h.ListSessions)
 	api.GET("/sessions/:id", h.GetSession)
 	api.PUT("/sessions/:id", h.UpdateSession)
@@ -36,4 +37,7 @@ func Register(e *echo.Echo, h *handlers.Handler) {
 	// Messages
 	api.POST("/sessions/:id/messages", h.CreateMessage)
 	api.GET("/sessions/:id/messages", h.ListMessages)
+
+	// AI Response
+	api.POST("/sessions/:id/respond", h.Respond)
 }

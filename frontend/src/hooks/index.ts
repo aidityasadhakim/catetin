@@ -5,7 +5,7 @@
  * Import hooks from here, not from individual files.
  *
  * @example
- * import { useUserStats, useSessions, useSession } from '@/hooks'
+ * import { useUserStats, useSessions, useSession, useAIRespond } from '@/hooks'
  */
 
 // User gamification stats
@@ -22,6 +22,9 @@ export {
 // Messages (within sessions)
 export { useMessages, useSendMessage } from './useMessages'
 
+// AI interactions (Sang Pujangga)
+export { useStartSession, useAIRespond } from './useAI'
+
 // Re-export types for convenience
 export type {
   UserStats,
@@ -33,6 +36,9 @@ export type {
   UserArtworkStatus,
   UserArtworkWithDetails,
   WeeklySummary,
+  SessionRewards,
+  AIRespondResponse,
+  StartSessionResponse,
 } from '../lib/api'
 
 // Re-export apiKeys for custom queries
