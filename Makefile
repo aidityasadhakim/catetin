@@ -1,3 +1,9 @@
+# Load .env file if it exists
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
+
 .PHONY: help dev dev-detach down logs logs-service restart status \
 	db-migrate db-rollback db-status db-reset db-shell \
 	sqlc clean clean-volumes shell-frontend frontend-install

@@ -1,0 +1,780 @@
+{
+  "meta": {
+    "name": "Catetin Design System",
+    "version": "1.1.0",
+    "description": "Renaissance meets Modern Brutalism - a 'Grand Archive' aesthetic for journaling",
+    "aesthetic": "Modern Classic - Classical Renaissance visuals with clean brutalist UI patterns"
+  },
+
+  "designPhilosophy": {
+    "avoid": {
+      "colors": ["Purple/blue gradients on white backgrounds", "Generic tech startup palettes"],
+      "fonts": ["Inter", "Roboto", "Arial", "SF Pro", "Open Sans", "system-ui"],
+      "layouts": ["Predictable hero-CTA-features-testimonials templates"],
+      "graphics": ["Generic geometric shapes", "Abstract blobs", "Stock-looking imagery"],
+      "aesthetic": "AI slop - anything that looks auto-generated or templated"
+    },
+    "embrace": {
+      "typography": "Distinctive font pairings with character",
+      "colors": "Bold, unexpected accent colors used sparingly",
+      "layouts": "Scroll-triggered reveals, narrative-driven sections",
+      "imagery": "Textured, high-contrast, purposeful visuals",
+      "brutalistElements": "Technical UI patterns, data displays, monospace labels"
+    }
+  },
+
+  "brutalistAesthetic": {
+    "description": "Military-tech inspired brutalist design patterns for data-heavy interfaces",
+    "colors": {
+      "warmCream": "#F5E6D3",
+      "softBlue": "#D4E5ED",
+      "paleBlue": "#E8F4F8",
+      "signalOrange": "#FF6B35",
+      "systemBlack": "#1A1A1A",
+      "gridLine": "#2D2D2D"
+    },
+    "characteristics": [
+      "Sharp rectangular frames with thick borders",
+      "Uppercase monospace labels with wide letter-spacing",
+      "Technical data displays (frequencies, coordinates, status)",
+      "Asymmetric grid layouts",
+      "Concentric circle visualizations (radar/scope style)",
+      "Status indicators and system logs",
+      "Corner brackets and frame decorations"
+    ]
+  },
+
+  "colors": {
+    "primary": {
+      "cream": "#F5F0E8",
+      "ivory": "#FAF8F5",
+      "parchment": "#EDE8DD"
+    },
+    "accent": {
+      "gold": "#D4A84B",
+      "goldenLight": "#E8C97A",
+      "goldenDark": "#B8923F",
+      "coral": "#E86B4A",
+      "amber": "#C7923E"
+    },
+    "neutral": {
+      "black": "#1A1A1A",
+      "charcoal": "#2D2D2D",
+      "graphite": "#4A4A4A",
+      "slate": "#6B6B6B",
+      "stone": "#8B8B8B"
+    },
+    "renaissance": {
+      "navy": "#0F1729",
+      "deepBlue": "#1A2744",
+      "olive": "#5C6B4A",
+      "sage": "#7A8B6A",
+      "terracotta": "#C45C3E",
+      "burgundy": "#6B2D3A",
+      "forestGreen": "#2D4A3A"
+    },
+    "semantic": {
+      "success": "#5C6B4A",
+      "warning": "#D4A84B",
+      "error": "#C45C3E",
+      "info": "#1A2744"
+    },
+    "modes": {
+      "light": {
+        "background": "#F5F0E8",
+        "surface": "#FAF8F5",
+        "border": "#E0D9CC",
+        "text": "#1A1A1A",
+        "textMuted": "#6B6B6B"
+      },
+      "dark": {
+        "background": "#0F1729",
+        "surface": "#1A2744",
+        "border": "#2D3A52",
+        "text": "#FAF8F5",
+        "textMuted": "#8B8B8B"
+      }
+    }
+  },
+
+  "typography": {
+    "fonts": {
+      "heading": {
+        "family": "Cinzel, 'Times New Roman', serif",
+        "description": "Elegant serif for headers - Renaissance feel"
+      },
+      "display": {
+        "family": "'PP Editorial New', 'Playfair Display', Georgia, serif",
+        "description": "Large display serif for hero headlines - thin weight, elegant curves"
+      },
+      "body": {
+        "family": "Lora, Georgia, serif",
+        "description": "Readable serif for body text - warm and literary"
+      },
+      "mono": {
+        "family": "'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace",
+        "description": "Technical monospace for stats, labels, metadata, system displays"
+      },
+      "accent": {
+        "family": "Merriweather, serif",
+        "description": "Alternative serif for quotes and special text"
+      }
+    },
+    "scale": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem",
+      "5xl": "3rem",
+      "6xl": "3.75rem",
+      "hero": "4.5rem"
+    },
+    "lineHeight": {
+      "tight": "1.2",
+      "normal": "1.5",
+      "relaxed": "1.75",
+      "loose": "2"
+    },
+    "letterSpacing": {
+      "tight": "-0.025em",
+      "normal": "0",
+      "wide": "0.05em",
+      "wider": "0.1em",
+      "widest": "0.2em"
+    },
+    "styles": {
+      "heroTitle": {
+        "fontFamily": "heading",
+        "fontSize": "hero",
+        "fontWeight": "400",
+        "letterSpacing": "tight",
+        "lineHeight": "tight"
+      },
+      "displayTitle": {
+        "description": "Large thin serif for hero headlines (like 'Scaling national intelligence networks')",
+        "fontFamily": "display",
+        "fontSize": "clamp(2.5rem, 5vw, 4rem)",
+        "fontWeight": "300",
+        "letterSpacing": "-0.02em",
+        "lineHeight": "1.1"
+      },
+      "sectionTitle": {
+        "fontFamily": "heading",
+        "fontSize": "3xl",
+        "fontWeight": "400",
+        "letterSpacing": "wide",
+        "textTransform": "none"
+      },
+      "label": {
+        "fontFamily": "mono",
+        "fontSize": "xs",
+        "fontWeight": "400",
+        "letterSpacing": "widest",
+        "textTransform": "uppercase"
+      },
+      "technicalLabel": {
+        "description": "System labels like 'ADVANCED RESEARCH UNIT' or 'AI-OPS INFRASTRUCTURE'",
+        "fontFamily": "mono",
+        "fontSize": "xs",
+        "fontWeight": "500",
+        "letterSpacing": "0.15em",
+        "textTransform": "uppercase",
+        "color": "neutral.graphite"
+      },
+      "body": {
+        "fontFamily": "body",
+        "fontSize": "base",
+        "fontWeight": "400",
+        "lineHeight": "relaxed"
+      },
+      "quote": {
+        "fontFamily": "accent",
+        "fontSize": "lg",
+        "fontWeight": "400",
+        "fontStyle": "italic",
+        "lineHeight": "relaxed"
+      },
+      "dataValue": {
+        "description": "Large numeric values like '98%' or '300.733'",
+        "fontFamily": "display",
+        "fontSize": "clamp(3rem, 8vw, 6rem)",
+        "fontWeight": "300",
+        "lineHeight": "1",
+        "letterSpacing": "-0.02em"
+      }
+    }
+  },
+
+  "spacing": {
+    "unit": "0.25rem",
+    "scale": {
+      "0": "0",
+      "1": "0.25rem",
+      "2": "0.5rem",
+      "3": "0.75rem",
+      "4": "1rem",
+      "5": "1.25rem",
+      "6": "1.5rem",
+      "8": "2rem",
+      "10": "2.5rem",
+      "12": "3rem",
+      "16": "4rem",
+      "20": "5rem",
+      "24": "6rem",
+      "32": "8rem"
+    }
+  },
+
+  "layout": {
+    "container": {
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px",
+      "xl": "1280px"
+    },
+    "grid": {
+      "columns": 12,
+      "gap": "1.5rem",
+      "margin": "2rem"
+    },
+    "breakpoints": {
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px",
+      "xl": "1280px",
+      "2xl": "1536px"
+    },
+    "asymmetricGrid": {
+      "description": "Split layout with content and data visualization",
+      "leftPanel": "55%",
+      "rightPanel": "45%",
+      "gap": "0",
+      "divider": "2px solid #1A1A1A"
+    },
+    "framedSection": {
+      "description": "Section with decorative border frame",
+      "border": "2px solid #1A1A1A",
+      "padding": "spacing.8",
+      "margin": "spacing.4"
+    }
+  },
+
+  "borders": {
+    "width": {
+      "thin": "1px",
+      "medium": "2px",
+      "thick": "3px"
+    },
+    "radius": {
+      "none": "0",
+      "sm": "0.25rem",
+      "md": "0.5rem",
+      "lg": "1rem",
+      "xl": "1.5rem",
+      "full": "9999px"
+    },
+    "style": {
+      "default": "solid",
+      "decorative": "double"
+    }
+  },
+
+  "shadows": {
+    "none": "none",
+    "sm": "0 1px 2px rgba(26, 26, 26, 0.05)",
+    "md": "0 4px 6px rgba(26, 26, 26, 0.07)",
+    "lg": "0 10px 15px rgba(26, 26, 26, 0.1)",
+    "xl": "0 20px 25px rgba(26, 26, 26, 0.15)",
+    "inner": "inset 0 2px 4px rgba(26, 26, 26, 0.06)",
+    "glow": {
+      "gold": "0 0 20px rgba(212, 168, 75, 0.3)",
+      "subtle": "0 0 40px rgba(212, 168, 75, 0.15)"
+    }
+  },
+
+  "effects": {
+    "blur": {
+      "sm": "4px",
+      "md": "8px",
+      "lg": "16px",
+      "xl": "24px"
+    },
+    "opacity": {
+      "muted": "0.6",
+      "subtle": "0.4",
+      "faint": "0.2"
+    }
+  },
+
+  "animation": {
+    "duration": {
+      "fast": "150ms",
+      "normal": "300ms",
+      "slow": "500ms",
+      "ritual": "1000ms",
+      "reveal": "2000ms"
+    },
+    "easing": {
+      "default": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "smooth": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      "dramatic": "cubic-bezier(0.7, 0, 0.3, 1)",
+      "bounce": "cubic-bezier(0.34, 1.56, 0.64, 1)"
+    },
+    "keyframes": {
+      "fadeIn": "opacity 0 -> 1",
+      "goldenReveal": "opacity + glow effect for art revelation",
+      "floatGentle": "subtle vertical movement for ethereal elements"
+    },
+    "patterns": {
+      "pageLoad": {
+        "description": "Orchestrated reveal sequence on page load",
+        "stagger": ["0ms", "200ms", "400ms", "600ms"],
+        "technique": "Use animation-delay for staggered reveals"
+      },
+      "scroll": {
+        "description": "Fade-in-up with subtle parallax on key visuals",
+        "technique": "Intersection Observer API",
+        "transform": "translateY(20px) -> translateY(0)",
+        "opacity": "0 -> 1"
+      },
+      "hover": {
+        "description": "Scale transforms, color transitions, underline animations",
+        "scale": "1 -> 1.02",
+        "duration": "normal"
+      },
+      "interactive": {
+        "description": "Cursor-following effects, magnetic buttons",
+        "magneticStrength": "0.3"
+      },
+      "ambient": {
+        "description": "Subtle background motion - floating particles, gradient shifts",
+        "technique": "CSS keyframes with long durations (10s+)"
+      }
+    }
+  },
+
+  "components": {
+    "button": {
+      "primary": {
+        "background": "accent.coral",
+        "text": "neutral.black",
+        "border": "none",
+        "borderRadius": "borders.radius.lg",
+        "padding": "spacing.4 spacing.8",
+        "font": "typography.styles.label"
+      },
+      "brutalist": {
+        "description": "Sharp-edged CTA button with thick border",
+        "background": "#FF6B35",
+        "text": "#1A1A1A",
+        "border": "3px solid #1A1A1A",
+        "borderRadius": "0",
+        "padding": "spacing.4 spacing.8",
+        "font": "mono",
+        "fontSize": "sm",
+        "fontWeight": "600",
+        "letterSpacing": "0.1em",
+        "textTransform": "uppercase",
+        "hover": {
+          "background": "#E85A2A",
+          "transform": "translate(-2px, -2px)",
+          "boxShadow": "4px 4px 0 #1A1A1A"
+        }
+      },
+      "secondary": {
+        "background": "transparent",
+        "text": "neutral.black",
+        "border": "borders.width.medium neutral.black",
+        "borderRadius": "borders.radius.lg"
+      },
+      "ghost": {
+        "background": "transparent",
+        "text": "neutral.black",
+        "border": "none"
+      }
+    },
+    "card": {
+      "default": {
+        "background": "modes.light.surface",
+        "border": "borders.width.thin modes.light.border",
+        "borderRadius": "borders.radius.lg",
+        "shadow": "shadows.sm",
+        "padding": "spacing.6"
+      },
+      "parchment": {
+        "description": "Warm literary card for journaling and reflection content",
+        "background": "primary.parchment",
+        "color": "neutral.charcoal",
+        "border": "borders.width.thin modes.light.border",
+        "borderRadius": "borders.radius.md",
+        "padding": "spacing.8",
+        "shadow": "shadows.inner",
+        "fontFamily": "typography.fonts.accent",
+        "fontStyle": "italic",
+        "lineHeight": "typography.lineHeight.relaxed"
+      },
+      "technicalPanel": {
+        "description": "Brutalist panel with corner frame decorations",
+        "background": "#F5E6D3",
+        "border": "2px solid #1A1A1A",
+        "borderRadius": "0",
+        "padding": "spacing.6",
+        "position": "relative",
+        "cornerBrackets": true
+      },
+      "dataPanel": {
+        "description": "Panel for displaying system data and stats",
+        "background": "#E8F4F8",
+        "border": "1px solid #2D2D2D",
+        "borderRadius": "0",
+        "padding": "spacing.4",
+        "font": "mono"
+      }
+    },
+    "input": {
+      "background": "modes.light.surface",
+      "border": "borders.width.thin modes.light.border",
+      "borderRadius": "borders.radius.md",
+      "padding": "spacing.4",
+      "font": "typography.fonts.body"
+    },
+    "badge": {
+      "font": "typography.styles.label",
+      "padding": "spacing.1 spacing.3",
+      "borderRadius": "borders.radius.sm"
+    },
+    "statusIndicator": {
+      "description": "System status dot with label",
+      "dotSize": "8px",
+      "dotColors": {
+        "online": "#5C6B4A",
+        "stable": "#5C6B4A",
+        "warning": "#D4A84B",
+        "error": "#C45C3E",
+        "offline": "#6B6B6B"
+      },
+      "font": "mono",
+      "fontSize": "xs",
+      "textTransform": "uppercase"
+    },
+    "frequencyDisplay": {
+      "description": "Technical frequency/coordinate display",
+      "font": "mono",
+      "fontSize": "2xl",
+      "fontWeight": "400",
+      "letterSpacing": "0.05em",
+      "border": "1px solid #1A1A1A",
+      "padding": "spacing.2 spacing.4",
+      "background": "#FAF8F5"
+    },
+    "systemLog": {
+      "description": "Monospace log entries with status prefixes",
+      "font": "mono",
+      "fontSize": "xs",
+      "lineHeight": "relaxed",
+      "entries": {
+        "success": "# prefix",
+        "info": "> prefix",
+        "warning": "! prefix"
+      }
+    },
+    "heroStat": {
+      "description": "Large display stat with label",
+      "value": {
+        "font": "heading",
+        "fontSize": "hero",
+        "fontWeight": "300",
+        "lineHeight": "1",
+        "color": "neutral.black"
+      },
+      "label": {
+        "font": "mono",
+        "fontSize": "sm",
+        "letterSpacing": "0.1em",
+        "textTransform": "uppercase",
+        "color": "neutral.graphite"
+      }
+    },
+    "dividerLine": {
+      "description": "Decorative separator with slash",
+      "style": "1px solid",
+      "color": "neutral.black",
+      "slashDecoration": "/ character between sections"
+    },
+    "navLink": {
+      "font": "mono",
+      "fontSize": "sm",
+      "letterSpacing": "0.05em",
+      "textTransform": "capitalize",
+      "color": "neutral.black",
+      "hover": {
+        "textDecoration": "underline",
+        "textUnderlineOffset": "4px"
+      }
+    }
+  },
+
+  "patterns": {
+    "decorativeBorder": {
+      "description": "Double-line border for Renaissance feel",
+      "style": "double",
+      "width": "4px",
+      "color": "neutral.charcoal"
+    },
+    "cornerOrnament": {
+      "description": "Decorative corners for cards and frames",
+      "size": "24px"
+    },
+    "gridOverlay": {
+      "description": "Subtle grid for technical/brutalist feel",
+      "opacity": "0.05",
+      "size": "20px"
+    },
+    "frameCorners": {
+      "description": "L-shaped corner brackets for brutalist framing",
+      "style": "Corner brackets using ::before/::after pseudo-elements",
+      "strokeWidth": "2px",
+      "size": "12px",
+      "color": "neutral.black"
+    },
+    "statusBar": {
+      "description": "Top banner with system status information",
+      "background": "neutral.black",
+      "text": "primary.cream",
+      "font": "mono",
+      "fontSize": "xs",
+      "letterSpacing": "widest",
+      "textTransform": "uppercase",
+      "padding": "spacing.2 spacing.4"
+    },
+    "technicalLabel": {
+      "description": "Uppercase monospace labels for data points",
+      "font": "mono",
+      "fontSize": "xs",
+      "letterSpacing": "0.15em",
+      "textTransform": "uppercase",
+      "color": "neutral.graphite"
+    },
+    "dataDisplay": {
+      "description": "Large numeric displays for stats",
+      "font": "heading",
+      "fontSize": "6xl",
+      "fontWeight": "300",
+      "lineHeight": "tight",
+      "color": "neutral.black"
+    },
+    "scopeVisualization": {
+      "description": "Concentric circles radar/scope style display",
+      "circles": ["100%", "75%", "50%", "25%"],
+      "strokeWidth": "1px",
+      "strokeColor": "neutral.slate",
+      "crosshairColor": "accent.coral",
+      "scanlineColor": "renaissance.deepBlue"
+    }
+  },
+
+  "uiLabels": {
+    "navigation": {
+      "home": "Beranda",
+      "archive": "Arsip",
+      "stats": "Jejak",
+      "gallery": "Galeri",
+      "settings": "Pengaturan"
+    },
+    "actions": {
+      "startWriting": "Mulai Menulis",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "continue": "Lanjut"
+    },
+    "resources": {
+      "goldenInk": "Tinta Emas",
+      "marble": "Marmer"
+    }
+  },
+
+  "technicalRequirements": {
+    "responsive": {
+      "approach": "Mobile-first with fluid typography",
+      "fluidType": "clamp(1rem, 2.5vw, 1.25rem)",
+      "adaptiveLayouts": "Use CSS Grid with auto-fit/auto-fill"
+    },
+    "performance": {
+      "noHeavyLibraries": true,
+      "lazyLoadImages": true,
+      "criticalCSSInline": true,
+      "fontDisplay": "swap"
+    },
+    "semantics": {
+      "useHTML5Elements": true,
+      "accessibleForms": true,
+      "properHeadingHierarchy": true
+    },
+    "scrollBehavior": {
+      "smooth": true,
+      "cssProperty": "scroll-behavior: smooth"
+    },
+    "customProperties": {
+      "useForTheming": true,
+      "prefix": "--catetin-"
+    }
+  },
+
+  "tailwindExtend": {
+    "colors": {
+      "cream": "#F5F0E8",
+      "ivory": "#FAF8F5",
+      "parchment": "#EDE8DD",
+      "gold": "#D4A84B",
+      "gold-light": "#E8C97A",
+      "gold-dark": "#B8923F",
+      "coral": "#E86B4A",
+      "navy": "#0F1729",
+      "deep-blue": "#1A2744",
+      "olive": "#5C6B4A",
+      "sage": "#7A8B6A",
+      "terracotta": "#C45C3E",
+      "burgundy": "#6B2D3A",
+      "warm-cream": "#F5E6D3",
+      "soft-blue": "#D4E5ED",
+      "pale-blue": "#E8F4F8",
+      "signal-orange": "#FF6B35"
+    },
+    "fontFamily": {
+      "heading": ["Cinzel", "Times New Roman", "serif"],
+      "display": ["PP Editorial New", "Playfair Display", "Georgia", "serif"],
+      "body": ["Lora", "Georgia", "serif"],
+      "mono": ["JetBrains Mono", "IBM Plex Mono", "Fira Code", "monospace"],
+      "accent": ["Merriweather", "serif"]
+    },
+    "animation": {
+      "fade-in": "fadeIn 0.5s ease-out forwards",
+      "fade-in-up": "fadeInUp 0.6s ease-out forwards",
+      "golden-reveal": "goldenReveal 2s ease-out forwards",
+      "float-gentle": "floatGentle 6s ease-in-out infinite"
+    },
+    "keyframes": {
+      "fadeIn": {
+        "from": { "opacity": "0" },
+        "to": { "opacity": "1" }
+      },
+      "fadeInUp": {
+        "from": { "opacity": "0", "transform": "translateY(20px)" },
+        "to": { "opacity": "1", "transform": "translateY(0)" }
+      },
+      "goldenReveal": {
+        "0%": { "opacity": "0", "filter": "blur(10px)" },
+        "50%": { "opacity": "0.5", "filter": "blur(5px)" },
+        "100%": { "opacity": "1", "filter": "blur(0)" }
+      },
+      "floatGentle": {
+        "0%, 100%": { "transform": "translateY(0)" },
+        "50%": { "transform": "translateY(-10px)" }
+      },
+      "radarSweep": {
+        "0%": { "transform": "rotate(0deg)" },
+        "100%": { "transform": "rotate(360deg)" }
+      },
+      "pulse": {
+        "0%, 100%": { "opacity": "1" },
+        "50%": { "opacity": "0.5" }
+      }
+    }
+  },
+
+  "cssUtilities": {
+    "cornerBrackets": {
+      "description": "Add L-shaped corner brackets to an element",
+      "css": {
+        "position": "relative",
+        "before": {
+          "content": "''",
+          "position": "absolute",
+          "top": "0",
+          "left": "0",
+          "width": "12px",
+          "height": "12px",
+          "borderTop": "2px solid #1A1A1A",
+          "borderLeft": "2px solid #1A1A1A"
+        },
+        "after": {
+          "content": "''",
+          "position": "absolute",
+          "bottom": "0",
+          "right": "0",
+          "width": "12px",
+          "height": "12px",
+          "borderBottom": "2px solid #1A1A1A",
+          "borderRight": "2px solid #1A1A1A"
+        }
+      }
+    },
+    "framedBox": {
+      "description": "Box with thick border frame",
+      "css": {
+        "border": "2px solid #1A1A1A",
+        "padding": "1.5rem"
+      }
+    },
+    "technicalText": {
+      "description": "Uppercase monospace technical label",
+      "css": {
+        "fontFamily": "var(--font-mono)",
+        "fontSize": "0.75rem",
+        "letterSpacing": "0.15em",
+        "textTransform": "uppercase"
+      }
+    }
+  },
+
+  "componentPatterns": {
+    "heroSection": {
+      "requirements": [
+        "Create immediate intrigue with a hook",
+        "Include interactive element demonstrating capability",
+        "Clear value proposition in 12 words or less",
+        "Primary CTA prominently placed",
+        "Trust signals visible"
+      ]
+    },
+    "narrativeSection": {
+      "requirements": [
+        "Tell a story, don't list features",
+        "Use scroll-triggered reveals for dramatic effect",
+        "Include real-world scenario visualization"
+      ]
+    },
+    "productShowcase": {
+      "requirements": [
+        "Interactive demo or animated mockup",
+        "Show the product in action visually",
+        "Technical credibility indicators"
+      ]
+    },
+    "socialProof": {
+      "requirements": [
+        "Testimonials from target personas",
+        "Metrics that matter to users",
+        "Customer grid with hover states"
+      ]
+    },
+    "conversionSection": {
+      "requirements": [
+        "Secondary CTA with urgency",
+        "Minimal form fields",
+        "Alternative action option"
+      ]
+    },
+    "footer": {
+      "requirements": [
+        "Minimal and sophisticated",
+        "Essential links only",
+        "Optional newsletter capture"
+      ]
+    }
+  }
+}

@@ -1,39 +1,35 @@
 import { createFileRoute } from '@tanstack/react-router'
-import logo from '../logo.svg'
+import Hero from '../components/Hero'
+import Narrative from '../components/Narrative'
+import Features from '../components/Features'
+import Footer from '../components/Footer'
 
 export const Route = createFileRoute('/')({
-  component: App,
+  component: LandingPage,
 })
 
-function App() {
+function LandingPage() {
   return (
-    <div className="text-center">
-      <header className="min-h-screen flex flex-col items-center justify-center bg-[#282c34] text-white text-[calc(10px+2vmin)]">
-        <img
-          src={logo}
-          className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
-          alt="logo"
-        />
-        <p>
-          Edit <code>src/routes/index.tsx</code> and save to reload.
-        </p>
-        <a
-          className="text-[#61dafb] hover:underline"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <a
-          className="text-[#61dafb] hover:underline"
-          href="https://tanstack.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn TanStack
-        </a>
-      </header>
+    <div className="bg-cream min-h-screen">
+      <Hero />
+      <Narrative />
+      <Features />
+      {/* Social Proof is integrated into Hero/Features for now to keep it concise */}
+      
+      {/* Conversion Section - Simple Final CTA */}
+      <section className="py-20 bg-navy text-ivory text-center">
+         <div className="container mx-auto px-4">
+            <h2 className="font-display text-4xl md:text-5xl mb-6">Ready to start your journey?</h2>
+            <p className="font-body text-slate mb-8 max-w-xl mx-auto">
+               Join thousands of others who have found clarity and peace through the art of reflection.
+            </p>
+            <button className="bg-gold text-navy font-mono uppercase tracking-widest px-8 py-4 rounded hover:bg-white hover:text-black transition-all transform hover:scale-105">
+               Create Free Account
+            </button>
+         </div>
+      </section>
+
+      <Footer />
     </div>
   )
 }
