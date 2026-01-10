@@ -9,6 +9,12 @@ export default function Hero() {
       <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" 
            style={{ backgroundImage: 'linear-gradient(#1A1A1A 1px, transparent 1px), linear-gradient(90deg, #1A1A1A 1px, transparent 1px)', backgroundSize: '40px 40px' }} 
       />
+      
+      {/* Renaissance Ornaments */}
+      <img src="/renaissance-ornament.svg" alt="" className="absolute top-0 left-0 w-32 h-32 md:w-48 md:h-48 opacity-20 transform -scale-x-100 pointer-events-none" />
+      <img src="/renaissance-ornament.svg" alt="" className="absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 opacity-20 pointer-events-none" />
+      <img src="/renaissance-ornament.svg" alt="" className="absolute bottom-0 left-0 w-32 h-32 md:w-48 md:h-48 opacity-20 transform -scale-x-100 -scale-y-100 pointer-events-none" />
+      <img src="/renaissance-ornament.svg" alt="" className="absolute bottom-0 right-0 w-32 h-32 md:w-48 md:h-48 opacity-20 transform -scale-y-100 pointer-events-none" />
 
       <div className="z-10 text-center max-w-4xl mx-auto space-y-8 animate-fade-in-up">
         
