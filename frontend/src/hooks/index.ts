@@ -8,6 +8,9 @@
  * import { useUserStats, useSessions, useSession, useAIRespond } from '@/hooks'
  */
 
+// Utility hooks
+export { useIsMobile } from './useIsMobile'
+
 // User gamification stats
 export { useUserStats } from './useUserStats'
 
