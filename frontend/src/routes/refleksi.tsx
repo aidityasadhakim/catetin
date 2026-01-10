@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react'
-import { useState, useRef, useEffect } from 'react'
-import { Send, Loader2, Sparkles, PenLine } from 'lucide-react'
-import { useStartSession, useAIRespond, useSession } from '../hooks'
+import { RedirectToSignIn, SignedIn, SignedOut } from '@clerk/clerk-react'
+import { useEffect, useRef, useState } from 'react'
+import { Feather, Loader2, PenLine, Send, Sparkles } from 'lucide-react'
+import ChatBackground from '../components/ChatBackground'
+import AmbientParticles from '../components/AmbientParticles'
+import { useAIRespond, useSession, useStartSession } from '../hooks'
 import type { Message, SessionRewards } from '../hooks'
 
 export const Route = createFileRoute('/refleksi')({
@@ -29,7 +31,7 @@ function JournalInterface() {
   const [turnNumber, setTurnNumber] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
   const [rewards, setRewards] = useState<SessionRewards | null>(null)
-  const [localMessages, setLocalMessages] = useState<Message[]>([])
+  const [localMessages, setLocalMessages] = useState<Array<Message>>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const { mutate: startSession, isPending: isStarting } = useStartSession()
@@ -238,12 +240,18 @@ function JournalInterface() {
 
   // Active chat session
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
-      {/* Header with turn indicator */}
-      <div className="sticky top-0 z-10 bg-cream border-b border-gold/20 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <h1 className="font-heading text-xl text-charcoal">Refleksi</h1>
-          <div className="flex items-center gap-2">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Background layers */}
+      <ChatBackground />
+      <AmbientParticles />
+
+      {/* Header with title and turn indicator */}
+      <div className="sticky top-14 z-10 bg-cream/80 backdrop-blur-sm border-b border-gold/20 px-4 py-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="font-heading text-2xl text-charcoal tracking-widest mb-2">
+            REFLEKSI
+          </h1>
+          <div className="flex items-center justify-center gap-2">
             <span className="font-mono text-xs uppercase tracking-widest text-slate">
               Giliran
             </span>
@@ -279,10 +287,10 @@ function JournalInterface() {
           {/* Typing indicator */}
           {isSending && (
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
-                <PenLine size={14} className="text-cream" />
+              <div className="w-10 h-10 rounded-full bg-navy flex items-center justify-center flex-shrink-0 shadow-md">
+                <Feather size={16} className="text-gold" />
               </div>
-              <div className="bg-ivory border border-gold/20 rounded-2xl rounded-tl-none px-4 py-3">
+              <div className="bg-ivory/90 backdrop-blur-sm border border-gold/20 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
                 <div className="flex gap-1">
                   <div className="w-2 h-2 bg-gold rounded-full animate-bounce" />
                   <div
@@ -302,10 +310,10 @@ function JournalInterface() {
         </div>
       </div>
 
-      {/* Input area */}
-      <div className="sticky bottom-0 bg-cream border-t border-gold/20 px-4 py-4">
+      {/* Input area - bottom anchored */}
+      <div className="sticky bottom-0 bg-cream/90 backdrop-blur-sm border-t border-gold/20 px-4 py-4">
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-end gap-3 bg-ivory border border-gold/30 rounded-xl p-2">
+          <div className="flex items-end gap-3 bg-ivory/90 border border-gold/30 rounded-xl p-2 shadow-sm">
             <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -322,7 +330,7 @@ function JournalInterface() {
             <button
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isSending || isComplete}
-              className="p-3 bg-navy text-cream rounded-lg hover:bg-charcoal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-3 bg-navy text-cream rounded-lg hover:bg-charcoal transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               {isSending ? (
                 <Loader2 className="animate-spin" size={20} />
@@ -349,23 +357,23 @@ function ChatMessage({ message }: { message: Message }) {
     >
       {/* Avatar */}
       <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-md ${
           isUser ? 'bg-gold' : 'bg-navy'
         }`}
       >
         {isUser ? (
-          <span className="font-mono text-xs text-navy font-bold">A</span>
+          <span className="font-mono text-sm text-navy font-bold">A</span>
         ) : (
-          <PenLine size={14} className="text-cream" />
+          <Feather size={16} className="text-gold" />
         )}
       </div>
 
       {/* Message bubble */}
       <div
-        className={`max-w-[80%] px-4 py-3 rounded-2xl ${
+        className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm ${
           isUser
             ? 'bg-gold text-navy rounded-tr-none'
-            : 'bg-ivory border border-gold/20 text-charcoal rounded-tl-none'
+            : 'bg-ivory/90 backdrop-blur-sm border border-gold/20 text-charcoal rounded-tl-none'
         }`}
       >
         <p className="font-body leading-relaxed whitespace-pre-wrap">
