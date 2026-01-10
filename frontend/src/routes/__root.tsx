@@ -1,4 +1,4 @@
-import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
+import { Outlet, createRootRouteWithContext, useLocation } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
@@ -15,10 +15,17 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  component: () => (
+  component: RootComponent,
+})
+
+function RootComponent() {
+  const location = useLocation()
+  const isLanding = location.pathname === '/'
+
+  return (
     <>
       <ClerkProvider>
-        <Header />
+        {!isLanding && <Header />}
         <Outlet />
         <TanStackDevtools
           config={{
@@ -34,5 +41,5 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         />
       </ClerkProvider>
     </>
-  ),
-})
+  )
+}
