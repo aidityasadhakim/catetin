@@ -1,35 +1,145 @@
-import { createFileRoute } from '@tanstack/react-router'
-import Hero from '../components/Hero'
-import Narrative from '../components/Narrative'
-import Features from '../components/Features'
-import Footer from '../components/Footer'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useEffect, useRef, useState } from 'react'
+import { SignedIn, SignedOut } from '@clerk/clerk-react'
+import { Loader2 } from 'lucide-react'
+import { isWebGLAvailable } from '../lib/three/webgl-detector'
+import { createSceneManager } from '../lib/three/scene-manager'
+import { createCurtainScene } from '../lib/three/curtain-scene'
 
 export const Route = createFileRoute('/')({
-  component: LandingPage,
+  component: WelcomePage,
 })
 
-function LandingPage() {
+function WelcomePage() {
   return (
-    <div className="bg-cream min-h-screen">
-      <Hero />
-      <Narrative />
-      <Features />
-      {/* Social Proof is integrated into Hero/Features for now to keep it concise */}
-      
-      {/* Conversion Section - Simple Final CTA */}
-      <section className="py-20 bg-navy text-ivory text-center">
-         <div className="container mx-auto px-4">
-            <h2 className="font-display text-4xl md:text-5xl mb-6">Ready to start your journey?</h2>
-            <p className="font-body text-slate mb-8 max-w-xl mx-auto">
-               Join thousands of others who have found clarity and peace through the art of reflection.
-            </p>
-            <button className="bg-gold text-navy font-mono uppercase tracking-widest px-8 py-4 rounded hover:bg-white hover:text-black transition-all transform hover:scale-105">
-               Create Free Account
-            </button>
-         </div>
-      </section>
+    <>
+      <SignedIn>
+        <WelcomeScene />
+      </SignedIn>
+      <SignedOut>
+        <WelcomeScene />
+      </SignedOut>
+    </>
+  )
+}
 
-      <Footer />
+function WelcomeScene() {
+  const navigate = useNavigate()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<ReturnType<typeof createSceneManager> | null>(null)
+  const curtainRef = useRef<ReturnType<typeof createCurtainScene> | null>(null)
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [webglSupported] = useState(() => isWebGLAvailable())
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+
+  // Initialize Three.js scene
+  useEffect(() => {
+    if (!containerRef.current || !webglSupported || isMobile) return
+
+    const manager = createSceneManager({
+      container: containerRef.current,
+      antialias: true,
+      alpha: true,
+    })
+    sceneRef.current = manager
+
+    const curtain = createCurtainScene(manager)
+    curtainRef.current = curtain
+
+    manager.start()
+
+    // Handle resize
+    const handleResize = () => manager.onResize()
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      manager.dispose()
+    }
+  }, [webglSupported, isMobile])
+
+  const handleStart = async () => {
+    setIsLoading(true)
+
+    if (curtainRef.current) {
+      await curtainRef.current.open()
+    }
+
+    // Navigate to refleksi page
+    navigate({ to: '/refleksi' })
+  }
+
+  // Fallback for no WebGL or mobile
+  if (!webglSupported || isMobile) {
+    return (
+      <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-4">
+        <div className="max-w-md text-center">
+          <h1 className="font-heading text-5xl text-charcoal mb-6 tracking-wider">
+            CATETIN
+          </h1>
+          <p className="font-body text-slate mb-8 leading-relaxed">
+            Mulai perjalanan refleksimu hari ini.
+          </p>
+          <button
+            onClick={() => navigate({ to: '/refleksi' })}
+            className="inline-flex items-center gap-3 bg-navy text-cream font-mono uppercase tracking-widest px-8 py-4 rounded-lg hover:bg-charcoal transition-all transform hover:scale-105"
+          >
+            <span>Mulai Menulis</span>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Three.js canvas container */}
+      <div
+        ref={containerRef}
+        className="absolute inset-0"
+        style={{ background: 'linear-gradient(to bottom, #F5F0E8, #0F1729)' }}
+      />
+
+      {/* Overlay content */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+        <div className="text-center">
+          {/* Title */}
+          <h1
+            className="font-heading text-6xl md:text-8xl text-cream mb-8 tracking-[0.3em] animate-fade-in"
+            style={{
+              textShadow: '0 4px 20px rgba(0,0,0,0.5)',
+            }}
+          >
+            CATETIN
+          </h1>
+
+          {/* Subtitle */}
+          <p
+            className="font-body text-lg text-cream/80 mb-12 animate-fade-in"
+            style={{ animationDelay: '0.3s' }}
+          >
+            Persembahan untuk perjalanan jiwamu
+          </p>
+
+          {/* CTA Button */}
+          <button
+            onClick={handleStart}
+            disabled={isLoading}
+            className="inline-flex items-center gap-3 bg-gold text-navy font-mono uppercase tracking-widest px-10 py-5 rounded-lg hover:bg-gold-light transition-all transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed animate-fade-in shadow-lg"
+            style={{ animationDelay: '0.6s' }}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin" size={20} />
+                <span>Membuka...</span>
+              </>
+            ) : (
+              <span>Mulai Menulis</span>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
