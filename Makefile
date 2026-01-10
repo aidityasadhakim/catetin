@@ -110,12 +110,12 @@ frontend-build:
 prod-up:
 	@echo "⚠️  Starting production..."
 	@echo "⚠️  Ensure DNS is configured!"
-	cd deploy/prod && docker compose --env-file ../../.env up --build -d
+	cd deploy/prod && docker compose -p catetin-prod --env-file ../../.env up --build -d
 
 ## Stop production environment
 prod-down:
 	@echo "⚠️  Stopping production..."
-	cd deploy/prod && docker compose --env-file ../../.env down
+	cd deploy/prod && docker compose -p catetin-prod --env-file ../../.env down
 
 
 # ================================
