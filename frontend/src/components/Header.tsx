@@ -60,17 +60,22 @@ export default function Header() {
           
           <div className="my-4 border-t border-dashed border-gray-400"></div>
           
-           <div className="px-3 py-2 text-xs font-mono text-gray-500 uppercase tracking-widest">
-            Coming Soon
-          </div>
-
-          <button
-            disabled
-            className="flex w-full items-center gap-3 p-3 rounded-lg text-gray-400 cursor-not-allowed mb-2 font-mono text-sm tracking-widest uppercase"
+          <Link
+            to="/refleksi"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-parchment transition-colors mb-2 font-mono text-sm tracking-widest uppercase"
+            activeProps={{
+              className:
+                'flex items-center gap-3 p-3 rounded-lg bg-parchment transition-colors mb-2 font-mono text-sm tracking-widest uppercase border border-charcoal',
+            }}
           >
             <BookOpen size={18} />
-            <span>Jurnal</span>
-          </button>
+            <span>Refleksi</span>
+          </Link>
+
+          <div className="px-3 py-2 text-xs font-mono text-gray-500 uppercase tracking-widest">
+            Coming Soon
+          </div>
 
           <button
              disabled
