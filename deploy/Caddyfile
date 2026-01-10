@@ -1,0 +1,60 @@
+# Catetin Caddyfile
+# Shared configuration for both staging and production environments
+
+{
+	email admin@catetin.aidityas.me
+	admin off
+	log {
+		output stdout
+		format json
+	}
+}
+
+# ================================
+# Production
+# ================================
+catetin.aidityas.me {
+	# Security headers
+	header {
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# API routes - proxy to Go backend
+	handle /api/* {
+		reverse_proxy localhost:8080
+	}
+
+	# Static files - serve frontend build
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Compression
+	encode gzip zstd
+}
+
+# ================================
+# Staging
+# ================================
+catetin-staging.aidityas.me {
+	# API routes - proxy to Go backend
+	handle /api/* {
+		reverse_proxy localhost:8080
+	}
+
+	# Static files - serve frontend build
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Compression
+	encode gzip zstd
+}

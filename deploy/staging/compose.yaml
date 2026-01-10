@@ -1,0 +1,78 @@
+# Catetin Staging Docker Compose
+# PostgreSQL runs on host via systemd, not containerized
+#
+# Usage:
+#   cd deploy/staging
+#   docker compose up -d
+#
+# Prerequisites:
+#   - PostgreSQL running on host (port 5432)
+#   - Frontend built: cd ../../frontend && bun run build
+#   - .env file with DATABASE_URL, CLERK_SECRET_KEY, GEMINI_API_KEY
+
+services:
+  # ================================
+  # Go Backend
+  # ================================
+  backend:
+    build:
+      context: ../../backend
+      target: prod
+    container_name: catetin-staging-backend
+    restart: unless-stopped
+    networks:
+      - catetin-staging-network
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - BACKEND_PORT=8080
+      - BACKEND_HOST=0.0.0.0
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    # Connect to host PostgreSQL
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+  # ================================
+  # Caddy (Reverse Proxy + Static Files)
+  # ================================
+  caddy:
+    image: caddy:alpine
+    container_name: catetin-staging-caddy
+    restart: unless-stopped
+    networks:
+      - catetin-staging-network
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Caddy configuration
+      - ../Caddyfile:/etc/caddy/Caddyfile:ro
+      # Frontend static files (pre-built)
+      - ../../frontend/dist:/srv:ro
+      # Persist certificates and config
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+
+networks:
+  catetin-staging-network:
+    driver: bridge
+
+volumes:
+  caddy_data:
+    name: catetin-staging-caddy-data
+  caddy_config:
+    name: catetin-staging-caddy-config

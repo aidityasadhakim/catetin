@@ -180,14 +180,14 @@ function JournalInterface() {
                 </div>
               ) : (
                 // Regular reward toast
-                <div className="bg-[var(--color-nature-foliage-dark)]/95 backdrop-blur-sm text-white px-5 py-3 rounded-full shadow-lg flex items-center gap-3 border border-[var(--color-earth-gold)]/50">
+                <div className="bg-[var(--color-nature-foliage-dark)]/95 dark:bg-[var(--color-nature-sunlight)]/95 backdrop-blur-sm text-white dark:text-[var(--color-nature-foliage-dark)] px-5 py-3 rounded-full shadow-lg flex items-center gap-3 border border-[var(--color-earth-gold)]/50">
                   <Sparkles className="text-[var(--color-earth-gold)]" size={18} />
                   <span className="font-mono text-sm">
                     +{lastReward.tinta_emas} Tinta Emas
                   </span>
-                  <span className="text-white/40">•</span>
+                  <span className="text-white/40 dark:text-[var(--color-nature-foliage-dark)]/40">•</span>
                   <span className="font-mono text-sm flex items-center gap-1">
-                    <Star className="text-[var(--color-nature-sunlight)]" size={14} />
+                    <Star className="text-[var(--color-nature-sunlight)] dark:text-[var(--color-nature-foliage-dark)]" size={14} />
                     +{lastReward.xp_earned} XP
                   </span>
                 </div>
