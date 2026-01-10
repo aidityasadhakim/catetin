@@ -8,21 +8,21 @@
  * - Updating session status
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@clerk/clerk-react'
 import { apiKeys, useApiClient } from '../lib/api'
-import type { Session, Message } from '../lib/api'
+import type { Message, Session } from '../lib/api'
 
 // Response types
 interface SessionsListResponse {
-  sessions: Session[]
+  sessions: Array<Session>
   limit: number
   offset: number
 }
 
 interface SessionWithMessages {
   session: Session
-  messages: Message[]
+  messages: Array<Message>
 }
 
 /**

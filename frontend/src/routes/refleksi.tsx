@@ -3,7 +3,6 @@ import { RedirectToSignIn, SignedIn, SignedOut } from '@clerk/clerk-react'
 import { useEffect, useRef, useState } from 'react'
 import { Feather, Loader2, PenLine, Send, Sparkles } from 'lucide-react'
 import ChatBackground from '../components/ChatBackground'
-import AmbientParticles from '../components/AmbientParticles'
 import { useAIRespond, useSession, useStartSession } from '../hooks'
 import type { Message, SessionRewards } from '../hooks'
 
@@ -243,7 +242,6 @@ function JournalInterface() {
     <div className="min-h-screen flex flex-col relative">
       {/* Background layers */}
       <ChatBackground />
-      <AmbientParticles />
 
       {/* Header with title and turn indicator */}
       <div className="sticky top-14 z-10 bg-cream/80 backdrop-blur-sm border-b border-gold/20 px-4 py-4">

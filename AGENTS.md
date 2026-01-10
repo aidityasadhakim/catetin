@@ -217,3 +217,4 @@ Reference `styles.json` for the complete design system. Key principles:
 - **Decorative borders:** Double-line style for Renaissance feel
 - **Data displays:** Use mono font for numbers and stats
 
+Use beads for issues tracker, see bd --help for more info

@@ -6,14 +6,14 @@
  * - Sending a new message
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@clerk/clerk-react'
 import { apiKeys, useApiClient } from '../lib/api'
 import type { Message } from '../lib/api'
 
 // Response types
 interface MessagesListResponse {
-  messages: Message[]
+  messages: Array<Message>
 }
 
 /**
@@ -36,7 +36,7 @@ export function useMessages(sessionId: string | undefined) {
 
   return useQuery({
     queryKey: [...apiKeys.session(sessionId ?? ''), 'messages'],
-    queryFn: async (): Promise<Message[]> => {
+    queryFn: async (): Promise<Array<Message>> => {
       const { data, error } = await api.get<MessagesListResponse>(
         `/api/sessions/${sessionId}/messages`
       )
@@ -99,7 +99,7 @@ export function useSendMessage() {
       })
 
       // Snapshot previous messages
-      const previousMessages = queryClient.getQueryData<Message[]>([
+      const previousMessages = queryClient.getQueryData<Array<Message>>([
         ...apiKeys.session(sessionId),
         'messages',
       ])
@@ -113,7 +113,7 @@ export function useSendMessage() {
           content,
           created_at: new Date().toISOString(),
         }
-        queryClient.setQueryData<Message[]>(
+        queryClient.setQueryData<Array<Message>>(
           [...apiKeys.session(sessionId), 'messages'],
           [...previousMessages, optimisticMessage]
         )

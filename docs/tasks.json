@@ -1,0 +1,184 @@
+{
+  "project": "catetin-app-flow-refactor",
+  "created": "2026-01-10",
+  "status": "planned",
+  "summary": "Refactor app flow to single-screen welcome with Three.js curtain animation transition to chat page, replace sidebar with navbar",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Create Navbar Component",
+      "description": "Replace existing hamburger sidebar with horizontal navbar",
+      "status": "pending",
+      "priority": "high",
+      "details": {
+        "items": ["Logo (left)", "Riwayat (center)", "Galeri (center)", "Profile via Clerk UserButton (right)"],
+        "styling": "Sticky top, minimal height, semi-transparent on chat page for immersive feel",
+        "files_to_modify": ["frontend/src/components/Header.tsx"],
+        "files_to_delete": ["Sidebar logic in Header.tsx"]
+      }
+    },
+    {
+      "id": "2",
+      "title": "Setup Three.js Infrastructure",
+      "description": "Install Three.js and create base scene utilities",
+      "status": "pending",
+      "priority": "high",
+      "details": {
+        "dependencies": ["three", "@types/three"],
+        "files_to_create": [
+          "frontend/src/lib/three/scene-manager.ts",
+          "frontend/src/lib/three/webgl-detector.ts"
+        ],
+        "considerations": [
+          "WebGL detection for fallback",
+          "Performance detection via navigator.hardwareConcurrency",
+          "Mobile detection for lighter animations"
+        ]
+      }
+    },
+    {
+      "id": "3",
+      "title": "Create Welcome Page with Curtain Scene",
+      "description": "New single-screen welcome page with Three.js curtain animation",
+      "status": "pending",
+      "priority": "high",
+      "details": {
+        "visual_elements": [
+          "Full-viewport Three.js canvas with curtain panels",
+          "Centered overlay: App title 'CATETIN', tagline, 'Mulai Menulis' button"
+        ],
+        "animation_flow": [
+          "User clicks 'Mulai Menulis'",
+          "Check auth state via Clerk useAuth",
+          "If not signed in → Clerk modal → on success continue",
+          "Trigger curtain-parting animation (1-2 seconds)",
+          "Navigate to /refleksi at animation midpoint"
+        ],
+        "fallbacks": [
+          "If WebGL not supported → CSS fade transition",
+          "If Three.js fails to load → direct navigate"
+        ],
+        "files_to_modify": ["frontend/src/routes/index.tsx"],
+        "files_to_create": [
+          "frontend/src/components/three/CurtainScene.tsx",
+          "frontend/src/components/WelcomeOverlay.tsx"
+        ],
+        "files_to_delete": [
+          "frontend/src/components/Hero.tsx",
+          "frontend/src/components/Narrative.tsx",
+          "frontend/src/components/Features.tsx",
+          "frontend/src/components/Footer.tsx"
+        ]
+      }
+    },
+    {
+      "id": "4",
+      "title": "Redesign Chat Page Background",
+      "description": "Add ethereal sky background with static decorative elements",
+      "status": "pending",
+      "priority": "high",
+      "details": {
+        "background": "Sky gradient (cream to soft blue)",
+        "static_decorations": [
+          "single-baby-angel.png - positioned at corners",
+          "three-baby-angel.png - positioned in viewport",
+          "branches.jpg - floral elements at edges",
+          "Cloud SVGs scattered"
+        ],
+        "assets_path": "frontend/public/assets/images/",
+        "files_to_modify": ["frontend/src/routes/refleksi.tsx"],
+        "files_to_create": ["frontend/src/components/ChatBackground.tsx"]
+      }
+    },
+    {
+      "id": "5",
+      "title": "Create Ambient Three.js Scene for Chat",
+      "description": "Lightweight Three.js layer for subtle ambient effects on chat page",
+      "status": "pending",
+      "priority": "medium",
+      "details": {
+        "effects": [
+          "Subtle floating particles",
+          "Gentle cloud drift animation"
+        ],
+        "performance": [
+          "Detect low-performance devices",
+          "Disable on mobile entirely",
+          "Use requestAnimationFrame with throttling"
+        ],
+        "files_to_create": ["frontend/src/components/three/AmbientScene.tsx"]
+      }
+    },
+    {
+      "id": "6",
+      "title": "Update Chat Interface Styling",
+      "description": "Match chat UI to prototype design",
+      "status": "pending",
+      "priority": "high",
+      "details": {
+        "header": "REFLEKSI title centered, GILIRAN turn indicator with 3 dots on right",
+        "messages": "AI avatar with bubble, clean minimal styling",
+        "input": "Bottom-anchored, placeholder 'Ceritakan apa yang ada di pikiranmu...', hint text below",
+        "files_to_modify": ["frontend/src/routes/refleksi.tsx"]
+      }
+    },
+    {
+      "id": "7",
+      "title": "Mobile Optimizations",
+      "description": "Ensure performant experience on mobile devices",
+      "status": "pending",
+      "priority": "medium",
+      "details": {
+        "welcome_page": "Simplified curtain animation - fade through instead of full 3D",
+        "chat_page": "Disable Three.js ambient scene entirely",
+        "navbar": "Responsive design, possibly collapse Riwayat/Galeri into menu on small screens",
+        "detection": "Use navigator.hardwareConcurrency and screen width"
+      }
+    },
+    {
+      "id": "8",
+      "title": "Cleanup Unused Components",
+      "description": "Remove old landing page components and sidebar code",
+      "status": "pending",
+      "priority": "low",
+      "details": {
+        "files_to_delete": [
+          "frontend/src/components/Hero.tsx",
+          "frontend/src/components/Narrative.tsx",
+          "frontend/src/components/Features.tsx",
+          "frontend/src/components/Footer.tsx"
+        ],
+        "code_to_remove": ["Sidebar slide-out logic in Header.tsx"]
+      }
+    }
+  ],
+  "error_handling": {
+    "threejs_fails_to_load": "Fallback to CSS fade transition",
+    "webgl_not_supported": "Skip animation, direct navigate",
+    "auth_fails_mid_flow": "Clerk handles error display, stay on welcome",
+    "session_creation_fails": "Show error toast, allow retry",
+    "mobile_low_performance": "Detect via navigator.hardwareConcurrency, use light mode"
+  },
+  "testing_strategy": {
+    "visual": "Manual testing of animation smoothness on desktop/mobile",
+    "auth_flow": "Test signed-in vs signed-out paths",
+    "fallbacks": "Disable WebGL in browser, verify graceful degradation",
+    "responsive": "Test navbar collapse behavior on mobile",
+    "performance": "Lighthouse audit for chat page with Three.js ambient scene"
+  },
+  "data_flow": {
+    "welcome_to_chat_transition": [
+      "User clicks 'Mulai Menulis'",
+      "Check auth state (Clerk useAuth)",
+      "If not signed in → Clerk sign-in modal → on success continue",
+      "Trigger Three.js curtain animation (1-2 seconds)",
+      "Navigate to /refleksi at animation midpoint (curtains fully open)",
+      "Chat page loads with session creation (existing useStartSession hook)"
+    ],
+    "navbar_state": {
+      "riwayat_galeri": "Navigate to respective routes (placeholder for now)",
+      "profile": "Clerk UserButton handles auth state and sign-out"
+    },
+    "chat_messages": "Keep existing flow: useMessages, useSendMessage, useAIRespond - no backend changes"
+  }
+}
