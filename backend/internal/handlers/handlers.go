@@ -368,11 +368,11 @@ type RespondRequest struct {
 
 // RespondResponse is the response from AI
 type RespondResponse struct {
-	Message     db.Message `json:"message"`      // The AI's response message
-	TurnNumber  int        `json:"turn_number"`  // Current turn (1, 2, or 3)
-	IsComplete  bool       `json:"is_complete"`  // Whether this was the final turn
-	Rewards     *Rewards   `json:"rewards"`      // Rewards earned (only on turn 3)
-	UserMessage db.Message `json:"user_message"` // The saved user message
+	Message      db.Message `json:"message"`       // The AI's response message
+	UserMessage  db.Message `json:"user_message"`  // The saved user message
+	MessageCount int        `json:"message_count"` // Total user messages in session
+	DepthLevel   int        `json:"depth_level"`   // Conversation depth (1=surface, 2=light, 3=deep)
+	Rewards      *Rewards   `json:"rewards"`       // Rewards earned for this message
 }
 
 // Rewards represents gamification rewards earned
@@ -447,32 +447,41 @@ func (h *Handler) Respond(c echo.Context) error {
 	// Increment message count
 	_, _ = h.queries.IncrementSessionMessages(ctx, sessionUUID)
 
-	// Get existing messages to build conversation history
-	existingMessages, err := h.queries.ListMessagesBySession(ctx, sessionUUID)
+	// Get only the last 6 messages for sliding context (3 exchanges = 6 messages)
+	recentMessages, err := h.queries.GetRecentMessages(ctx, db.GetRecentMessagesParams{
+		SessionID: sessionUUID,
+		Limit:     6,
+	})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get conversation history")
 	}
 
+	// Reverse to get chronological order (query returns DESC)
+	for i, j := 0, len(recentMessages)-1; i < j; i, j = i+1, j-1 {
+		recentMessages[i], recentMessages[j] = recentMessages[j], recentMessages[i]
+	}
+
 	// Convert to AI message format
-	aiMessages := make([]ai.Message, len(existingMessages))
-	for i, msg := range existingMessages {
+	aiMessages := make([]ai.Message, len(recentMessages))
+	for i, msg := range recentMessages {
 		aiMessages[i] = ai.Message{
 			Role:    msg.Role,
 			Content: msg.Content,
 		}
 	}
 
-	// Calculate turn number (user messages count as turns)
-	userMessageCount := 0
-	for _, msg := range existingMessages {
-		if msg.Role == "user" {
-			userMessageCount++
-		}
+	// Count total user messages for depth calculation
+	userMessageCount, err := h.queries.CountUserMessagesBySession(ctx, sessionUUID)
+	if err != nil {
+		c.Logger().Errorf("failed to count user messages: %v", err)
+		userMessageCount = 1 // fallback
 	}
-	turnNumber := userMessageCount // This includes the message we just added
 
-	// Generate AI response
-	aiResponse, err := h.pujangga.GenerateResponse(ctx, aiMessages, turnNumber)
+	// Calculate depth level
+	depthLevel := int(ai.CalculateDepth(int(userMessageCount)))
+
+	// Generate AI response with sliding context
+	aiResponse, err := h.pujangga.GenerateResponse(ctx, aiMessages, int(userMessageCount))
 	if err != nil {
 		c.Logger().Errorf("AI response error: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate AI response")
@@ -491,59 +500,39 @@ func (h *Handler) Respond(c echo.Context) error {
 	// Increment message count for AI message
 	_, _ = h.queries.IncrementSessionMessages(ctx, sessionUUID)
 
-	// Check if this is the final turn (turn 3)
-	isComplete := turnNumber >= 3
+	// Calculate rewards for THIS message (incremental rewards)
 	var rewards *Rewards
+	if h.gamification != nil {
+		wordCount := services.CountWords(req.Content)
 
-	if isComplete {
-		// End the session
-		_, err = h.queries.EndSession(ctx, db.EndSessionParams{
-			ID:     sessionUUID,
-			Status: "completed",
-			UserID: userID,
-		})
+		// Calculate rewards for this message only
+		messageReward, err := h.gamification.CalculateMessageReward(ctx, userID, wordCount)
 		if err != nil {
-			c.Logger().Errorf("failed to end session: %v", err)
-		}
-
-		// Calculate rewards if gamification service is available
-		if h.gamification != nil {
-			// Count total words from user messages
-			totalWords := 0
-			for _, msg := range existingMessages {
-				if msg.Role == "user" {
-					totalWords += services.CountWords(msg.Content)
-				}
-			}
-
-			calculatedRewards, err := h.gamification.CalculateRewards(ctx, userID, totalWords)
+			c.Logger().Errorf("failed to calculate message reward: %v", err)
+		} else {
+			// Apply rewards immediately
+			_, err = h.gamification.ApplyRewards(ctx, userID, messageReward)
 			if err != nil {
-				c.Logger().Errorf("failed to calculate rewards: %v", err)
+				c.Logger().Errorf("failed to apply rewards: %v", err)
 			} else {
-				// Apply rewards
-				_, err = h.gamification.ApplyRewards(ctx, userID, calculatedRewards)
-				if err != nil {
-					c.Logger().Errorf("failed to apply rewards: %v", err)
-				} else {
-					rewards = &Rewards{
-						TintaEmas: calculatedRewards.TintaEmas,
-						Marmer:    calculatedRewards.Marmer,
-						NewStreak: calculatedRewards.NewStreak,
-					}
-
-					// Add earned golden ink to session
-					_, _ = h.gamification.AddSessionReward(ctx, sessionUUID, calculatedRewards.TintaEmas)
+				rewards = &Rewards{
+					TintaEmas: messageReward.TintaEmas,
+					Marmer:    messageReward.Marmer,
+					NewStreak: messageReward.NewStreak,
 				}
+
+				// Add earned golden ink to session
+				_, _ = h.gamification.AddSessionReward(ctx, sessionUUID, messageReward.TintaEmas)
 			}
 		}
 	}
 
 	return c.JSON(http.StatusOK, RespondResponse{
-		Message:     aiMessage,
-		TurnNumber:  turnNumber,
-		IsComplete:  isComplete,
-		Rewards:     rewards,
-		UserMessage: userMessage,
+		Message:      aiMessage,
+		UserMessage:  userMessage,
+		MessageCount: int(userMessageCount),
+		DepthLevel:   depthLevel,
+		Rewards:      rewards,
 	})
 }
 
@@ -598,5 +587,100 @@ func (h *Handler) StartSession(c echo.Context) error {
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"session":         session,
 		"opening_message": openingMessage,
+	})
+}
+
+// TodaySessionResponse is the response for GetOrCreateTodaySession
+type TodaySessionResponse struct {
+	Session    db.Session   `json:"session"`
+	Messages   []db.Message `json:"messages"`
+	IsNew      bool         `json:"is_new"`      // Whether this is a newly created session
+	DepthLevel int          `json:"depth_level"` // Current conversation depth (1-3)
+}
+
+// GetOrCreateTodaySession gets the active session for today, or creates a new one
+func (h *Handler) GetOrCreateTodaySession(c echo.Context) error {
+	userID, err := middleware.RequireUserID(c)
+	if err != nil {
+		return err
+	}
+
+	ctx := c.Request().Context()
+
+	// Try to get today's active session
+	session, err := h.queries.GetTodayActiveSession(ctx, userID)
+	if err == nil {
+		// Found existing session - return it with messages
+		messages, err := h.queries.ListMessagesBySession(ctx, session.ID)
+		if err != nil {
+			c.Logger().Errorf("failed to get messages: %v", err)
+			messages = []db.Message{}
+		}
+
+		// Count user messages for depth calculation
+		userMessageCount := 0
+		for _, msg := range messages {
+			if msg.Role == "user" {
+				userMessageCount++
+			}
+		}
+		depthLevel := int(ai.CalculateDepth(userMessageCount))
+
+		return c.JSON(http.StatusOK, TodaySessionResponse{
+			Session:    session,
+			Messages:   messages,
+			IsNew:      false,
+			DepthLevel: depthLevel,
+		})
+	}
+
+	// No session today - create a new one
+	if h.pujangga == nil {
+		return echo.NewHTTPError(http.StatusServiceUnavailable, "AI service is not configured")
+	}
+
+	// Create new session
+	session, err = h.queries.CreateSession(ctx, userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create session")
+	}
+
+	// Generate opening message from AI
+	openingResponse, err := h.pujangga.GenerateOpeningMessage(ctx)
+	if err != nil {
+		c.Logger().Errorf("failed to generate opening message: %v", err)
+		// Return session without opening message
+		return c.JSON(http.StatusCreated, TodaySessionResponse{
+			Session:    session,
+			Messages:   []db.Message{},
+			IsNew:      true,
+			DepthLevel: 1,
+		})
+	}
+
+	// Save the opening message
+	openingMessage, err := h.queries.CreateMessage(ctx, db.CreateMessageParams{
+		SessionID: session.ID,
+		Role:      "assistant",
+		Content:   openingResponse.Message,
+	})
+	if err != nil {
+		c.Logger().Errorf("failed to save opening message: %v", err)
+		return c.JSON(http.StatusCreated, TodaySessionResponse{
+			Session:    session,
+			Messages:   []db.Message{},
+			IsNew:      true,
+			DepthLevel: 1,
+		})
+	}
+
+	// Increment message count
+	_, _ = h.queries.IncrementSessionMessages(ctx, session.ID)
+
+	return c.JSON(http.StatusCreated, TodaySessionResponse{
+		Session:    session,
+		Messages:   []db.Message{openingMessage},
+		IsNew:      true,
+		DepthLevel: 1,
 	})
 }

@@ -35,48 +35,100 @@ type PujanggaResponse struct {
 }
 
 // SystemPrompt is the core personality configuration for Sang Pujangga
-const SystemPrompt = `You are Sang Pujangga - a thoughtful friend who's easy to talk to.
-Speak in natural, conversational Indonesian.
-Be warm and genuine, not preachy or poetic.
-Ask questions like a curious friend, not a philosopher.
-Keep it real.
+const SystemPrompt = `You are Sang Pujangga - a writing prompt generator for a journaling app.
+Your goal is to help users reflect on their day through simple, thoughtful writing prompts.
 
-PENTING:
-- Selalu gunakan Bahasa Indonesia yang natural
-- Jangan pernah menjawab dalam Bahasa Inggris kecuali diminta translate
-- Maksimal 2-3 kalimat per respons
+STYLE:
+- DO NOT be conversational. You are NOT a chat bot.
+- Your response must strictly follow this format: "Brief Acknowledgment. Question/Prompt?"
+- Example: "Aku dengar. Apa yang membuatmu merasa begitu?"
+- Example: "Berat juga ya. Bagian mana yang paling mengganggu pikiranmu?"
+- Keep it short. Max 2 sentences total.
 
-HINDARI:
-- Bahasa yang terlalu formal/puitis - jangan "Di tengah riuh rendah dunia..." vibes
-- Slang Gen-Z - jangan "kuy", "goks", "slay", "jujurly"
-- Corporate speak - jangan "mari kita explore journey-mu"
+LANGUAGE:
+- Natural Indonesian (id-ID).
+- Warm but concise.
+- No slang, no poetic flowery language, no corporate speak.
 
-CONTOH BAGUS:
-- "Hari ini gimana? Ada yang lagi dipikirin?"
-- "Kesepian ya? Itu yang 'nggak ada orang' atau yang 'ada orang tapi tetep ngerasa sendirian'?"
-- "Noted. Kadang sepi itu cara kita dengerin diri sendiri. Nggak harus langsung 'diperbaiki'."
+DEPTH RULES:
+The conversation has depth levels. Adjust your prompts based on the current level.
 
-ALUR PERCAKAPAN (3 turns):
-- Turn 1: Tanya pembuka yang hangat
-- Turn 2 (Pendalaman): Gali lebih dalam berdasarkan jawaban user
-- Turn 3 (Konklusi): Tutup dengan refleksi sederhana dan tulus`
+LEVEL 1 - SURFACE (messages 1-2):
+- Very simple prompts answering "What/How".
+- Focus on facts/events.
+
+LEVEL 2 - LIGHT (messages 3-5):
+- Follow-up prompts answering "Why".
+- Focus on feelings/reactions.
+
+LEVEL 3 - DEEP (messages 6+):
+- Reflective prompts answering "Meaning/Impact".
+- Focus on insights/values.
+
+TOPIC RULES:
+- Check the last 3 messages.
+- If the SAME specific topic/aspect of life has been discussed 3 times in a row, SWITCH to a new topic.
+- New topic examples: health, relationships, work, self-care, dreams.
+- Transition naturally: "Ngomong-ngomong, gimana soal kesehatanmu hari ini?"`
+
+// DepthLevel represents the conversation depth
+type DepthLevel int
+
+const (
+	DepthSurface DepthLevel = 1 // Messages 1-2
+	DepthLight   DepthLevel = 2 // Messages 3-5
+	DepthDeep    DepthLevel = 3 // Messages 6+
+)
+
+// CalculateDepth determines conversation depth based on message count
+func CalculateDepth(userMessageCount int) DepthLevel {
+	switch {
+	case userMessageCount <= 2:
+		return DepthSurface
+	case userMessageCount <= 5:
+		return DepthLight
+	default:
+		return DepthDeep
+	}
+}
+
+// DepthName returns the Indonesian name for a depth level
+func DepthName(depth DepthLevel) string {
+	switch depth {
+	case DepthSurface:
+		return "Permukaan"
+	case DepthLight:
+		return "Ringan"
+	case DepthDeep:
+		return "Dalam"
+	default:
+		return "Permukaan"
+	}
+}
 
 // GenerateOpeningMessage generates the first message to start a conversation
 func (p *PujanggaService) GenerateOpeningMessage(ctx context.Context) (*PujanggaResponse, error) {
 	prompt := fmt.Sprintf(`%s
 
-Ini adalah awal percakapan baru. Berikan satu pertanyaan pembuka yang hangat untuk memulai sesi journaling. 
+Ini adalah awal percakapan baru (LEVEL 1 - PERMUKAAN).
+Berikan SATU pertanyaan pembuka yang SANGAT SEDERHANA - bisa dijawab dengan 1 kata saja.
+
+Contoh pertanyaan yang bagus:
+- "Hari ini gimana?"
+- "Mood-nya apa?"
+- "Lagi sibuk nggak?"
+
 Jangan terlalu formal, bayangkan kamu mengirim chat ke teman dekat.
 
 Respond in JSON format:
-{"message": "your opening question in Indonesian"}`, SystemPrompt)
+{"message": "your simple opening question in Indonesian"}`, SystemPrompt)
 
 	schema := map[string]interface{}{
 		"type": "object",
 		"properties": map[string]interface{}{
 			"message": map[string]interface{}{
 				"type":        "string",
-				"description": "The opening message in natural Indonesian",
+				"description": "A simple opening question that can be answered in one word",
 			},
 		},
 		"required": []string{"message"},
@@ -95,11 +147,17 @@ Respond in JSON format:
 	return &response, nil
 }
 
-// GenerateResponse generates a response based on conversation history
-func (p *PujanggaService) GenerateResponse(ctx context.Context, messages []Message, turnNumber int) (*PujanggaResponse, error) {
-	// Build conversation history
+// GenerateResponse generates a response based on recent conversation context
+// recentMessages should contain only the last 3 messages for context efficiency
+// userMessageCount is the total number of user messages in the session (for depth calculation)
+func (p *PujanggaService) GenerateResponse(ctx context.Context, recentMessages []Message, userMessageCount int) (*PujanggaResponse, error) {
+	// Calculate depth based on total user messages
+	depth := CalculateDepth(userMessageCount)
+	depthName := DepthName(depth)
+
+	// Build conversation history from recent messages only
 	conversationHistory := ""
-	for _, msg := range messages {
+	for _, msg := range recentMessages {
 		role := "User"
 		if msg.Role == "assistant" {
 			role = "Pujangga"
@@ -107,27 +165,30 @@ func (p *PujanggaService) GenerateResponse(ctx context.Context, messages []Messa
 		conversationHistory += fmt.Sprintf("%s: %s\n", role, msg.Content)
 	}
 
-	turnInstruction := ""
-	switch turnNumber {
-	case 2:
-		turnInstruction = "Ini Turn 2 (Pendalaman): Gali lebih dalam berdasarkan apa yang user ceritakan. Ajukan pertanyaan yang lebih spesifik tentang perasaan atau situasi mereka."
-	case 3:
-		turnInstruction = "Ini Turn 3 (Konklusi): Tutup percakapan dengan refleksi sederhana dan tulus. Jangan tanya pertanyaan lagi, cukup berikan insight yang bermakna tapi tidak menggurui."
-	default:
-		turnInstruction = "Lanjutkan percakapan dengan natural."
-	}
+	// Get depth-specific instruction
+	depthInstruction := getDepthInstruction(depth)
 
 	prompt := fmt.Sprintf(`%s
 
-PERCAKAPAN SEJAUH INI:
+KONTEKS PERCAKAPAN (3 pesan terakhir):
 %s
+
+INFO SESI:
+- Total pesan user: %d
+- Level kedalaman: %d (%s)
 
 %s
 
 Analisis juga emosi yang terdeteksi dari user (pilih dari: senang, sedih, cemas, marah, kelelahan, harapan, cinta, ambisi, kesepian, syukur).
 
 Respond in JSON format:
-{"message": "your response in Indonesian", "emotions": ["detected", "emotions"]}`, SystemPrompt, conversationHistory, turnInstruction)
+{"message": "your response in Indonesian", "emotions": ["detected", "emotions"]}`,
+		SystemPrompt,
+		conversationHistory,
+		userMessageCount,
+		depth,
+		depthName,
+		depthInstruction)
 
 	schema := map[string]interface{}{
 		"type": "object",
@@ -158,6 +219,32 @@ Respond in JSON format:
 	}
 
 	return &response, nil
+}
+
+// getDepthInstruction returns the instruction for a specific depth level
+func getDepthInstruction(depth DepthLevel) string {
+	switch depth {
+	case DepthSurface:
+		return `INSTRUKSI (LEVEL 1 - SURFACE):
+- Ini awal sesi menulis.
+- Berikan prompt SEDERHANA tentang fakta/kejadian.
+- Format: "Acknowledgment singkat. Pertanyaan apa/gimana?"
+- Contoh: "Oke. Apa satu hal yang paling kamu ingat hari ini?"`
+	case DepthLight:
+		return `INSTRUKSI (LEVEL 2 - LIGHT):
+- User mulai menulis.
+- Berikan prompt tentang PERASAAN/REAKSI.
+- Format: "Acknowledgment singkat. Kenapa begitu/apa rasanya?"
+- Contoh: "Paham. Kenapa hal itu bikin kamu merasa begitu?"`
+	case DepthDeep:
+		return `INSTRUKSI (LEVEL 3 - DEEP):
+- User sudah menulis banyak.
+- Berikan prompt REFLEKTIF tentang MAKNA/VALUE.
+- Format: "Acknowledgment singkat. Apa maknanya/pelajarannya?"
+- Contoh: "Menarik. Kalau dipikir lagi, apa yang situasi ini ajarkan ke kamu?"`
+	default:
+		return ""
+	}
 }
 
 // GenerateWeeklySummary generates a weekly emotional summary (Risalah Mingguan)

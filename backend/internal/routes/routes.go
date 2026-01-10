@@ -29,7 +29,8 @@ func Register(e *echo.Echo, h *handlers.Handler) {
 
 	// Sessions
 	api.POST("/sessions", h.CreateSession)
-	api.POST("/sessions/start", h.StartSession) // Creates session with AI opening
+	api.POST("/sessions/start", h.StartSession)           // Creates session with AI opening
+	api.GET("/sessions/today", h.GetOrCreateTodaySession) // Get or create today's session
 	api.GET("/sessions", h.ListSessions)
 	api.GET("/sessions/:id", h.GetSession)
 	api.PUT("/sessions/:id", h.UpdateSession)

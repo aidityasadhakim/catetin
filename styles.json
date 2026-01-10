@@ -1,235 +1,497 @@
 {
-  "meta": {
-    "name": "Catetin Design System",
-    "version": "1.1.0",
-    "description": "Renaissance meets Modern Brutalism - a 'Grand Archive' aesthetic for journaling",
-    "aesthetic": "Modern Classic - Classical Renaissance visuals with clean brutalist UI patterns"
+  "$schema": "Catetin Design System v1.0",
+  "description": "Classical Renaissance-inspired design system for a journaling app that transforms reflection into art",
+
+  "philosophy": {
+    "core": "Journaling as art creation - every reflection reveals a masterpiece",
+    "aesthetic": "Renaissance meets minimal brutalism - classical art with modern restraint",
+    "principles": [
+      "Let classical art breathe - UI should frame, not compete",
+      "Typography carries meaning - scale creates drama",
+      "Warmth over sterility - cream over white, depth over flat",
+      "Motion with purpose - reveal, not distract",
+      "Earned complexity - start simple, layer meaning"
+    ],
+    "antiPatterns": [
+      "NO purple/blue gradients on white",
+      "NO generic fonts (Inter, Roboto, Arial, SF Pro, Open Sans, system-ui)",
+      "NO hero-CTA-features-testimonials templates",
+      "NO abstract blobs or generic geometric shapes",
+      "NO pure black or pure white",
+      "NO gradient backgrounds everywhere",
+      "NO same border-radius on everything",
+      "NO shadows on every card",
+      "NO perfect symmetry without purpose"
+    ]
   },
-  "designPhilosophy": {
-    "avoid": {
-      "colors": [
-        "Purple/blue gradients on white backgrounds",
-        "Generic tech startup palettes"
-      ],
-      "fonts": [
-        "Inter",
-        "Roboto",
-        "Arial",
-        "SF Pro",
-        "Open Sans",
-        "system-ui"
-      ],
-      "layouts": [
-        "Predictable hero-CTA-features-testimonials templates"
-      ],
-      "graphics": [
-        "Generic geometric shapes",
-        "Abstract blobs",
-        "Stock-looking imagery"
-      ],
-      "aesthetic": "AI slop - anything that looks auto-generated or templated"
-    },
-    "embrace": {
-      "typography": "Distinctive font pairings with character",
-      "colors": "Bold, unexpected accent colors used sparingly",
-      "layouts": "Scroll-triggered reveals, narrative-driven sections",
-      "imagery": "Textured, high-contrast, purposeful visuals",
-      "brutalistElements": "Technical UI patterns, data displays, monospace labels"
-    }
-  },
-  "colors": {
-    "primary": {
-      "cream": "#F5F0E8",
-      "ivory": "#FAF8F5",
-      "parchment": "#EDE8DD"
-    },
-    "accent": {
-      "gold": "#D4A84B",
-      "goldenLight": "#E8C97A",
-      "goldenDark": "#B8923F",
-      "coral": "#E86B4A",
-      "amber": "#C7923E"
-    },
-    "neutral": {
-      "black": "#1A1A1A",
-      "charcoal": "#2D2D2D",
-      "graphite": "#4A4A4A",
-      "slate": "#6B6B6B",
-      "stone": "#8B8B8B"
-    },
-    "renaissance": {
-      "navy": "#0F1729",
-      "deepBlue": "#1A2744",
-      "olive": "#5C6B4A",
-      "sage": "#7A8B6A",
-      "terracotta": "#C45C3E",
-      "burgundy": "#6B2D3A",
-      "forestGreen": "#2D4A3A"
-    },
-    "semantic": {
-      "success": "#5C6B4A",
-      "warning": "#D4A84B",
-      "error": "#C45C3E",
-      "info": "#1A2744"
-    },
-    "modes": {
-      "light": {
-        "background": "#F5F0E8",
-        "surface": "#FAF8F5",
-        "border": "#E0D9CC",
-        "text": "#1A1A1A",
-        "textMuted": "#6B6B6B"
-      },
-      "dark": {
-        "background": "#0F1729",
-        "surface": "#1A2744",
-        "border": "#2D3A52",
-        "text": "#FAF8F5",
-        "textMuted": "#8B8B8B"
-      }
-    }
-  },
+
   "typography": {
-    "fonts": {
-      "heading": {
-        "family": "Cinzel, 'Times New Roman', serif",
-        "description": "Elegant serif for headers - Renaissance feel"
-      },
-      "display": {
-        "family": "'PP Editorial New', 'Playfair Display', Georgia, serif",
-        "description": "Large display serif for hero headlines - thin weight, elegant curves"
+    "families": {
+      "headline": {
+        "name": "Cinzel",
+        "fallback": "Georgia, 'Times New Roman', serif",
+        "use": "Page titles, section headers, dramatic moments",
+        "character": "Classical, chiseled, authoritative"
       },
       "body": {
-        "family": "Lora, Georgia, serif",
-        "description": "Readable serif for body text - warm and literary"
+        "name": "Lora",
+        "fallback": "Georgia, serif",
+        "use": "Journal content, readable paragraphs, descriptions",
+        "character": "Literary, warm, inviting"
       },
       "mono": {
-        "family": "'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace",
-        "description": "Technical monospace for stats, labels, metadata, system displays"
+        "name": "JetBrains Mono",
+        "fallback": "'Fira Code', 'Courier New', monospace",
+        "use": "Stats, labels, metadata, counters",
+        "character": "Technical, precise, trustworthy"
       },
       "accent": {
-        "family": "Merriweather, serif",
-        "description": "Alternative serif for quotes and special text"
+        "name": "Merriweather",
+        "fallback": "Georgia, serif",
+        "use": "Quotes, special text, AI companion dialogue",
+        "character": "Thoughtful, distinguished"
+      },
+      "display": {
+        "name": "Playfair Display",
+        "fallback": "Georgia, serif",
+        "use": "Hero text, dramatic headlines (optional alternative to Cinzel)",
+        "character": "Elegant, high-contrast serifs"
       }
     },
     "scale": {
-      "xs": "0.75rem",
-      "sm": "0.875rem",
-      "base": "1rem",
-      "lg": "1.125rem",
-      "xl": "1.25rem",
-      "2xl": "1.5rem",
-      "3xl": "1.875rem",
-      "4xl": "2.25rem",
-      "5xl": "3rem",
-      "6xl": "3.75rem",
-      "hero": "4.5rem"
+      "xs": { "size": "12px", "lineHeight": 1.6, "use": "Captions, metadata, timestamps" },
+      "sm": { "size": "14px", "lineHeight": 1.6, "use": "Secondary text, labels, hints" },
+      "base": { "size": "16px", "lineHeight": 1.6, "use": "Body text, journal entries" },
+      "lg": { "size": "18px", "lineHeight": 1.55, "use": "Emphasized body, lead paragraphs" },
+      "xl": { "size": "20px", "lineHeight": 1.4, "use": "Small headings, card titles" },
+      "2xl": { "size": "24px", "lineHeight": 1.35, "use": "Section headings" },
+      "3xl": { "size": "30px", "lineHeight": 1.25, "use": "Page headings" },
+      "4xl": { "size": "36px", "lineHeight": 1.2, "use": "Large headings" },
+      "5xl": { "size": "48px", "lineHeight": 1.15, "use": "Display, statement text" },
+      "6xl": { "size": "60px", "lineHeight": 1.1, "use": "Hero headlines" },
+      "7xl": { "size": "72px", "lineHeight": 1.05, "use": "Dramatic display (sparingly)" }
     },
-    "lineHeight": {
-      "tight": "1.2",
-      "normal": "1.5",
-      "relaxed": "1.75",
-      "loose": "2"
+    "fluid": {
+      "body": "clamp(1rem, 2.5vw, 1.25rem)",
+      "heading": "clamp(1.5rem, 5vw, 3rem)",
+      "hero": "clamp(2.5rem, 8vw, 4.5rem)",
+      "display": "clamp(3rem, 10vw, 6rem)"
     },
     "letterSpacing": {
-      "tight": "-0.025em",
+      "tight": "-0.02em",
+      "headlines": "-0.01em",
       "normal": "0",
-      "wide": "0.05em",
-      "wider": "0.1em",
-      "widest": "0.2em"
+      "wide": "0.025em",
+      "allCaps": "0.08em",
+      "tracking": "0.1em"
+    },
+    "fontWeight": {
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "maxWidth": {
+      "prose": "65ch",
+      "narrow": "45ch",
+      "wide": "80ch"
+    },
+    "microTypography": {
+      "quotes": "Use curly quotes \" \" not straight quotes",
+      "dashes": "En-dash – for ranges, em-dash — for breaks",
+      "ellipsis": "Use … character, not three dots"
+    }
+  },
+
+  "colors": {
+    "format": "HSL for all colors - makes relationships obvious",
+    
+    "light": {
+      "background": {
+        "primary": "hsl(40, 33%, 96%)",
+        "secondary": "hsl(40, 30%, 93%)",
+        "tertiary": "hsl(40, 25%, 90%)",
+        "elevated": "hsl(40, 35%, 98%)",
+        "muted": "hsl(40, 20%, 88%)"
+      },
+      "surface": {
+        "card": "hsl(40, 35%, 97%)",
+        "cardHover": "hsl(40, 38%, 95%)",
+        "input": "hsl(40, 30%, 99%)",
+        "overlay": "hsla(30, 20%, 20%, 0.6)"
+      },
+      "text": {
+        "primary": "hsl(30, 10%, 15%)",
+        "secondary": "hsl(30, 8%, 35%)",
+        "tertiary": "hsl(30, 6%, 50%)",
+        "muted": "hsl(30, 5%, 60%)",
+        "inverse": "hsl(40, 33%, 96%)"
+      },
+      "border": {
+        "default": "hsl(30, 15%, 85%)",
+        "subtle": "hsl(30, 10%, 90%)",
+        "strong": "hsl(30, 20%, 70%)",
+        "decorative": "hsl(35, 50%, 65%)"
+      }
+    },
+
+    "dark": {
+      "background": {
+        "primary": "hsl(220, 40%, 8%)",
+        "secondary": "hsl(220, 38%, 11%)",
+        "tertiary": "hsl(220, 35%, 14%)",
+        "elevated": "hsl(220, 42%, 12%)",
+        "muted": "hsl(220, 30%, 18%)"
+      },
+      "surface": {
+        "card": "hsl(220, 35%, 12%)",
+        "cardHover": "hsl(220, 38%, 15%)",
+        "input": "hsl(220, 40%, 10%)",
+        "overlay": "hsla(220, 50%, 5%, 0.8)"
+      },
+      "text": {
+        "primary": "hsl(40, 30%, 93%)",
+        "secondary": "hsl(40, 20%, 75%)",
+        "tertiary": "hsl(40, 15%, 60%)",
+        "muted": "hsl(40, 10%, 50%)",
+        "inverse": "hsl(220, 40%, 8%)"
+      },
+      "border": {
+        "default": "hsl(220, 25%, 22%)",
+        "subtle": "hsl(220, 20%, 18%)",
+        "strong": "hsl(220, 30%, 30%)",
+        "decorative": "hsl(35, 45%, 45%)"
+      }
+    },
+
+    "brand": {
+      "gold": {
+        "50": "hsl(42, 65%, 95%)",
+        "100": "hsl(42, 60%, 90%)",
+        "200": "hsl(42, 55%, 80%)",
+        "300": "hsl(42, 55%, 70%)",
+        "400": "hsl(42, 55%, 60%)",
+        "500": "hsl(42, 60%, 50%)",
+        "600": "hsl(42, 65%, 42%)",
+        "700": "hsl(42, 70%, 35%)",
+        "800": "hsl(42, 75%, 25%)",
+        "900": "hsl(42, 80%, 18%)"
+      },
+      "coral": {
+        "50": "hsl(12, 85%, 97%)",
+        "100": "hsl(12, 80%, 92%)",
+        "200": "hsl(12, 75%, 82%)",
+        "300": "hsl(12, 70%, 70%)",
+        "400": "hsl(12, 68%, 60%)",
+        "500": "hsl(12, 70%, 52%)",
+        "600": "hsl(12, 75%, 45%)",
+        "700": "hsl(12, 80%, 38%)",
+        "800": "hsl(12, 85%, 28%)",
+        "900": "hsl(12, 90%, 20%)"
+      },
+      "teal": {
+        "50": "hsl(175, 50%, 95%)",
+        "100": "hsl(175, 45%, 88%)",
+        "200": "hsl(175, 42%, 75%)",
+        "300": "hsl(175, 40%, 60%)",
+        "400": "hsl(175, 45%, 48%)",
+        "500": "hsl(175, 55%, 40%)",
+        "600": "hsl(175, 60%, 32%)",
+        "700": "hsl(175, 65%, 25%)",
+        "800": "hsl(175, 70%, 18%)",
+        "900": "hsl(175, 75%, 12%)"
+      }
+    },
+
+    "semantic": {
+      "success": "hsl(145, 55%, 42%)",
+      "warning": "hsl(38, 90%, 50%)",
+      "error": "hsl(0, 70%, 55%)",
+      "info": "hsl(200, 65%, 50%)"
+    },
+
+    "gray": {
+      "note": "Warm grays with subtle saturation - never pure gray",
+      "50": "hsl(30, 8%, 97%)",
+      "100": "hsl(30, 7%, 93%)",
+      "200": "hsl(30, 6%, 85%)",
+      "300": "hsl(30, 5%, 75%)",
+      "400": "hsl(30, 4%, 60%)",
+      "500": "hsl(30, 4%, 48%)",
+      "600": "hsl(30, 5%, 38%)",
+      "700": "hsl(30, 6%, 28%)",
+      "800": "hsl(30, 7%, 18%)",
+      "900": "hsl(30, 8%, 12%)"
+    }
+  },
+
+  "spacing": {
+    "note": "Use only these values - no arbitrary spacing",
+    "scale": {
+      "0": "0",
+      "1": "4px",
+      "2": "8px",
+      "3": "12px",
+      "4": "16px",
+      "6": "24px",
+      "8": "32px",
+      "12": "48px",
+      "16": "64px",
+      "24": "96px",
+      "32": "128px"
+    },
+    "semantic": {
+      "micro": "4px",
+      "small": "8px",
+      "mediumSmall": "12px",
+      "medium": "16px",
+      "large": "24px",
+      "xlarge": "32px",
+      "section": "48px",
+      "page": "64px",
+      "hero": "96px"
+    },
+    "principles": [
+      "Start with too much space, reduce until right",
+      "Related elements closer than unrelated",
+      "Fixed widths often beat fluid grids",
+      "Group spacing - related items cluster together"
+    ]
+  },
+
+  "shadows": {
+    "note": "Light comes from above. Use sparingly - shadows for elevation, not decoration",
+    
+    "light": {
+      "xs": "0 1px 2px hsla(30, 20%, 20%, 0.05)",
+      "sm": "0 1px 3px hsla(30, 20%, 20%, 0.08), 0 1px 2px hsla(30, 20%, 20%, 0.05)",
+      "md": "0 4px 6px hsla(30, 20%, 20%, 0.08), 0 2px 4px hsla(30, 20%, 20%, 0.05)",
+      "lg": "0 10px 15px hsla(30, 20%, 20%, 0.08), 0 4px 6px hsla(30, 20%, 20%, 0.04)",
+      "xl": "0 20px 25px hsla(30, 20%, 20%, 0.08), 0 10px 10px hsla(30, 20%, 20%, 0.03)",
+      "glow": "0 0 20px hsla(42, 60%, 50%, 0.15)"
+    },
+    "dark": {
+      "note": "In dark mode, use layered surfaces instead of shadows. Subtle light edges for depth.",
+      "xs": "0 1px 2px hsla(220, 60%, 5%, 0.3)",
+      "sm": "0 2px 4px hsla(220, 60%, 5%, 0.4)",
+      "md": "0 4px 8px hsla(220, 60%, 5%, 0.4)",
+      "lg": "0 8px 16px hsla(220, 60%, 5%, 0.5)",
+      "xl": "0 16px 32px hsla(220, 60%, 5%, 0.6)",
+      "glow": "0 0 30px hsla(42, 60%, 50%, 0.1)",
+      "edgeLight": "inset 0 1px 0 hsla(40, 30%, 90%, 0.05)"
+    },
+    "usage": {
+      "buttons": "xs to sm",
+      "cards": "sm to md (only when elevated)",
+      "dropdowns": "md to lg",
+      "modals": "lg to xl",
+      "floatingElements": "lg with glow"
+    }
+  },
+
+  "borderRadius": {
+    "note": "Vary by element size - not same radius everywhere",
+    "none": "0",
+    "sm": "4px",
+    "md": "8px",
+    "lg": "12px",
+    "xl": "16px",
+    "2xl": "24px",
+    "full": "9999px",
+    "usage": {
+      "buttons": "lg (12px) to xl (16px)",
+      "cards": "xl (16px) to 2xl (24px)",
+      "inputs": "md (8px) to lg (12px)",
+      "badges": "full",
+      "avatars": "full",
+      "modals": "2xl (24px)"
+    }
+  },
+
+  "borders": {
+    "width": {
+      "thin": "1px",
+      "medium": "2px",
+      "thick": "3px",
+      "decorative": "2px double"
     },
     "styles": {
-      "heroTitle": {
-        "fontFamily": "heading",
-        "fontSize": "hero",
-        "fontWeight": "400",
-        "letterSpacing": "tight",
-        "lineHeight": "tight"
+      "subtle": "1px solid var(--border-subtle)",
+      "default": "1px solid var(--border-default)",
+      "strong": "2px solid var(--border-strong)",
+      "decorative": "2px double var(--border-decorative)",
+      "renaissance": "3px double var(--gold-400)"
+    }
+  },
+
+  "motion": {
+    "durations": {
+      "instant": "50ms",
+      "fast": "150ms",
+      "normal": "250ms",
+      "slow": "400ms",
+      "deliberate": "600ms",
+      "dramatic": "800ms"
+    },
+    "easings": {
+      "default": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "in": "cubic-bezier(0.4, 0, 1, 1)",
+      "out": "cubic-bezier(0, 0, 0.2, 1)",
+      "inOut": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "spring": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      "gentle": "cubic-bezier(0.25, 0.1, 0.25, 1)"
+    },
+    "patterns": {
+      "pageLoad": {
+        "description": "Orchestrated reveal sequence",
+        "stages": [
+          { "delay": "0ms", "elements": "Background, navigation" },
+          { "delay": "200ms", "elements": "Primary content, headlines" },
+          { "delay": "400ms", "elements": "Secondary content, cards" },
+          { "delay": "600ms", "elements": "Decorative elements, CTAs" }
+        ]
       },
-      "displayTitle": {
-        "description": "Large thin serif for hero headlines (like 'Scaling national intelligence networks')",
-        "fontFamily": "display",
-        "fontSize": "clamp(2.5rem, 5vw, 4rem)",
-        "fontWeight": "300",
-        "letterSpacing": "-0.02em",
-        "lineHeight": "1.1"
+      "scrollReveal": {
+        "description": "Fade-in-up on scroll",
+        "transform": "translateY(20px) -> translateY(0)",
+        "opacity": "0 -> 1",
+        "duration": "600ms",
+        "easing": "out"
       },
-      "sectionTitle": {
-        "fontFamily": "heading",
-        "fontSize": "3xl",
-        "fontWeight": "400",
-        "letterSpacing": "wide",
-        "textTransform": "none"
+      "hover": {
+        "scale": "1 -> 1.02",
+        "duration": "250ms",
+        "easing": "spring"
       },
-      "label": {
-        "fontFamily": "mono",
-        "fontSize": "xs",
-        "fontWeight": "400",
-        "letterSpacing": "widest",
-        "textTransform": "uppercase"
+      "artReveal": {
+        "description": "Progressive artwork reveal (Catetin-specific)",
+        "method": "Clip-path or mask revealing classical artwork",
+        "duration": "800ms to 1200ms",
+        "easing": "gentle"
+      }
+    },
+    "reducedMotion": {
+      "note": "Respect prefers-reduced-motion",
+      "substitute": "Instant opacity changes, no transforms"
+    }
+  },
+
+  "components": {
+    "buttons": {
+      "primary": {
+        "background": "var(--gold-500)",
+        "text": "var(--text-inverse)",
+        "hover": "var(--gold-600)",
+        "borderRadius": "var(--radius-lg)",
+        "padding": "12px 24px",
+        "fontWeight": 600,
+        "shadow": "var(--shadow-sm)"
       },
-      "technicalLabel": {
-        "description": "System labels like 'ADVANCED RESEARCH UNIT' or 'AI-OPS INFRASTRUCTURE'",
-        "fontFamily": "mono",
-        "fontSize": "xs",
-        "fontWeight": "500",
-        "letterSpacing": "0.15em",
-        "textTransform": "uppercase",
-        "color": "neutral.graphite"
+      "secondary": {
+        "background": "transparent",
+        "text": "var(--text-primary)",
+        "border": "2px solid var(--border-default)",
+        "hover": "var(--surface-card)",
+        "borderRadius": "var(--radius-lg)",
+        "padding": "10px 22px"
       },
-      "body": {
-        "fontFamily": "body",
-        "fontSize": "base",
-        "fontWeight": "400",
-        "lineHeight": "relaxed"
+      "ghost": {
+        "background": "transparent",
+        "text": "var(--text-secondary)",
+        "hover": "var(--background-tertiary)",
+        "borderRadius": "var(--radius-md)"
+      }
+    },
+    "cards": {
+      "default": {
+        "background": "var(--surface-card)",
+        "border": "1px solid var(--border-subtle)",
+        "borderRadius": "var(--radius-xl)",
+        "padding": "24px",
+        "shadow": "none or var(--shadow-sm)"
       },
-      "quote": {
-        "fontFamily": "accent",
-        "fontSize": "lg",
-        "fontWeight": "400",
-        "fontStyle": "italic",
-        "lineHeight": "relaxed"
+      "elevated": {
+        "background": "var(--background-elevated)",
+        "border": "none",
+        "borderRadius": "var(--radius-2xl)",
+        "padding": "32px",
+        "shadow": "var(--shadow-md)"
       },
-      "dataValue": {
-        "description": "Large numeric values like '98%' or '300.733'",
-        "fontFamily": "display",
-        "fontSize": "clamp(3rem, 8vw, 6rem)",
-        "fontWeight": "300",
-        "lineHeight": "1",
-        "letterSpacing": "-0.02em"
+      "parchment": {
+        "note": "For journal entries - warm, textured feel",
+        "background": "linear-gradient(135deg, var(--background-primary) 0%, var(--background-secondary) 100%)",
+        "border": "2px double var(--border-decorative)",
+        "borderRadius": "var(--radius-lg)",
+        "padding": "24px 32px"
+      }
+    },
+    "inputs": {
+      "default": {
+        "background": "var(--surface-input)",
+        "border": "1px solid var(--border-default)",
+        "borderRadius": "var(--radius-md)",
+        "padding": "12px 16px",
+        "fontSize": "16px",
+        "focus": {
+          "border": "2px solid var(--gold-400)",
+          "shadow": "0 0 0 3px hsla(42, 60%, 50%, 0.15)"
+        }
+      }
+    },
+    "badges": {
+      "default": {
+        "background": "var(--background-muted)",
+        "text": "var(--text-secondary)",
+        "borderRadius": "var(--radius-full)",
+        "padding": "4px 12px",
+        "fontSize": "12px",
+        "fontFamily": "var(--font-mono)"
+      },
+      "gold": {
+        "background": "var(--gold-100)",
+        "text": "var(--gold-700)",
+        "border": "1px solid var(--gold-300)"
       }
     }
   },
-  "spacing": {
-    "unit": "0.25rem",
-    "scale": {
-      "0": "0",
-      "1": "0.25rem",
-      "2": "0.5rem",
-      "3": "0.75rem",
-      "4": "1rem",
-      "5": "1.25rem",
-      "6": "1.5rem",
-      "8": "2rem",
-      "10": "2.5rem",
-      "12": "3rem",
-      "16": "4rem",
-      "20": "5rem",
-      "24": "6rem",
-      "32": "8rem"
+
+  "patterns": {
+    "artBackground": {
+      "description": "Classical artwork as immersive backgrounds (from reference images)",
+      "overlay": "Linear gradient overlay for text readability",
+      "lightOverlay": "linear-gradient(to right, hsla(40, 30%, 96%, 0.85) 0%, hsla(40, 30%, 96%, 0.3) 50%, transparent 100%)",
+      "darkOverlay": "linear-gradient(to right, hsla(220, 40%, 8%, 0.9) 0%, hsla(220, 40%, 8%, 0.4) 50%, transparent 100%)"
+    },
+    "decorativeStars": {
+      "description": "Subtle sparkle/star decorative elements (from Orion reference)",
+      "use": "Accent decorations, not primary visual elements",
+      "color": "var(--gold-400) with subtle glow"
+    },
+    "floatingCards": {
+      "description": "Cards that appear to float over artwork backgrounds",
+      "shadow": "var(--shadow-lg)",
+      "backdrop": "blur(8px)",
+      "background": "hsla(40, 30%, 96%, 0.9)"
+    },
+    "dramaticTypography": {
+      "description": "Large-scale serif headlines with weight contrast (from Patrick David reference)",
+      "primaryWord": "font-weight: 700, larger size",
+      "secondaryWord": "font-weight: 400, slightly smaller or different color"
     }
   },
+
   "layout": {
-    "container": {
-      "sm": "640px",
-      "md": "768px",
-      "lg": "1024px",
-      "xl": "1280px"
+    "containers": {
+      "narrow": "640px",
+      "default": "768px",
+      "wide": "1024px",
+      "full": "1280px",
+      "max": "1440px"
     },
     "grid": {
       "columns": 12,
-      "gap": "1.5rem",
-      "margin": "2rem"
+      "gap": "24px",
+      "mobileGap": "16px"
     },
     "breakpoints": {
       "sm": "640px",
@@ -237,585 +499,68 @@
       "lg": "1024px",
       "xl": "1280px",
       "2xl": "1536px"
-    },
-    "asymmetricGrid": {
-      "description": "Split layout with content and data visualization",
-      "leftPanel": "55%",
-      "rightPanel": "45%",
-      "gap": "0",
-      "divider": "2px solid #1A1A1A"
-    },
-    "framedSection": {
-      "description": "Section with decorative border frame",
-      "border": "2px solid #1A1A1A",
-      "padding": "spacing.8",
-      "margin": "spacing.4"
     }
   },
-  "borders": {
-    "width": {
-      "thin": "1px",
-      "medium": "2px",
-      "thick": "3px"
+
+  "zIndex": {
+    "base": 0,
+    "dropdown": 100,
+    "sticky": 200,
+    "fixed": 300,
+    "modalBackdrop": 400,
+    "modal": 500,
+    "popover": 600,
+    "tooltip": 700,
+    "toast": 800
+  },
+
+  "hierarchy": {
+    "note": "Size isn't everything - use multiple tools for emphasis",
+    "techniques": {
+      "fontWeight": "400-500 normal, 600-700 emphasis",
+      "color": "Dark = primary, gray = secondary, light = tertiary",
+      "spacing": "More breathing room = more prominence",
+      "deEmphasis": "Make competing elements quieter to emphasize target"
     },
-    "radius": {
-      "none": "0",
-      "sm": "0.25rem",
-      "md": "0.5rem",
-      "lg": "1rem",
-      "xl": "1.5rem",
-      "full": "9999px"
-    },
-    "style": {
-      "default": "solid",
-      "decorative": "double"
+    "colorBalance": {
+      "rule": "60-30-10",
+      "dominant": "60% - backgrounds, large surfaces",
+      "secondary": "30% - content areas, cards",
+      "accent": "10% - CTAs, highlights, decorative"
     }
   },
-  "shadows": {
-    "none": "none",
-    "sm": "0 1px 2px rgba(26, 26, 26, 0.05)",
-    "md": "0 4px 6px rgba(26, 26, 26, 0.07)",
-    "lg": "0 10px 15px rgba(26, 26, 26, 0.1)",
-    "xl": "0 20px 25px rgba(26, 26, 26, 0.15)",
-    "inner": "inset 0 2px 4px rgba(26, 26, 26, 0.06)",
-    "glow": {
-      "gold": "0 0 20px rgba(212, 168, 75, 0.3)",
-      "subtle": "0 0 40px rgba(212, 168, 75, 0.15)"
+
+  "cssCustomProperties": {
+    "prefix": "--catetin-",
+    "example": {
+      "colors": "--catetin-gold-500",
+      "spacing": "--catetin-space-4",
+      "radius": "--catetin-radius-lg"
     }
   },
-  "effects": {
-    "blur": {
-      "sm": "4px",
-      "md": "8px",
-      "lg": "16px",
-      "xl": "24px"
+
+  "accessibility": {
+    "minContrastRatio": {
+      "normalText": 4.5,
+      "largeText": 3,
+      "uiComponents": 3
     },
-    "opacity": {
-      "muted": "0.6",
-      "subtle": "0.4",
-      "faint": "0.2"
+    "focusIndicator": {
+      "offset": "2px",
+      "width": "2px",
+      "style": "solid",
+      "color": "var(--gold-500)"
+    },
+    "touchTargets": {
+      "minimum": "44px",
+      "recommended": "48px"
     }
   },
-  "animation": {
-    "duration": {
-      "fast": "150ms",
-      "normal": "300ms",
-      "slow": "500ms",
-      "ritual": "1000ms",
-      "reveal": "2000ms"
-    },
-    "easing": {
-      "default": "cubic-bezier(0.4, 0, 0.2, 1)",
-      "smooth": "cubic-bezier(0.25, 0.1, 0.25, 1)",
-      "dramatic": "cubic-bezier(0.7, 0, 0.3, 1)",
-      "bounce": "cubic-bezier(0.34, 1.56, 0.64, 1)"
-    },
-    "keyframes": {
-      "fadeIn": "opacity 0 -> 1",
-      "goldenReveal": "opacity + glow effect for art revelation",
-      "floatGentle": "subtle vertical movement for ethereal elements"
-    },
-    "patterns": {
-      "pageLoad": {
-        "description": "Orchestrated reveal sequence on page load",
-        "stagger": [
-          "0ms",
-          "200ms",
-          "400ms",
-          "600ms"
-        ],
-        "technique": "Use animation-delay for staggered reveals"
-      },
-      "scroll": {
-        "description": "Fade-in-up with subtle parallax on key visuals",
-        "technique": "Intersection Observer API",
-        "transform": "translateY(20px) -> translateY(0)",
-        "opacity": "0 -> 1"
-      },
-      "hover": {
-        "description": "Scale transforms, color transitions, underline animations",
-        "scale": "1 -> 1.02",
-        "duration": "normal"
-      },
-      "interactive": {
-        "description": "Cursor-following effects, magnetic buttons",
-        "magneticStrength": "0.3"
-      },
-      "ambient": {
-        "description": "Subtle background motion - floating particles, gradient shifts",
-        "technique": "CSS keyframes with long durations (10s+)"
-      }
-    }
-  },
-  "components": {
-    "button": {
-      "primary": {
-        "background": "accent.coral",
-        "text": "neutral.black",
-        "border": "none",
-        "borderRadius": "borders.radius.lg",
-        "padding": "spacing.4 spacing.8",
-        "font": "typography.styles.label"
-      },
-      "brutalist": {
-        "description": "Sharp-edged CTA button with thick border",
-        "background": "#FF6B35",
-        "text": "#1A1A1A",
-        "border": "3px solid #1A1A1A",
-        "borderRadius": "0",
-        "padding": "spacing.4 spacing.8",
-        "font": "mono",
-        "fontSize": "sm",
-        "fontWeight": "600",
-        "letterSpacing": "0.1em",
-        "textTransform": "uppercase",
-        "hover": {
-          "background": "#E85A2A",
-          "transform": "translate(-2px, -2px)",
-          "boxShadow": "4px 4px 0 #1A1A1A"
-        }
-      },
-      "secondary": {
-        "background": "transparent",
-        "text": "neutral.black",
-        "border": "borders.width.medium neutral.black",
-        "borderRadius": "borders.radius.lg"
-      },
-      "ghost": {
-        "background": "transparent",
-        "text": "neutral.black",
-        "border": "none"
-      }
-    },
-    "card": {
-      "default": {
-        "background": "modes.light.surface",
-        "border": "borders.width.thin modes.light.border",
-        "borderRadius": "borders.radius.lg",
-        "shadow": "shadows.sm",
-        "padding": "spacing.6"
-      },
-      "parchment": {
-        "description": "Warm literary card for journaling and reflection content",
-        "background": "primary.parchment",
-        "color": "neutral.charcoal",
-        "border": "borders.width.thin modes.light.border",
-        "borderRadius": "borders.radius.md",
-        "padding": "spacing.8",
-        "shadow": "shadows.inner",
-        "fontFamily": "typography.fonts.accent",
-        "fontStyle": "italic",
-        "lineHeight": "typography.lineHeight.relaxed"
-      },
-      "technicalPanel": {
-        "description": "Brutalist panel with corner frame decorations",
-        "background": "#F5E6D3",
-        "border": "2px solid #1A1A1A",
-        "borderRadius": "0",
-        "padding": "spacing.6",
-        "position": "relative",
-        "cornerBrackets": true
-      },
-      "dataPanel": {
-        "description": "Panel for displaying system data and stats",
-        "background": "#E8F4F8",
-        "border": "1px solid #2D2D2D",
-        "borderRadius": "0",
-        "padding": "spacing.4",
-        "font": "mono"
-      }
-    },
-    "input": {
-      "background": "modes.light.surface",
-      "border": "borders.width.thin modes.light.border",
-      "borderRadius": "borders.radius.md",
-      "padding": "spacing.4",
-      "font": "typography.fonts.body"
-    },
-    "badge": {
-      "font": "typography.styles.label",
-      "padding": "spacing.1 spacing.3",
-      "borderRadius": "borders.radius.sm"
-    },
-    "statusIndicator": {
-      "description": "System status dot with label",
-      "dotSize": "8px",
-      "dotColors": {
-        "online": "#5C6B4A",
-        "stable": "#5C6B4A",
-        "warning": "#D4A84B",
-        "error": "#C45C3E",
-        "offline": "#6B6B6B"
-      },
-      "font": "mono",
-      "fontSize": "xs",
-      "textTransform": "uppercase"
-    },
-    "frequencyDisplay": {
-      "description": "Technical frequency/coordinate display",
-      "font": "mono",
-      "fontSize": "2xl",
-      "fontWeight": "400",
-      "letterSpacing": "0.05em",
-      "border": "1px solid #1A1A1A",
-      "padding": "spacing.2 spacing.4",
-      "background": "#FAF8F5"
-    },
-    "systemLog": {
-      "description": "Monospace log entries with status prefixes",
-      "font": "mono",
-      "fontSize": "xs",
-      "lineHeight": "relaxed",
-      "entries": {
-        "success": "# prefix",
-        "info": "> prefix",
-        "warning": "! prefix"
-      }
-    },
-    "heroStat": {
-      "description": "Large display stat with label",
-      "value": {
-        "font": "heading",
-        "fontSize": "hero",
-        "fontWeight": "300",
-        "lineHeight": "1",
-        "color": "neutral.black"
-      },
-      "label": {
-        "font": "mono",
-        "fontSize": "sm",
-        "letterSpacing": "0.1em",
-        "textTransform": "uppercase",
-        "color": "neutral.graphite"
-      }
-    },
-    "dividerLine": {
-      "description": "Decorative separator with slash",
-      "style": "1px solid",
-      "color": "neutral.black",
-      "slashDecoration": "/ character between sections"
-    },
-    "navLink": {
-      "font": "mono",
-      "fontSize": "sm",
-      "letterSpacing": "0.05em",
-      "textTransform": "capitalize",
-      "color": "neutral.black",
-      "hover": {
-        "textDecoration": "underline",
-        "textUnderlineOffset": "4px"
-      }
-    }
-  },
-  "patterns": {
-    "decorativeBorder": {
-      "description": "Double-line border for Renaissance feel",
-      "style": "double",
-      "width": "4px",
-      "color": "neutral.charcoal"
-    },
-    "cornerOrnament": {
-      "description": "Decorative corners for cards and frames",
-      "size": "24px"
-    },
-    "gridOverlay": {
-      "description": "Subtle grid for technical/brutalist feel",
-      "opacity": "0.05",
-      "size": "20px"
-    },
-    "frameCorners": {
-      "description": "L-shaped corner brackets for brutalist framing",
-      "style": "Corner brackets using ::before/::after pseudo-elements",
-      "strokeWidth": "2px",
-      "size": "12px",
-      "color": "neutral.black"
-    },
-    "statusBar": {
-      "description": "Top banner with system status information",
-      "background": "neutral.black",
-      "text": "primary.cream",
-      "font": "mono",
-      "fontSize": "xs",
-      "letterSpacing": "widest",
-      "textTransform": "uppercase",
-      "padding": "spacing.2 spacing.4"
-    },
-    "technicalLabel": {
-      "description": "Uppercase monospace labels for data points",
-      "font": "mono",
-      "fontSize": "xs",
-      "letterSpacing": "0.15em",
-      "textTransform": "uppercase",
-      "color": "neutral.graphite"
-    },
-    "dataDisplay": {
-      "description": "Large numeric displays for stats",
-      "font": "heading",
-      "fontSize": "6xl",
-      "fontWeight": "300",
-      "lineHeight": "tight",
-      "color": "neutral.black"
-    },
-    "scopeVisualization": {
-      "description": "Concentric circles radar/scope style display",
-      "circles": [
-        "100%",
-        "75%",
-        "50%",
-        "25%"
-      ],
-      "strokeWidth": "1px",
-      "strokeColor": "neutral.slate",
-      "crosshairColor": "accent.coral",
-      "scanlineColor": "renaissance.deepBlue"
-    }
-  },
-  "uiLabels": {
-    "navigation": {
-      "home": "Beranda",
-      "archive": "Arsip",
-      "stats": "Jejak",
-      "gallery": "Galeri",
-      "settings": "Pengaturan"
-    },
-    "actions": {
-      "startWriting": "Mulai Menulis",
-      "save": "Simpan",
-      "cancel": "Batal",
-      "continue": "Lanjut"
-    },
-    "resources": {
-      "goldenInk": "Tinta Emas",
-      "marble": "Marmer"
-    }
-  },
-  "technicalRequirements": {
-    "responsive": {
-      "approach": "Mobile-first with fluid typography",
-      "fluidType": "clamp(1rem, 2.5vw, 1.25rem)",
-      "adaptiveLayouts": "Use CSS Grid with auto-fit/auto-fill"
-    },
-    "performance": {
-      "noHeavyLibraries": true,
-      "lazyLoadImages": true,
-      "criticalCSSInline": true,
-      "fontDisplay": "swap"
-    },
-    "semantics": {
-      "useHTML5Elements": true,
-      "accessibleForms": true,
-      "properHeadingHierarchy": true
-    },
-    "scrollBehavior": {
-      "smooth": true,
-      "cssProperty": "scroll-behavior: smooth"
-    },
-    "customProperties": {
-      "useForTheming": true,
-      "prefix": "--catetin-"
-    }
-  },
-  "tailwindExtend": {
-    "colors": {
-      "cream": "#F5F0E8",
-      "ivory": "#FAF8F5",
-      "parchment": "#EDE8DD",
-      "gold": "#D4A84B",
-      "gold-light": "#E8C97A",
-      "gold-dark": "#B8923F",
-      "coral": "#E86B4A",
-      "navy": "#0F1729",
-      "deep-blue": "#1A2744",
-      "olive": "#5C6B4A",
-      "sage": "#7A8B6A",
-      "terracotta": "#C45C3E",
-      "burgundy": "#6B2D3A",
-      "warm-cream": "#F5E6D3",
-      "soft-blue": "#D4E5ED",
-      "pale-blue": "#E8F4F8",
-      "signal-orange": "#FF6B35"
-    },
-    "fontFamily": {
-      "heading": [
-        "Cinzel",
-        "Times New Roman",
-        "serif"
-      ],
-      "display": [
-        "PP Editorial New",
-        "Playfair Display",
-        "Georgia",
-        "serif"
-      ],
-      "body": [
-        "Lora",
-        "Georgia",
-        "serif"
-      ],
-      "mono": [
-        "JetBrains Mono",
-        "IBM Plex Mono",
-        "Fira Code",
-        "monospace"
-      ],
-      "accent": [
-        "Merriweather",
-        "serif"
-      ]
-    },
-    "animation": {
-      "fade-in": "fadeIn 0.5s ease-out forwards",
-      "fade-in-up": "fadeInUp 0.6s ease-out forwards",
-      "golden-reveal": "goldenReveal 2s ease-out forwards",
-      "float-gentle": "floatGentle 6s ease-in-out infinite"
-    },
-    "keyframes": {
-      "fadeIn": {
-        "from": {
-          "opacity": "0"
-        },
-        "to": {
-          "opacity": "1"
-        }
-      },
-      "fadeInUp": {
-        "from": {
-          "opacity": "0",
-          "transform": "translateY(20px)"
-        },
-        "to": {
-          "opacity": "1",
-          "transform": "translateY(0)"
-        }
-      },
-      "goldenReveal": {
-        "0%": {
-          "opacity": "0",
-          "filter": "blur(10px)"
-        },
-        "50%": {
-          "opacity": "0.5",
-          "filter": "blur(5px)"
-        },
-        "100%": {
-          "opacity": "1",
-          "filter": "blur(0)"
-        }
-      },
-      "floatGentle": {
-        "0%, 100%": {
-          "transform": "translateY(0)"
-        },
-        "50%": {
-          "transform": "translateY(-10px)"
-        }
-      },
-      "radarSweep": {
-        "0%": {
-          "transform": "rotate(0deg)"
-        },
-        "100%": {
-          "transform": "rotate(360deg)"
-        }
-      },
-      "pulse": {
-        "0%, 100%": {
-          "opacity": "1"
-        },
-        "50%": {
-          "opacity": "0.5"
-        }
-      }
-    }
-  },
-  "cssUtilities": {
-    "cornerBrackets": {
-      "description": "Add L-shaped corner brackets to an element",
-      "css": {
-        "position": "relative",
-        "before": {
-          "content": "''",
-          "position": "absolute",
-          "top": "0",
-          "left": "0",
-          "width": "12px",
-          "height": "12px",
-          "borderTop": "2px solid #1A1A1A",
-          "borderLeft": "2px solid #1A1A1A"
-        },
-        "after": {
-          "content": "''",
-          "position": "absolute",
-          "bottom": "0",
-          "right": "0",
-          "width": "12px",
-          "height": "12px",
-          "borderBottom": "2px solid #1A1A1A",
-          "borderRight": "2px solid #1A1A1A"
-        }
-      }
-    },
-    "framedBox": {
-      "description": "Box with thick border frame",
-      "css": {
-        "border": "2px solid #1A1A1A",
-        "padding": "1.5rem"
-      }
-    },
-    "technicalText": {
-      "description": "Uppercase monospace technical label",
-      "css": {
-        "fontFamily": "var(--font-mono)",
-        "fontSize": "0.75rem",
-        "letterSpacing": "0.15em",
-        "textTransform": "uppercase"
-      }
-    }
-  },
-  "componentPatterns": {
-    "heroSection": {
-      "requirements": [
-        "Create immediate intrigue with a hook",
-        "Include interactive element demonstrating capability",
-        "Clear value proposition in 12 words or less",
-        "Primary CTA prominently placed",
-        "Trust signals visible"
-      ]
-    },
-    "narrativeSection": {
-      "requirements": [
-        "Tell a story, don't list features",
-        "Use scroll-triggered reveals for dramatic effect",
-        "Include real-world scenario visualization"
-      ]
-    },
-    "productShowcase": {
-      "requirements": [
-        "Interactive demo or animated mockup",
-        "Show the product in action visually",
-        "Technical credibility indicators"
-      ]
-    },
-    "socialProof": {
-      "requirements": [
-        "Testimonials from target personas",
-        "Metrics that matter to users",
-        "Customer grid with hover states"
-      ]
-    },
-    "conversionSection": {
-      "requirements": [
-        "Secondary CTA with urgency",
-        "Minimal form fields",
-        "Alternative action option"
-      ]
-    },
-    "footer": {
-      "requirements": [
-        "Minimal and sophisticated",
-        "Essential links only",
-        "Optional newsletter capture"
-      ]
-    }
+
+  "performance": {
+    "fontDisplay": "swap",
+    "criticalCSS": "Inline above-fold styles",
+    "lazyLoad": "Images below the fold",
+    "animationStrategy": "CSS transitions/keyframes over JS libraries"
   }
 }

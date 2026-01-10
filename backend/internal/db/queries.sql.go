@@ -433,6 +433,44 @@ func (q *Queries) GetCurrentArtwork(ctx context.Context, userID string) (GetCurr
 	return i, err
 }
 
+const getRecentMessages = `-- name: GetRecentMessages :many
+SELECT id, session_id, role, content, created_at FROM messages
+WHERE session_id = $1
+ORDER BY created_at DESC
+LIMIT $2
+`
+
+type GetRecentMessagesParams struct {
+	SessionID pgtype.UUID `json:"session_id"`
+	Limit     int32       `json:"limit"`
+}
+
+func (q *Queries) GetRecentMessages(ctx context.Context, arg GetRecentMessagesParams) ([]Message, error) {
+	rows, err := q.db.Query(ctx, getRecentMessages, arg.SessionID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Message{}
+	for rows.Next() {
+		var i Message
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.Role,
+			&i.Content,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSessionByID = `-- name: GetSessionByID :one
 SELECT id, user_id, status, total_messages, golden_ink_earned, started_at, ended_at, created_at, updated_at FROM sessions
 WHERE id = $1 AND user_id = $2
@@ -445,6 +483,32 @@ type GetSessionByIDParams struct {
 
 func (q *Queries) GetSessionByID(ctx context.Context, arg GetSessionByIDParams) (Session, error) {
 	row := q.db.QueryRow(ctx, getSessionByID, arg.ID, arg.UserID)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Status,
+		&i.TotalMessages,
+		&i.GoldenInkEarned,
+		&i.StartedAt,
+		&i.EndedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getTodayActiveSession = `-- name: GetTodayActiveSession :one
+SELECT id, user_id, status, total_messages, golden_ink_earned, started_at, ended_at, created_at, updated_at FROM sessions
+WHERE user_id = $1 
+  AND status = 'active' 
+  AND started_at::date = CURRENT_DATE
+ORDER BY started_at DESC
+LIMIT 1
+`
+
+func (q *Queries) GetTodayActiveSession(ctx context.Context, userID string) (Session, error) {
+	row := q.db.QueryRow(ctx, getTodayActiveSession, userID)
 	var i Session
 	err := row.Scan(
 		&i.ID,

@@ -181,6 +181,70 @@ func (s *GamificationService) CalculateAndApplyRewards(ctx context.Context, user
 	return stats, rewards, nil
 }
 
+// CalculateMessageReward calculates rewards for a single message
+// This is used for incremental rewards in the all-day journaling system
+// Tinta Emas is calculated per message, Marmer/streak is only updated once per day
+func (s *GamificationService) CalculateMessageReward(ctx context.Context, userID string, wordCount int) (*Rewards, error) {
+	// Calculate Tinta Emas based on word count for this message
+	tintaEmas := int32(0)
+	if s.config.TintaEmasPerWord > 0 {
+		tintaEmas = int32(wordCount / s.config.TintaEmasPerWord)
+	}
+
+	// Get current user stats for streak calculation
+	stats, err := s.queries.GetUserStats(ctx, userID)
+	if err != nil {
+		// User stats don't exist yet, create them
+		stats, err = s.queries.CreateUserStats(ctx, userID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Check if this is the first message of the day (for streak/Marmer)
+	today := time.Now().UTC().Truncate(24 * time.Hour)
+	var marmer int32 = 0
+	var newStreak int32 = stats.CurrentStreak
+	streakUpdated := false
+
+	if stats.LastActiveDate.Valid {
+		lastActive := stats.LastActiveDate.Time
+		daysSinceActive := int(today.Sub(lastActive).Hours() / 24)
+
+		switch {
+		case daysSinceActive == 0:
+			// Already active today - no streak change, no Marmer (already given)
+			newStreak = stats.CurrentStreak
+		case daysSinceActive == 1:
+			// First message of new day, consecutive day - streak continues!
+			newStreak = stats.CurrentStreak + 1
+			streakUpdated = true
+			// Calculate Marmer with streak bonus
+			marmer = int32(s.config.MarmerBaseReward)
+			if s.config.MarmerStreakDivisor > 0 {
+				marmer += newStreak / int32(s.config.MarmerStreakDivisor)
+			}
+		default:
+			// Streak broken - reset to 1
+			newStreak = 1
+			streakUpdated = true
+			marmer = int32(s.config.MarmerBaseReward)
+		}
+	} else {
+		// First time user, start streak at 1
+		newStreak = 1
+		streakUpdated = true
+		marmer = int32(s.config.MarmerBaseReward)
+	}
+
+	return &Rewards{
+		TintaEmas:     tintaEmas,
+		Marmer:        marmer,
+		StreakUpdated: streakUpdated,
+		NewStreak:     newStreak,
+	}, nil
+}
+
 // CountWords counts words in text (simple implementation)
 func CountWords(text string) int {
 	if text == "" {

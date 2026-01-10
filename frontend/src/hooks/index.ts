@@ -26,7 +26,7 @@ export {
 export { useMessages, useSendMessage } from './useMessages'
 
 // AI interactions (Sang Pujangga)
-export { useStartSession, useAIRespond } from './useAI'
+export { useStartSession, useAIRespond, useTodaySession } from './useAI'
 
 // Re-export types for convenience
 export type {
@@ -42,6 +42,7 @@ export type {
   SessionRewards,
   AIRespondResponse,
   StartSessionResponse,
+  TodaySessionResponse,
 } from '../lib/api'
 
 // Re-export apiKeys for custom queries

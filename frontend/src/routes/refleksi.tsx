@@ -1,10 +1,15 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { RedirectToSignIn, SignedIn, SignedOut } from '@clerk/clerk-react'
-import { useEffect, useRef, useState } from 'react'
-import { Feather, Loader2, PenLine, Send, Sparkles } from 'lucide-react'
-import ChatBackground from '../components/ChatBackground'
-import { useAIRespond, useSession, useStartSession } from '../hooks'
+import { useEffect, useState } from 'react'
+import { Home, Sparkles, Loader2 } from 'lucide-react'
+import { useAIRespond, useTodaySession } from '../hooks'
 import type { Message, SessionRewards } from '../hooks'
+import { DepthLevelNames } from '../lib/api'
+
+// New Components
+import JournalPrompt from '../components/JournalPrompt'
+import JournalEntry from '../components/JournalEntry'
+import JournalHistory from '../components/JournalHistory'
 
 export const Route = createFileRoute('/refleksi')({
   component: RefleksiPage,
@@ -25,51 +30,36 @@ function RefleksiPage() {
 
 function JournalInterface() {
   const navigate = useNavigate()
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
   const [inputValue, setInputValue] = useState('')
-  const [turnNumber, setTurnNumber] = useState(0)
-  const [isComplete, setIsComplete] = useState(false)
-  const [rewards, setRewards] = useState<SessionRewards | null>(null)
+  const [depthLevel, setDepthLevel] = useState(1)
   const [localMessages, setLocalMessages] = useState<Array<Message>>([])
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [lastReward, setLastReward] = useState<SessionRewards | null>(null)
+  const [showRewardToast, setShowRewardToast] = useState(false)
 
-  const { mutate: startSession, isPending: isStarting } = useStartSession()
+  // Get or create today's session
+  const { data: todaySession, isLoading: isLoadingSession, error } = useTodaySession()
   const { mutate: sendToAI, isPending: isSending } = useAIRespond()
-  const { data: sessionData, isLoading: isLoadingSession } = useSession(
-    activeSessionId ?? undefined
-  )
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [localMessages])
+  const sessionId = todaySession?.session?.id
 
   // Sync local messages with session data
   useEffect(() => {
-    if (sessionData?.messages) {
-      setLocalMessages(sessionData.messages)
+    if (todaySession?.messages) {
+      setLocalMessages(todaySession.messages)
+      setDepthLevel(todaySession.depth_level || 1)
     }
-  }, [sessionData])
+  }, [todaySession])
 
-  const handleStartSession = () => {
-    startSession(undefined, {
-      onSuccess: ({ session, opening_message }) => {
-        setActiveSessionId(session.id)
-        setTurnNumber(0)
-        setIsComplete(false)
-        setRewards(null)
-        if (opening_message) {
-          setLocalMessages([opening_message])
-        }
-      },
-      onError: (error) => {
-        console.error('Failed to start session:', error)
-      },
-    })
-  }
+  // Hide reward toast after 3 seconds
+  useEffect(() => {
+    if (showRewardToast) {
+      const timer = setTimeout(() => setShowRewardToast(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showRewardToast])
 
   const handleSendMessage = () => {
-    if (!inputValue.trim() || !activeSessionId || isSending) return
+    if (!inputValue.trim() || !sessionId || isSending) return
 
     const content = inputValue.trim()
     setInputValue('')
@@ -77,15 +67,20 @@ function JournalInterface() {
     // Optimistically add user message
     const tempUserMessage: Message = {
       id: `temp-user-${Date.now()}`,
-      session_id: activeSessionId,
+      session_id: sessionId,
       role: 'user',
       content,
       created_at: new Date().toISOString(),
     }
+    
+    // Update local messages immediately
     setLocalMessages((prev) => [...prev, tempUserMessage])
 
+    // Scroll to bottom (optional, or just let natural flow handle it)
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+
     sendToAI(
-      { sessionId: activeSessionId, content },
+      { sessionId, content },
       {
         onSuccess: (response) => {
           // Replace temp message with real messages
@@ -93,12 +88,15 @@ function JournalInterface() {
             const filtered = prev.filter(
               (m) => !m.id.startsWith('temp-user-')
             )
+            // Add user message (confirmed) and new AI prompt
             return [...filtered, response.user_message, response.message]
           })
-          setTurnNumber(response.turn_number)
-          setIsComplete(response.is_complete)
-          if (response.rewards) {
-            setRewards(response.rewards)
+          setDepthLevel(response.depth_level)
+          
+          // Show reward toast if rewards were given
+          if (response.rewards && response.rewards.tinta_emas > 0) {
+            setLastReward(response.rewards)
+            setShowRewardToast(true)
           }
         },
         onError: (error) => {
@@ -113,271 +111,137 @@ function JournalInterface() {
     )
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+  // Determine what to show
+  // 1. History: All messages EXCEPT the last AI message (which is the active prompt)
+  // 2. Active Prompt: The last AI message
+  
+  let historyMessages: Message[] = []
+  let activePrompt = "..."
+
+  if (localMessages.length > 0) {
+    const lastMsg = localMessages[localMessages.length - 1]
+    if (lastMsg.role !== 'user') {
+      // Last message is AI -> It's the active prompt
+      activePrompt = lastMsg.content
+      historyMessages = localMessages.slice(0, -1)
+    } else {
+      // Last message is User -> We are waiting for AI
+      // Show everything in history? Or show loading?
+      // Since we optimistic update, the user message IS the last message.
+      // So we are "waiting for prompt".
+      // We should probably keep the OLD prompt visible or show loading.
+      // But typically in a journal flow:
+      // Prompt 1 -> Answer 1 -> Prompt 2 (Loading)
+      
+      // Let's just show history up to the user message
+      historyMessages = localMessages
+      // Active prompt is loading
+      activePrompt = "..." 
     }
   }
 
-  // Welcome screen - no active session
-  if (!activeSessionId) {
+  // Loading state
+  if (isLoadingSession) {
     return (
       <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-4">
-        <div className="max-w-md text-center">
-          {/* Decorative element */}
-          <div className="mb-8 text-gold">
-            <PenLine size={64} className="mx-auto" />
-          </div>
-
-          <h1 className="font-heading text-4xl text-charcoal mb-4">
-            Refleksi
-          </h1>
-          <p className="font-body text-slate mb-8 leading-relaxed">
-            Mulai percakapan dengan Sang Pujangga. Tiga giliran untuk
-            merefleksikan apa yang ada di pikiranmu hari ini.
-          </p>
-
-          <button
-            onClick={handleStartSession}
-            disabled={isStarting}
-            className="inline-flex items-center gap-3 bg-navy text-cream font-mono uppercase tracking-widest px-8 py-4 rounded-lg hover:bg-charcoal transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isStarting ? (
-              <>
-                <Loader2 className="animate-spin" size={20} />
-                <span>Memulai...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles size={20} />
-                <span>Mulai Menulis</span>
-              </>
-            )}
-          </button>
-        </div>
+        <Loader2 className="animate-spin text-gold mb-4" size={48} />
+        <p className="font-body text-slate">Mempersiapkan ruang refleksi...</p>
       </div>
     )
   }
 
-  // Session complete - show rewards
-  if (isComplete && rewards) {
+  if (error) {
     return (
       <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-4">
-        <div className="max-w-lg text-center animate-fade-in">
-          {/* Golden celebration */}
-          <div className="mb-8 relative">
-            <div className="absolute inset-0 bg-gold/20 rounded-full blur-3xl animate-pulse" />
-            <Sparkles
-              size={80}
-              className="mx-auto text-gold relative z-10"
-            />
-          </div>
-
-          <h1 className="font-heading text-4xl text-charcoal mb-4">
-            Persembahan Diterima
-          </h1>
-          <p className="font-body text-slate mb-8">
-            Refleksimu hari ini telah menjadi bagian dari perjalananmu.
-          </p>
-
-          {/* Rewards display */}
-          <div className="bg-ivory border border-gold/30 rounded-xl p-6 mb-8">
-            <h2 className="font-mono text-xs uppercase tracking-widest text-slate mb-4">
-              Hadiah Hari Ini
-            </h2>
-            <div className="flex justify-center gap-8">
-              <div className="text-center">
-                <div className="font-heading text-3xl text-gold mb-1">
-                  +{rewards.tinta_emas}
-                </div>
-                <div className="font-mono text-xs uppercase tracking-widest text-slate">
-                  Tinta Emas
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="font-heading text-3xl text-charcoal mb-1">
-                  +{rewards.marmer}
-                </div>
-                <div className="font-mono text-xs uppercase tracking-widest text-slate">
-                  Marmer
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gold/20">
-              <div className="font-mono text-sm text-olive">
-                Streak: {rewards.new_streak} hari
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={() => {
-                setActiveSessionId(null)
-                setLocalMessages([])
-                setTurnNumber(0)
-                setIsComplete(false)
-                setRewards(null)
-              }}
-              className="inline-flex items-center gap-2 bg-navy text-cream font-mono uppercase tracking-widest px-6 py-3 rounded-lg hover:bg-charcoal transition-all"
-            >
-              <PenLine size={18} />
-              <span>Tulis Lagi</span>
-            </button>
-            <button
-              onClick={() => navigate({ to: '/' })}
-              className="inline-flex items-center gap-2 bg-transparent text-charcoal border border-charcoal font-mono uppercase tracking-widest px-6 py-3 rounded-lg hover:bg-parchment transition-all"
-            >
-              <span>Kembali</span>
-            </button>
-          </div>
-        </div>
+        <p className="font-body text-coral mb-4">Terjadi kesalahan saat memuat sesi.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-navy text-cream font-mono uppercase px-6 py-3 rounded-lg"
+        >
+          Coba Lagi
+        </button>
       </div>
     )
   }
 
-  // Active chat session
   return (
-    <div className="min-h-screen flex flex-col relative">
-      {/* Background layers */}
-      <ChatBackground />
+    <div className="min-h-screen bg-cream relative selection:bg-gold/30">
+      {/* Background Texture */}
+      <div className="fixed inset-0 pointer-events-none opacity-40 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] z-0" />
 
-      {/* Header with title and turn indicator */}
-      <div className="sticky top-14 z-10 bg-cream/80 backdrop-blur-sm border-b border-gold/20 px-4 py-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="font-heading text-2xl text-charcoal tracking-widest mb-2">
-            REFLEKSI
-          </h1>
-          <div className="flex items-center justify-center gap-2">
-            <span className="font-mono text-xs uppercase tracking-widest text-slate">
-              Giliran
+      {/* Reward Toast */}
+      {showRewardToast && lastReward && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
+          <div className="bg-navy/95 backdrop-blur-sm text-cream px-6 py-3 rounded-full shadow-lg flex items-center gap-3 border border-gold/50">
+            <Sparkles className="text-gold" size={20} />
+            <span className="font-mono text-sm">
+              +{lastReward.tinta_emas} Tinta Emas
             </span>
-            <div className="flex gap-1">
-              {[1, 2, 3].map((turn) => (
-                <div
-                  key={turn}
-                  className={`w-8 h-2 rounded-full transition-all ${
-                    turn <= turnNumber
-                      ? 'bg-gold'
-                      : 'bg-parchment border border-gold/30'
-                  }`}
-                />
-              ))}
-            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-2xl mx-auto space-y-4">
-          {isLoadingSession && localMessages.length === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="animate-spin text-gold" size={32} />
-            </div>
-          ) : (
-            localMessages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
-            ))
-          )}
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-gold/10 px-4 py-4 transition-all">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <button
+            onClick={() => navigate({ to: '/' })}
+            className="p-2 text-slate hover:text-charcoal transition-colors rounded-full hover:bg-gold/10"
+            aria-label="Kembali"
+          >
+            <Home size={20} />
+          </button>
 
-          {/* Typing indicator */}
-          {isSending && (
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-navy flex items-center justify-center flex-shrink-0 shadow-md">
-                <Feather size={16} className="text-gold" />
-              </div>
-              <div className="bg-ivory/90 backdrop-blur-sm border border-gold/20 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-gold rounded-full animate-bounce" />
-                  <div
-                    className="w-2 h-2 bg-gold rounded-full animate-bounce"
-                    style={{ animationDelay: '0.1s' }}
-                  />
-                  <div
-                    className="w-2 h-2 bg-gold rounded-full animate-bounce"
-                    style={{ animationDelay: '0.2s' }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="flex flex-col items-center">
+             <h1 className="font-heading text-xl text-charcoal tracking-[0.2em] text-center">
+              REFLEKSI
+            </h1>
+            <span className="text-[10px] font-mono text-gold uppercase tracking-widest mt-1">
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </span>
+          </div>
 
-          <div ref={messagesEndRef} />
+          <div className="flex items-center gap-2" title={`Kedalaman: ${DepthLevelNames[depthLevel]}`}>
+            {[1, 2, 3].map((level) => (
+              <div
+                key={level}
+                className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                  level <= depthLevel ? 'bg-gold scale-110' : 'bg-slate/20'
+                }`}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Input area - bottom anchored */}
-      <div className="sticky bottom-0 bg-cream/90 backdrop-blur-sm border-t border-gold/20 px-4 py-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-end gap-3 bg-ivory/90 border border-gold/30 rounded-xl p-2 shadow-sm">
-            <textarea
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ceritakan apa yang ada di pikiranmu..."
-              disabled={isSending || isComplete}
-              rows={1}
-              className="flex-1 resize-none bg-transparent font-body text-charcoal placeholder-slate/50 px-3 py-2 focus:outline-none disabled:opacity-50"
-              style={{
-                minHeight: '44px',
-                maxHeight: '120px',
-              }}
+      {/* Main Content */}
+      <main className="relative z-10 max-w-4xl mx-auto px-4 py-12 flex flex-col min-h-[calc(100vh-80px)]">
+        
+        {/* 1. Active Prompt Area */}
+        <section className="mb-8">
+            <JournalPrompt 
+                prompt={activePrompt} 
+                depthLevel={depthLevel} 
+                isLoading={isSending || (localMessages.length > 0 && localMessages[localMessages.length-1].role === 'user')} 
             />
-            <button
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isSending || isComplete}
-              className="p-3 bg-navy text-cream rounded-lg hover:bg-charcoal transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-            >
-              {isSending ? (
-                <Loader2 className="animate-spin" size={20} />
-              ) : (
-                <Send size={20} />
-              )}
-            </button>
-          </div>
-          <p className="font-mono text-xs text-slate/60 mt-2 text-center">
-            Tekan Enter untuk mengirim, Shift+Enter untuk baris baru
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
+        </section>
 
-function ChatMessage({ message }: { message: Message }) {
-  const isUser = message.role === 'user'
+        {/* 2. Writing Area */}
+        <section className="mb-16">
+            <JournalEntry 
+                value={inputValue}
+                onChange={setInputValue}
+                onSubmit={handleSendMessage}
+                isSubmitting={isSending}
+            />
+        </section>
 
-  return (
-    <div
-      className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`}
-    >
-      {/* Avatar */}
-      <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-md ${
-          isUser ? 'bg-gold' : 'bg-navy'
-        }`}
-      >
-        {isUser ? (
-          <span className="font-mono text-sm text-navy font-bold">A</span>
-        ) : (
-          <Feather size={16} className="text-gold" />
-        )}
-      </div>
+        {/* 3. History Area */}
+        <section>
+            <JournalHistory messages={historyMessages} />
+        </section>
 
-      {/* Message bubble */}
-      <div
-        className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm ${
-          isUser
-            ? 'bg-gold text-navy rounded-tr-none'
-            : 'bg-ivory/90 backdrop-blur-sm border border-gold/20 text-charcoal rounded-tl-none'
-        }`}
-      >
-        <p className="font-body leading-relaxed whitespace-pre-wrap">
-          {message.content}
-        </p>
-      </div>
+      </main>
     </div>
   )
 }

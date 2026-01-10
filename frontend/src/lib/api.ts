@@ -141,6 +141,7 @@ export const apiKeys = {
   sessions: () => [...apiKeys.all, 'sessions'] as const,
   session: (id: string) => [...apiKeys.sessions(), id] as const,
   sessionActive: () => [...apiKeys.sessions(), 'active'] as const,
+  sessionToday: () => [...apiKeys.sessions(), 'today'] as const,
   // Artworks (gallery)
   artworks: () => [...apiKeys.all, 'artworks'] as const,
   artwork: (id: string) => [...apiKeys.artworks(), id] as const,
@@ -292,10 +293,10 @@ export interface SessionRewards {
  */
 export interface AIRespondResponse {
   message: Message
-  turn_number: number
-  is_complete: boolean
-  rewards: SessionRewards | null
   user_message: Message
+  message_count: number
+  depth_level: number  // 1=surface, 2=light, 3=deep
+  rewards: SessionRewards | null
 }
 
 /**
@@ -304,4 +305,23 @@ export interface AIRespondResponse {
 export interface StartSessionResponse {
   session: Session
   opening_message: Message | null
+}
+
+/**
+ * Response from getting or creating today's session
+ */
+export interface TodaySessionResponse {
+  session: Session
+  messages: Message[]
+  is_new: boolean
+  depth_level: number  // 1=surface, 2=light, 3=deep
+}
+
+/**
+ * Depth level names for UI display
+ */
+export const DepthLevelNames: Record<number, string> = {
+  1: 'Permukaan',
+  2: 'Ringan',
+  3: 'Dalam',
 }

@@ -65,6 +65,14 @@ WHERE user_id = $1 AND status = 'active'
 ORDER BY started_at DESC
 LIMIT 1;
 
+-- name: GetTodayActiveSession :one
+SELECT * FROM sessions
+WHERE user_id = $1 
+  AND status = 'active' 
+  AND started_at::date = CURRENT_DATE
+ORDER BY started_at DESC
+LIMIT 1;
+
 -- name: ListSessionsByUser :many
 SELECT * FROM sessions
 WHERE user_id = $1
@@ -115,6 +123,12 @@ WHERE session_id = $1;
 -- name: CountUserMessagesBySession :one
 SELECT COUNT(*) FROM messages
 WHERE session_id = $1 AND role = 'user';
+
+-- name: GetRecentMessages :many
+SELECT * FROM messages
+WHERE session_id = $1
+ORDER BY created_at DESC
+LIMIT $2;
 
 -- ==================== ARTWORKS ====================
 
