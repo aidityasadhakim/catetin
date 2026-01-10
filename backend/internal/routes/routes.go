@@ -32,4 +32,8 @@ func Register(e *echo.Echo, h *handlers.Handler) {
 	api.GET("/sessions", h.ListSessions)
 	api.GET("/sessions/:id", h.GetSession)
 	api.PUT("/sessions/:id", h.UpdateSession)
+
+	// Messages
+	api.POST("/sessions/:id/messages", h.CreateMessage)
+	api.GET("/sessions/:id/messages", h.ListMessages)
 }
