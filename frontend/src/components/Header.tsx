@@ -4,88 +4,109 @@ import { Link } from '@tanstack/react-router'
 import ClerkHeader from '../integrations/clerk/header-user.tsx'
 import { ThemeToggle } from './ThemeToggle'
 import UserStatsBar from './UserStatsBar'
+import { useTheme } from '../hooks'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isDark } = useTheme()
+
+  // Solid background colors for mobile menu
+  const menuBgColor = isDark ? '#141414' : '#f5f5f0'
+  const backdropColor = 'rgba(0, 0, 0, 0.8)'
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-sm bg-background/90 border-b border-border">
-      <nav className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo - Left */}
-        <Link
-          to="/"
-          className="font-headline text-lg sm:text-xl tracking-widest text-foreground hover:text-primary transition-colors"
-        >
-          CATETIN
-        </Link>
-
-        {/* Center Navigation - Hidden on mobile */}
-        <div className="hidden md:flex items-center gap-6">
+    <>
+      <header className="sticky top-0 z-50 backdrop-blur-sm bg-background/90 border-b border-border">
+        <nav className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          {/* Logo - Left */}
           <Link
-            to="/refleksi"
-            className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
-            activeProps={{
-              className:
-                'flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-foreground border-b-2 border-primary pb-1 px-2',
-            }}
+            to="/"
+            className="font-headline text-lg sm:text-xl tracking-widest text-foreground hover:text-primary transition-colors"
           >
-            <PenLine size={16} />
-            <span>Journal</span>
+            CATETIN
           </Link>
 
-          <Link
-            to="/history"
-            className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
-            activeProps={{
-              className:
-                'flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-foreground border-b-2 border-primary pb-1 px-2',
-            }}
-          >
-            <BookOpen size={16} />
-            <span>History</span>
-          </Link>
+          {/* Center Navigation - Hidden on mobile */}
+          <div className="hidden md:flex items-center gap-6">
+            <Link
+              to="/refleksi"
+              className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+              activeProps={{
+                className:
+                  'flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-foreground border-b-2 border-primary pb-1 px-2',
+              }}
+            >
+              <PenLine size={16} />
+              <span>Journal</span>
+            </Link>
 
-          <button
-            disabled
-            className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground/50 cursor-not-allowed px-2 py-1"
-            title="Coming Soon"
-          >
-            <Image size={16} />
-            <span>Galeri</span>
-          </button>
-        </div>
+            <Link
+              to="/history"
+              className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+              activeProps={{
+                className:
+                  'flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-foreground border-b-2 border-primary pb-1 px-2',
+              }}
+            >
+              <BookOpen size={16} />
+              <span>History</span>
+            </Link>
 
-        {/* Right side - Stats, Theme toggle & User */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          <UserStatsBar />
-          <div className="w-px h-5 bg-border hidden sm:block" />
-          <ThemeToggle />
-          <ClerkHeader />
+            <button
+              disabled
+              className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-muted-foreground/50 cursor-not-allowed px-2 py-1"
+              title="Coming Soon"
+            >
+              <Image size={16} />
+              <span>Galeri</span>
+            </button>
+          </div>
 
-          {/* Hamburger Menu Button - Mobile only */}
-          <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
-            aria-label="Open menu"
-          >
-            <Menu size={24} />
-          </button>
-        </div>
-      </nav>
+          {/* Right side - Stats, Theme toggle & User */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            <UserStatsBar />
+            <div className="w-px h-5 bg-border hidden sm:block" />
+            <ThemeToggle />
+            <ClerkHeader />
 
-      {/* Mobile Menu Overlay */}
+            {/* Hamburger Menu Button - Mobile only */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu size={24} />
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Mobile Menu Overlay - Rendered OUTSIDE header for proper stacking */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] md:hidden">
-          {/* Backdrop */}
+        <div 
+          className="fixed inset-0 md:hidden"
+          style={{ 
+            zIndex: 9999,
+            isolation: 'isolate',
+          }}
+        >
+          {/* Backdrop - solid dark overlay */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0"
+            style={{ backgroundColor: backdropColor }}
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          {/* Menu Panel - Slide from right */}
-          <div className="absolute right-0 top-0 h-full w-72 bg-background/95 backdrop-blur-xl border-l border-border shadow-2xl animate-in slide-in-from-right duration-300">
+          {/* Menu Panel - Slide from right with guaranteed solid background */}
+          <div 
+            className="absolute right-0 top-0 h-full w-72 border-l border-border shadow-2xl animate-in slide-in-from-right duration-300"
+            style={{ backgroundColor: menuBgColor }}
+          >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border">
+            <div 
+              className="flex items-center justify-between p-4 border-b border-border"
+              style={{ backgroundColor: menuBgColor }}
+            >
               <span className="font-headline text-lg tracking-widest text-foreground">
                 Menu
               </span>
@@ -99,7 +120,10 @@ export default function Header() {
             </div>
 
             {/* Navigation Links */}
-            <div className="flex flex-col p-4 gap-2">
+            <div 
+              className="flex flex-col p-4 gap-2"
+              style={{ backgroundColor: menuBgColor }}
+            >
               <Link
                 to="/refleksi"
                 onClick={() => setMobileMenuOpen(false)}
@@ -143,7 +167,10 @@ export default function Header() {
             <div className="mx-4 border-t border-border" />
 
             {/* Footer info */}
-            <div className="p-4">
+            <div 
+              className="p-4"
+              style={{ backgroundColor: menuBgColor }}
+            >
               <p className="font-mono text-xs text-muted-foreground">
                 Catetin - Your Journaling Companion
               </p>
@@ -151,6 +178,6 @@ export default function Header() {
           </div>
         </div>
       )}
-    </header>
+    </>
   )
 }
