@@ -24,7 +24,7 @@ services:
       - catetin-staging-network
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - BACKEND_PORT=8080
+      - BACKEND_PORT=3459
       - BACKEND_HOST=0.0.0.0
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -32,7 +32,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:3459/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -57,7 +57,7 @@ services:
       - "443:443"
     volumes:
       # Caddy configuration
-      - ../Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       # Frontend static files (pre-built)
       - ../../frontend/dist:/srv:ro
       # Persist certificates and config

@@ -45,7 +45,7 @@ catetin.aidityas.me {
 catetin-staging.aidityas.me {
 	# API routes - proxy to Go backend
 	handle /api/* {
-		reverse_proxy localhost:8080
+		reverse_proxy localhost:3459
 	}
 
 	# Static files - serve frontend build

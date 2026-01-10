@@ -1,0 +1,31 @@
+# Catetin Staging Caddyfile
+# Uses Docker network - proxies to backend service name
+
+{
+	email admin@catetin.aidityas.me
+	admin off
+	log {
+		output stdout
+		format json
+	}
+}
+
+# ================================
+# Staging
+# ================================
+catetin-staging.aidityas.me {
+	# API routes - proxy to Go backend (Docker service name)
+	handle /api/* {
+		reverse_proxy backend:3459
+	}
+
+	# Static files - serve frontend build
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Compression
+	encode gzip zstd
+}
