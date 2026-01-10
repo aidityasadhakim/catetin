@@ -106,6 +106,18 @@ frontend-build:
 	@echo "Frontend built successfully!"
 	@echo "Files are in frontend/dist/"
 
+## Start production environment
+prod-up:
+	@echo "⚠️  Starting production..."
+	@echo "⚠️  Ensure DNS is configured!"
+	cd deploy/prod && docker compose --env-file ../../.env up --build -d
+
+## Stop production environment
+prod-down:
+	@echo "⚠️  Stopping production..."
+	cd deploy/prod && docker compose --env-file ../../.env down
+
+
 # ================================
 # Help
 # ================================
