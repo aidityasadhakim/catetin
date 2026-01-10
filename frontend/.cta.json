@@ -8,11 +8,5 @@
   "git": true,
   "version": 1,
   "framework": "react-cra",
-  "chosenAddOns": [
-    "eslint",
-    "clerk",
-    "shadcn",
-    "table",
-    "tanstack-query"
-  ]
+  "chosenAddOns": ["eslint", "clerk", "shadcn", "table", "tanstack-query"]
 }

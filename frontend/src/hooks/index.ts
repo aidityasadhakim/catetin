@@ -10,6 +10,7 @@
 
 // Utility hooks
 export { useIsMobile } from './useIsMobile'
+export { useTheme, initializeTheme, type Theme } from './useTheme'
 
 // User gamification stats
 export { useUserStats } from './useUserStats'
@@ -18,6 +19,7 @@ export { useUserStats } from './useUserStats'
 export {
   useCreateSession,
   useSessions,
+  useInfiniteSessions,
   useSession,
   useUpdateSession,
 } from './useSessions'
@@ -32,6 +34,7 @@ export { useStartSession, useAIRespond, useTodaySession } from './useAI'
 export type {
   UserStats,
   Session,
+  SessionWithPreview,
   SessionStatus,
   Message,
   Artwork,

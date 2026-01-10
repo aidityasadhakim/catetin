@@ -8,14 +8,19 @@
  * - Updating session status
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useAuth } from '@clerk/clerk-react'
 import { apiKeys, useApiClient } from '../lib/api'
-import type { Message, Session } from '../lib/api'
+import type { Message, Session, SessionWithPreview } from '../lib/api'
 
 // Response types
 interface SessionsListResponse {
-  sessions: Array<Session>
+  sessions: Array<SessionWithPreview>
   limit: number
   offset: number
 }
@@ -76,7 +81,7 @@ export function useSessions(limit = 20, offset = 0) {
     queryKey: [...apiKeys.sessions(), { limit, offset }],
     queryFn: async (): Promise<SessionsListResponse> => {
       const { data, error } = await api.get<SessionsListResponse>(
-        `/api/sessions?limit=${limit}&offset=${offset}`
+        `/api/sessions?limit=${limit}&offset=${offset}`,
       )
       if (error) {
         throw new Error(error)
@@ -85,6 +90,56 @@ export function useSessions(limit = 20, offset = 0) {
         throw new Error('No data returned from sessions endpoint')
       }
       return data
+    },
+    enabled: !!isSignedIn,
+    staleTime: 30 * 1000, // 30 seconds
+  })
+}
+
+/**
+ * Fetches sessions with infinite scroll support.
+ * Returns sessions with first user message preview.
+ *
+ * @param limit - Number of sessions per page (default: 20)
+ *
+ * @example
+ * const {
+ *   data,
+ *   fetchNextPage,
+ *   hasNextPage,
+ *   isFetchingNextPage
+ * } = useInfiniteSessions()
+ */
+export function useInfiniteSessions(limit = 20) {
+  const api = useApiClient()
+  const { isSignedIn } = useAuth()
+
+  return useInfiniteQuery({
+    queryKey: [...apiKeys.sessions(), 'infinite', { limit }],
+    queryFn: async ({ pageParam = 0 }): Promise<SessionsListResponse> => {
+      const { data, error } = await api.get<SessionsListResponse>(
+        `/api/sessions?limit=${limit}&offset=${pageParam}`,
+      )
+      if (error) {
+        throw new Error(error)
+      }
+      if (!data) {
+        throw new Error('No data returned from sessions endpoint')
+      }
+      return data
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer sessions than the limit, there are no more pages
+      if (lastPage.sessions.length < limit) {
+        return undefined
+      }
+      // Calculate the next offset
+      const totalFetched = allPages.reduce(
+        (sum, page) => sum + page.sessions.length,
+        0,
+      )
+      return totalFetched
     },
     enabled: !!isSignedIn,
     staleTime: 30 * 1000, // 30 seconds
@@ -110,7 +165,7 @@ export function useSession(sessionId: string | undefined) {
     queryKey: apiKeys.session(sessionId ?? ''),
     queryFn: async (): Promise<SessionWithMessages> => {
       const { data, error } = await api.get<SessionWithMessages>(
-        `/api/sessions/${sessionId}`
+        `/api/sessions/${sessionId}`,
       )
       if (error) {
         throw new Error(error)
@@ -146,7 +201,7 @@ export function useUpdateSession() {
     }): Promise<Session> => {
       const { data, error } = await api.put<Session>(
         `/api/sessions/${sessionId}`,
-        { status }
+        { status },
       )
       if (error) {
         throw new Error(error)

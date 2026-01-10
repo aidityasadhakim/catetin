@@ -15,7 +15,7 @@ const addGoldenInk = `-- name: AddGoldenInk :one
 UPDATE user_stats
 SET golden_ink = golden_ink + $2, updated_at = NOW()
 WHERE user_id = $1
-RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
 `
 
 type AddGoldenInkParams struct {
@@ -35,6 +35,9 @@ func (q *Queries) AddGoldenInk(ctx context.Context, arg AddGoldenInkParams) (Use
 		&i.LastActiveDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }
@@ -43,7 +46,7 @@ const addMarble = `-- name: AddMarble :one
 UPDATE user_stats
 SET marble = marble + $2, updated_at = NOW()
 WHERE user_id = $1
-RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
 `
 
 type AddMarbleParams struct {
@@ -63,6 +66,9 @@ func (q *Queries) AddMarble(ctx context.Context, arg AddMarbleParams) (UserStat,
 		&i.LastActiveDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }
@@ -94,6 +100,40 @@ func (q *Queries) AddSessionGoldenInk(ctx context.Context, arg AddSessionGoldenI
 		&i.EndedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const addXP = `-- name: AddXP :one
+UPDATE user_stats
+SET 
+    current_xp = current_xp + $2,
+    total_xp = total_xp + $2,
+    updated_at = NOW()
+WHERE user_id = $1
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
+`
+
+type AddXPParams struct {
+	UserID    string `json:"user_id"`
+	CurrentXp int32  `json:"current_xp"`
+}
+
+func (q *Queries) AddXP(ctx context.Context, arg AddXPParams) (UserStat, error) {
+	row := q.db.QueryRow(ctx, addXP, arg.UserID, arg.CurrentXp)
+	var i UserStat
+	err := row.Scan(
+		&i.UserID,
+		&i.GoldenInk,
+		&i.Marble,
+		&i.CurrentStreak,
+		&i.LongestStreak,
+		&i.LastActiveDate,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }
@@ -215,7 +255,7 @@ func (q *Queries) CreateSession(ctx context.Context, userID string) (Session, er
 const createUserStats = `-- name: CreateUserStats :one
 INSERT INTO user_stats (user_id)
 VALUES ($1)
-RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
 `
 
 func (q *Queries) CreateUserStats(ctx context.Context, userID string) (UserStat, error) {
@@ -230,6 +270,9 @@ func (q *Queries) CreateUserStats(ctx context.Context, userID string) (UserStat,
 		&i.LastActiveDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }
@@ -553,9 +596,27 @@ func (q *Queries) GetUserArtwork(ctx context.Context, arg GetUserArtworkParams) 
 	return i, err
 }
 
+const getUserLevel = `-- name: GetUserLevel :one
+SELECT level, current_xp, total_xp FROM user_stats
+WHERE user_id = $1
+`
+
+type GetUserLevelRow struct {
+	Level     int32 `json:"level"`
+	CurrentXp int32 `json:"current_xp"`
+	TotalXp   int32 `json:"total_xp"`
+}
+
+func (q *Queries) GetUserLevel(ctx context.Context, userID string) (GetUserLevelRow, error) {
+	row := q.db.QueryRow(ctx, getUserLevel, userID)
+	var i GetUserLevelRow
+	err := row.Scan(&i.Level, &i.CurrentXp, &i.TotalXp)
+	return i, err
+}
+
 const getUserStats = `-- name: GetUserStats :one
 
-SELECT user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at FROM user_stats WHERE user_id = $1
+SELECT user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp FROM user_stats WHERE user_id = $1
 `
 
 // ==================== USER STATS ====================
@@ -571,6 +632,9 @@ func (q *Queries) GetUserStats(ctx context.Context, userID string) (UserStat, er
 		&i.LastActiveDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }
@@ -739,6 +803,73 @@ func (q *Queries) ListSessionsByUser(ctx context.Context, arg ListSessionsByUser
 	return items, nil
 }
 
+const listSessionsWithPreview = `-- name: ListSessionsWithPreview :many
+SELECT 
+    s.id, s.user_id, s.status, s.total_messages, s.golden_ink_earned, s.started_at, s.ended_at, s.created_at, s.updated_at,
+    COALESCE(
+        (SELECT LEFT(m.content, 150)
+         FROM messages m 
+         WHERE m.session_id = s.id AND m.role = 'user' 
+         ORDER BY m.created_at ASC 
+         LIMIT 1),
+        ''
+    ) as first_user_message
+FROM sessions s
+WHERE s.user_id = $1
+ORDER BY s.started_at DESC
+LIMIT $2 OFFSET $3
+`
+
+type ListSessionsWithPreviewParams struct {
+	UserID string `json:"user_id"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+type ListSessionsWithPreviewRow struct {
+	ID               pgtype.UUID        `json:"id"`
+	UserID           string             `json:"user_id"`
+	Status           string             `json:"status"`
+	TotalMessages    int32              `json:"total_messages"`
+	GoldenInkEarned  int32              `json:"golden_ink_earned"`
+	StartedAt        pgtype.Timestamptz `json:"started_at"`
+	EndedAt          pgtype.Timestamptz `json:"ended_at"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+	FirstUserMessage interface{}        `json:"first_user_message"`
+}
+
+func (q *Queries) ListSessionsWithPreview(ctx context.Context, arg ListSessionsWithPreviewParams) ([]ListSessionsWithPreviewRow, error) {
+	rows, err := q.db.Query(ctx, listSessionsWithPreview, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListSessionsWithPreviewRow{}
+	for rows.Next() {
+		var i ListSessionsWithPreviewRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Status,
+			&i.TotalMessages,
+			&i.GoldenInkEarned,
+			&i.StartedAt,
+			&i.EndedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.FirstUserMessage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listUserArtworks = `-- name: ListUserArtworks :many
 SELECT 
     ua.id, ua.user_id, ua.artwork_id, ua.progress, ua.status, ua.unlocked_at, ua.completed_at, ua.created_at, ua.updated_at,
@@ -855,7 +986,7 @@ const spendGoldenInk = `-- name: SpendGoldenInk :one
 UPDATE user_stats
 SET golden_ink = golden_ink - $2, updated_at = NOW()
 WHERE user_id = $1 AND golden_ink >= $2
-RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
 `
 
 type SpendGoldenInkParams struct {
@@ -875,6 +1006,9 @@ func (q *Queries) SpendGoldenInk(ctx context.Context, arg SpendGoldenInkParams) 
 		&i.LastActiveDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }
@@ -883,7 +1017,7 @@ const spendMarble = `-- name: SpendMarble :one
 UPDATE user_stats
 SET marble = marble - $2, updated_at = NOW()
 WHERE user_id = $1 AND marble >= $2
-RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
 `
 
 type SpendMarbleParams struct {
@@ -903,6 +1037,9 @@ func (q *Queries) SpendMarble(ctx context.Context, arg SpendMarbleParams) (UserS
 		&i.LastActiveDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }
@@ -969,6 +1106,41 @@ func (q *Queries) UpdateArtworkProgress(ctx context.Context, arg UpdateArtworkPr
 	return i, err
 }
 
+const updateLevel = `-- name: UpdateLevel :one
+UPDATE user_stats
+SET 
+    level = $2,
+    current_xp = $3,
+    updated_at = NOW()
+WHERE user_id = $1
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
+`
+
+type UpdateLevelParams struct {
+	UserID    string `json:"user_id"`
+	Level     int32  `json:"level"`
+	CurrentXp int32  `json:"current_xp"`
+}
+
+func (q *Queries) UpdateLevel(ctx context.Context, arg UpdateLevelParams) (UserStat, error) {
+	row := q.db.QueryRow(ctx, updateLevel, arg.UserID, arg.Level, arg.CurrentXp)
+	var i UserStat
+	err := row.Scan(
+		&i.UserID,
+		&i.GoldenInk,
+		&i.Marble,
+		&i.CurrentStreak,
+		&i.LongestStreak,
+		&i.LastActiveDate,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
+	)
+	return i, err
+}
+
 const updateStreak = `-- name: UpdateStreak :one
 UPDATE user_stats
 SET 
@@ -977,7 +1149,7 @@ SET
     last_active_date = $3,
     updated_at = NOW()
 WHERE user_id = $1
-RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
 `
 
 type UpdateStreakParams struct {
@@ -998,6 +1170,9 @@ func (q *Queries) UpdateStreak(ctx context.Context, arg UpdateStreakParams) (Use
 		&i.LastActiveDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }
@@ -1006,7 +1181,7 @@ const upsertUserStats = `-- name: UpsertUserStats :one
 INSERT INTO user_stats (user_id)
 VALUES ($1)
 ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
-RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at
+RETURNING user_id, golden_ink, marble, current_streak, longest_streak, last_active_date, created_at, updated_at, level, current_xp, total_xp
 `
 
 func (q *Queries) UpsertUserStats(ctx context.Context, userID string) (UserStat, error) {
@@ -1021,6 +1196,9 @@ func (q *Queries) UpsertUserStats(ctx context.Context, userID string) (UserStat,
 		&i.LastActiveDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Level,
+		&i.CurrentXp,
+		&i.TotalXp,
 	)
 	return i, err
 }

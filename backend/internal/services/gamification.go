@@ -186,9 +186,14 @@ func (s *GamificationService) CalculateAndApplyRewards(ctx context.Context, user
 // Tinta Emas is calculated per message, Marmer/streak is only updated once per day
 func (s *GamificationService) CalculateMessageReward(ctx context.Context, userID string, wordCount int) (*Rewards, error) {
 	// Calculate Tinta Emas based on word count for this message
+	// Every message gets a minimum of 1 Tinta Emas + bonus for longer messages
 	tintaEmas := int32(0)
-	if s.config.TintaEmasPerWord > 0 {
-		tintaEmas = int32(wordCount / s.config.TintaEmasPerWord)
+	if wordCount > 0 {
+		// Base reward of 1 + word bonus (1 extra per TintaEmasPerWord words)
+		tintaEmas = int32(1)
+		if s.config.TintaEmasPerWord > 0 {
+			tintaEmas += int32(wordCount / s.config.TintaEmasPerWord)
+		}
 	}
 
 	// Get current user stats for streak calculation

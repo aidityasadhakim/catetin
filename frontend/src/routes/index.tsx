@@ -1,5 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { ArrowRight, Menu } from 'lucide-react'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
   component: LandingPage,
@@ -7,140 +6,144 @@ export const Route = createFileRoute('/')({
 
 function LandingPage() {
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-navy text-cream selection:bg-gold selection:text-navy">
+    <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground font-body selection:bg-earth-gold selection:text-nature-foliage-dark">
       {/* Background Image */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60"
-        style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1542259685-9a844439c0aa?q=80&w=2069&auto=format&fit=crop")' }}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/assets/images/landing-page-background.png')",
+        }}
       >
-        <div className="absolute inset-0 bg-navy/40 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
       </div>
 
-      {/* Decorative Borders/Lines */}
-      <div className="absolute inset-x-8 top-24 bottom-24 border-x border-gold/20 z-10 pointer-events-none hidden md:block">
-        <div className="absolute top-0 -left-1.5 w-3 h-3 bg-gold rotate-45" />
-        <div className="absolute top-0 -right-1.5 w-3 h-3 bg-gold rotate-45" />
-        <div className="absolute top-[20%] -left-1.5 w-2 h-2 border border-gold rotate-45" />
-        <div className="absolute top-[20%] -right-1.5 w-2 h-2 border border-gold rotate-45" />
-      </div>
-      <div className="absolute inset-x-8 top-24 border-t border-gold/20 z-10 pointer-events-none hidden md:block" />
+      {/* Dither/Grain Overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] opacity-20 mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
 
-      {/* Header */}
-      <nav className="absolute top-0 left-0 right-0 z-50 px-8 py-8 flex justify-between items-center">
-        <div className="flex items-center gap-8">
-           {/* Logo */}
-           <div className="flex items-center gap-2">
-             <div className="w-8 h-8 bg-gold/20 backdrop-blur-sm border border-gold/40 rotate-45 flex items-center justify-center">
-                <div className="w-4 h-4 bg-gold rotate-45" />
-             </div>
-             <span className="font-heading text-2xl text-cream tracking-widest">CATETIN</span>
-           </div>
-           
-           {/* Socials */}
-           <div className="hidden md:flex items-center gap-4 text-xs font-mono uppercase tracking-widest text-cream/60 ml-8">
-             <span>Social</span>
-             <a href="#" className="hover:text-gold transition-colors">Li</a>
-             <a href="#" className="hover:text-gold transition-colors">In</a>
-             <a href="#" className="hover:text-gold transition-colors">X</a>
-           </div>
+      {/* Navigation */}
+      <nav className="relative z-10 flex items-center justify-between px-8 py-6 md:px-12">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 bg-gradient-to-br from-earth-gold to-white opacity-80 backdrop-blur-md"></div>
+          <span className="font-ui text-2xl font-bold tracking-widest text-white drop-shadow-md">
+            CATETIN
+          </span>
         </div>
 
-        {/* Menu & CTA */}
-        <div className="flex items-center gap-8">
-           <div className="hidden md:flex items-center gap-8 font-body text-sm text-cream/80">
-             <a href="/refleksi" className="hover:text-gold transition-colors">Reflections</a>
-             <a href="#" className="hover:text-gold transition-colors">Gallery</a>
-             <a href="#" className="hover:text-gold transition-colors">Manifesto</a>
-           </div>
-           
-           <a href="/refleksi" className="hidden md:flex items-center gap-2 px-6 py-2 rounded-full border border-cream/20 bg-cream/5 backdrop-blur-sm hover:bg-cream/10 transition-colors text-sm font-medium">
-             <span>Join the journey</span>
-           </a>
-           
-           <button className="md:hidden text-cream">
-             <Menu />
-           </button>
+        <div className="hidden items-center gap-12 md:flex">
+          <div className="flex gap-8 font-ui text-sm font-medium tracking-wide text-white/90 drop-shadow-sm">
+            <Link
+              to="/refleksi"
+              className="transition-colors hover:text-earth-gold"
+            >
+              Masuk
+            </Link>
+          </div>
+          <Link
+            to="/refleksi"
+            className="rounded-full border border-white/20 bg-earth-gold  px-6 py-2 font-ui text-sm text-black backdrop-blur-md transition-all hover:scale-105 hover:bg-white/20 active:scale-95"
+          >
+            Mulai Menulis
+          </Link>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="relative z-20 h-full flex flex-col justify-center px-8 md:px-24 pt-20">
-        <div className="grid md:grid-cols-12 gap-12 items-center h-full">
-          
-          {/* Left/Center Text */}
-          <div className="md:col-span-7 relative z-20">
-            <h1 className="font-heading text-6xl md:text-8xl lg:text-9xl leading-[0.9] text-cream mb-8">
-              <span className="block italic font-light opacity-90">Craft Your</span>
-              <span className="block text-gold ml-12">Masterpiece</span>
-            </h1>
-            
-            <p className="font-body text-lg md:text-xl text-cream/80 max-w-lg leading-relaxed mb-10 ml-2">
-              Transform fleeting thoughts into timeless art. A journaling experience designed for creators who see reflection as architecture — not just text.
-            </p>
-            
-            <div className="flex items-center gap-6 ml-2">
-              <a href="/refleksi" className="px-8 py-4 bg-gold text-navy font-heading font-bold text-lg rounded-full hover:bg-gold-light transition-transform hover:scale-105 shadow-[0_0_30px_rgba(212,168,75,0.3)]">
-                Start Writing
-              </a>
-              <button className="px-8 py-4 text-cream font-heading text-lg hover:text-gold transition-colors flex items-center gap-2 group">
-                View Gallery <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
+      <main className="relative z-10 flex min-h-[80vh] flex-col justify-center px-8 md:px-12">
+        <div className="max-w-4xl">
+          {/* Hero Headline */}
+          <h1 className="animate-fade-in-up font-headline font-bold text-6xl leading-[0.9] tracking-tight text-white drop-shadow-lg md:text-8xl lg:text-[7rem]">
+            Tulis masalahnya <br />
+            <span className="ml-12 md:ml-24">Klaim reward-nya.</span>
+          </h1>
+
+          {/* Subtext */}
+          <div className="mt-8 max-w-lg animate-fade-in-up space-y-4 font-body text-xl font-semibold text-white/90 drop-shadow-md [animation-delay:200ms]">
+            <p>
+              Hidup adalah game, dan jurnal ini adalah save point-mu. <br />
+              Selesaikan misi harian dengan mencatat, dan bangun pilar ketenanganmu.</p>
           </div>
 
-          {/* Right/Center Imagery - Statue */}
-          <div className="absolute md:relative md:col-span-5 inset-0 md:inset-auto z-10 flex justify-center md:justify-end items-center opacity-40 md:opacity-100 pointer-events-none md:pointer-events-auto">
-             <div className="relative w-full h-[80vh] md:h-full flex items-center justify-center">
-                <img 
-                  src="https://images.unsplash.com/photo-1550186481-b552d8e068f8?q=80&w=1964&auto=format&fit=crop" 
-                  alt="Classical Statue"
-                  className="max-h-full object-contain drop-shadow-2xl grayscale contrast-125"
-                />
-             </div>
+          {/* CTA Buttons */}
+          <div className="mt-10 flex animate-fade-in-up items-center gap-6 [animation-delay:400ms]">
+            <Link
+              to="/refleksi"
+              className="rounded-full bg-earth-gold px-8 py-3 font-ui font-semibold text-nature-foliage-dark shadow-[0_0_20px_rgba(212,168,75,0.4)] transition-transform hover:scale-105 hover:bg-white hover:text-nature-foliage-dark"
+            >
+              Mulai Sekarang
+            </Link>
+            <button className="font-ui text-white transition-colors hover:text-earth-gold">
+              Pelajari Lebih Lanjut
+            </button>
           </div>
-          
+        </div>
+
+        {/* Floating Collection Card (Bottom Right) */}
+        <div className="absolute bottom-12 right-8 w-64 animate-float md:bottom-24 md:right-16">
+          <div className="group relative overflow-hidden border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur-xl transition-all hover:bg-white/20">
+            <div className="absolute right-0 top-0 p-2 opacity-50">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+                className="text-white"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </div>
+            <h3 className="mb-2 font-headline text-3xl text-earth-gold drop-shadow-sm">
+              Mahakarya <br /> Minggu Ini
+            </h3>
+
+            <div className="mt-4 flex items-center justify-between border-t border-white/20 pt-4">
+              <span className="font-ui text-xs text-white/80">
+                Lihat Koleksi
+              </span>
+              <span className="text-white">→</span>
+            </div>
+
+            {/* Decorative Image inside card */}
+            <div className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-earth-gold/20 blur-2xl transition-all group-hover:bg-earth-gold/30"></div>
+          </div>
+        </div>
+
+        {/* Bottom Scroll/Collection Indicators */}
+        <div className="absolute bottom-8 left-8 flex animate-fade-in-up items-center gap-2 font-mono text-xs text-white/60 [animation-delay:600ms]">
+          <span className="animate-bounce">↓</span> Gulir
+        </div>
+
+        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 animate-fade-in-up items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 backdrop-blur-md [animation-delay:600ms]">
+          <div
+            className="h-4 w-6 rounded-sm bg-cover bg-center"
+            style={{
+              backgroundImage:
+                "url('/assets/images/landing-page-background.png')",
+            }}
+          ></div>
+          <span className="font-mono text-xs text-white">Koleksi</span>
+          <span className="ml-1 text-white/40">≡</span>
         </div>
       </main>
-      
-      {/* Floating Card - "New Renaissance Collection" */}
-      <div className="absolute bottom-32 right-12 z-30 hidden lg:block">
-         <div className="relative group cursor-pointer">
-            <div className="w-64 h-80 bg-navy/80 backdrop-blur-md border border-gold/20 p-2 transform rotate-3 transition-transform group-hover:rotate-0 duration-500">
-               <div className="w-full h-full relative overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?q=80&w=2000&auto=format&fit=crop"
-                    alt="Renaissance Art"
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
-                  />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-navy/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                     <span className="font-heading text-2xl text-gold italic">New<br/>Renaissance<br/>Collection</span>
-                  </div>
-               </div>
-            </div>
-            <div className="absolute -bottom-6 left-0 right-0 text-center">
-               <span className="font-mono text-xs uppercase tracking-widest text-gold flex items-center justify-center gap-2">
-                  View Collection <ArrowRight size={12} />
-               </span>
-            </div>
-         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="absolute bottom-8 left-0 right-0 px-8 flex justify-between items-end z-30 text-xs font-mono uppercase tracking-widest text-cream/60">
-        <div className="flex items-center gap-2">
-           <div className="w-4 h-6 border border-cream/40 rounded-full flex justify-center pt-1">
-              <div className="w-1 h-1 bg-gold rounded-full animate-bounce" />
-           </div>
-           <span>Scroll</span>
+      {/* Decorative Corner Lines (Grid lines) */}
+      <div className="pointer-events-none absolute inset-0 z-20">
+        <div className="absolute left-0 top-24 h-[1px] w-full bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        <div className="absolute left-8 top-0 h-full w-[1px] bg-gradient-to-b from-transparent via-white/20 to-transparent md:left-12"></div>
+        <div className="absolute right-8 top-0 h-full w-[1px] bg-gradient-to-b from-transparent via-white/20 to-transparent md:right-12"></div>
+
+        {/* Crosses */}
+        <div className="absolute left-8 top-24 h-3 w-3 -translate-x-1/2 -translate-y-1/2 text-earth-gold md:left-12">
+          ✦
         </div>
-        
-        <div className="hidden md:flex items-center gap-4 bg-navy/80 backdrop-blur border border-white/10 px-4 py-2 rounded-lg">
-           <div className="w-8 h-5 rounded overflow-hidden">
-             <img src="https://images.unsplash.com/photo-1580136608260-4eb11f4b64fe?q=80&w=100" className="w-full h-full object-cover" />
-           </div>
-           <span>Collection II</span>
-           <div className="w-4 h-4 border-l border-white/20 ml-2" />
-           <Menu size={14} />
+        <div className="absolute right-8 top-24 h-3 w-3 -translate-y-1/2 translate-x-1/2 text-earth-gold md:right-12">
+          ✦
         </div>
       </div>
     </div>

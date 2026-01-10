@@ -6,7 +6,11 @@ interface JournalPromptProps {
   isLoading?: boolean
 }
 
-export default function JournalPrompt({ prompt, depthLevel, isLoading }: JournalPromptProps) {
+export default function JournalPrompt({
+  prompt,
+  depthLevel,
+  isLoading,
+}: JournalPromptProps) {
   // Determine decoration based on depth
   const getDecoration = (level: number) => {
     switch (level) {
@@ -23,7 +27,7 @@ export default function JournalPrompt({ prompt, depthLevel, isLoading }: Journal
 
   return (
     <div className="w-full max-w-3xl mx-auto mb-8 animate-fade-in-up">
-      <div 
+      <div
         className={`relative bg-ivory/80 backdrop-blur-sm p-8 rounded-lg border-2 border-double ${getDecoration(depthLevel)} shadow-md`}
       >
         {/* Decorative corner icon */}

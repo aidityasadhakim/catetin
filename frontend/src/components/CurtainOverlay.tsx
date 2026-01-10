@@ -30,7 +30,7 @@ const CurtainOverlay = forwardRef<CurtainOverlayRef>((_props, ref) => {
             duration: 1.2,
             ease: 'power3.inOut',
           },
-          0
+          0,
         )
           .to(
             rightCurtainRef.current,
@@ -40,7 +40,7 @@ const CurtainOverlay = forwardRef<CurtainOverlayRef>((_props, ref) => {
               duration: 1.2,
               ease: 'power3.inOut',
             },
-            0
+            0,
           )
           // Fade out container
           .to(
@@ -49,7 +49,7 @@ const CurtainOverlay = forwardRef<CurtainOverlayRef>((_props, ref) => {
               opacity: 0,
               duration: 0.3,
             },
-            1
+            1,
           )
       })
     },

@@ -7,11 +7,11 @@ Catetin is a journaling application with:
 - React/TanStack frontend with Clerk auth
 
 ### Product Vision (from PRD)
-Catetin transforms journaling into art creation. Users reflect with an AI companion ("Sang Pujangga"), earn resources based on depth of reflection, and progressively reveal classical artwork in their personal gallery.
+Catetin transforms journaling into art creation. Users reflect with an AI companion, earn resources based on depth of reflection, and progressively reveal classical artwork in their personal gallery.
 
 **Core Loop:** Refleksi → Persembahan → Mahakarya (Reflection → Offering → Masterpiece)
 
-### AI Companion: Sang Pujangga
+### AI Companion
 - **Persona:** A wise friend, not a philosopher
 - **Tone:** Casual but meaningful - like texting a thoughtful friend
 - **Language:** Natural Indonesian (id-ID) - no slang, no overly formal/poetic language
@@ -174,47 +174,43 @@ if err := json.Unmarshal([]byte(response.Text()), &result); err != nil {
 
 Reference `styles.json` for the complete design system. Key principles:
 
-### Design Philosophy
-**Avoid "AI Slop" at all costs:**
-- NO purple/blue gradients on white backgrounds
-- NO generic fonts (Inter, Roboto, Arial, SF Pro, Open Sans, system-ui)
-- NO predictable hero-CTA-features-testimonials templates
-- NO generic geometric shapes or abstract blobs
-- NO stock-looking imagery or clichéd visuals
+### Design Philosophy (Pixel Renaissance)
+**A fusion of 8-bit nostalgia and Renaissance grandeur.**
+- **Imagery:** Lush, pixel-art landscapes (gardens, skies) and classical statues.
+- **Atmosphere:** Ethereal, timeless, vibrant yet grounded.
+- **Anti-patterns (Strict):**
+    - NO purple/blue gradients on white
+    - NO generic fonts (Inter, Roboto, Arial, SF Pro, Open Sans, system-ui)
+    - NO hero-CTA-features-testimonials templates
+    - NO abstract blobs or generic geometric shapes
+    - NO pure black or pure white
+    - NO gradient backgrounds everywhere
+    - NO same border-radius on everything
+    - NO shadows on every card
+    - NO perfect symmetry without purpose
 
 ### Typography
-- **Headlines:** Cinzel (serif, elegant) - for titles and section headers
-- **Body:** Lora (serif, literary) - for readable content
-- **Mono:** JetBrains Mono - for stats, labels, metadata
-- **Accent:** Merriweather - for quotes and special text
-- Never use Inter, Roboto, or system fonts
+- **Headlines:** `UnifrakturMaguntia` (Blackletter) - Commanding, ornate, Gothic. Use for Hero text.
+- **Subheadings:** `Cinzel Decorative` - Elegant, Roman-inspired.
+- **Body:** `EB Garamond` - Classic, academic, highly readable serif.
+- **UI Elements:** `Cinzel` - Clean serif for buttons, navigation, and labels.
+- **Mono:** `JetBrains Mono` - For technical details.
 
-### Color Usage
-- **Light mode:** Cream (#F5F0E8) backgrounds, not pure white
-- **Dark mode:** Deep navy (#0F1729) backgrounds, not pure black
-- **Text:** Charcoal (#1A1A1A) for headlines, muted (#6B6B6B) for body - never pure black
-- **Accent:** Gold (#D4A84B) and Coral (#E86B4A) used sparingly for emphasis
+### Color Palette (Orion Inspired)
+- **Nature:** Vibrant Sky Blue (`#5CABEB`), Deep Forest Green (`#31572C`).
+- **Earth:** Golden Path (`#E9C46A`), Stone Gray (`#D6D6D6`).
+- **UI:** Cream/Beige backgrounds (`#F9F9F4`) with dark green text.
 
-### Motion Design
-1. **Page Load:** Orchestrated reveal sequence with staggered delays (0ms → 200ms → 400ms)
-2. **Scroll:** Fade-in-up with Intersection Observer - `translateY(20px)` → `translateY(0)`
-3. **Hover:** Subtle scale transforms (1 → 1.02), color transitions
-4. **Interactive:** Micro-interactions on all clickable elements
-5. **Ambient:** Subtle background motion for ethereal elements
+### Visual Elements
+- **Dithering:** Use pixel-art dithering textures for backgrounds or image treatments.
+- **Statuary:** Classical statues as focal points.
+- **Flora:** Overgrown, lush greenery framing the content.
+- **Glass:** Frosted glass elements for UI cards to float above the rich background.
+- **Pills:** Rounded "pill" shaped buttons for primary actions.
 
-### Technical Requirements
-- Mobile-first with fluid typography: `clamp(1rem, 2.5vw, 1.25rem)`
-- CSS custom properties with `--catetin-` prefix
-- Smooth scroll behavior
-- Semantic HTML5 structure
-- No heavy animation libraries - use CSS transitions/keyframes
-- Lazy load images, critical CSS inline
-- `font-display: swap` for web fonts
-
-### Component Patterns
-- **Cards:** Use parchment texture for journaling content
-- **Buttons:** Rounded corners (1rem), clear hover states
-- **Decorative borders:** Double-line style for Renaissance feel
-- **Data displays:** Use mono font for numbers and stats
+### Motion
+- **Parallax:** Gentle floating movement for cloud/sky layers.
+- **Reveal:** Text should fade in with a slight upward drift.
+- **Hover:** Buttons should have a "glint" or subtle scale effect.
 
 Use beads for issues tracker, see bd --help for more info

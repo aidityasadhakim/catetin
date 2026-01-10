@@ -1,8 +1,14 @@
-import { Outlet, createRootRouteWithContext, useLocation } from '@tanstack/react-router'
+import {
+  Outlet,
+  createRootRouteWithContext,
+  useLocation,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { useEffect } from 'react'
 
 import Header from '../components/Header'
+import { initializeTheme } from '../hooks'
 
 import ClerkProvider from '../integrations/clerk/provider'
 
@@ -21,6 +27,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootComponent() {
   const location = useLocation()
   const isLanding = location.pathname === '/'
+
+  // Initialize theme on mount to prevent flash of wrong theme
+  useEffect(() => {
+    initializeTheme()
+  }, [])
 
   return (
     <>

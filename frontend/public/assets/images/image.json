@@ -28,7 +28,12 @@
       "filename": "pillar.png",
       "description": "Two classical white marble pillars/columns with elegant Greco-Roman architectural styling. The left pillar features a twisted/spiral (Solomonic) design while the right has traditional vertical fluting (Doric/Ionic style). Both are entwined with climbing ivy vines featuring olive-green leaves that wrap organically around the columns from base to capital.",
       "style": "Classical architectural elements, 3D rendered, transparent PNG with no background",
-      "colors": ["pure white marble", "olive green", "sage green", "brown stems"],
+      "colors": [
+        "pure white marble",
+        "olive green",
+        "sage green",
+        "brown stems"
+      ],
       "mood": ["classical", "elegant", "timeless", "nature-meets-architecture"],
       "usage": "Framing elements for page sections, borders, or creating a gallery/museum aesthetic. Could flank hero sections or content areas."
     },
@@ -36,7 +41,12 @@
       "filename": "branches.jpg",
       "description": "A delicate botanical specimen of dried flowering branches, resembling yarrow or Queen Anne's lace. The plant has a slender pale green-gray stem with small clustered flower heads (umbels) in muted sage/dusty green tones. Small leaves branch off the main stem. Has the aesthetic of a pressed herbarium specimen or vintage botanical study.",
       "style": "Botanical specimen photography, dried flower aesthetic, transparent background",
-      "colors": ["muted sage green", "dusty gray-green", "pale cream", "soft naturals"],
+      "colors": [
+        "muted sage green",
+        "dusty gray-green",
+        "pale cream",
+        "soft naturals"
+      ],
       "mood": ["delicate", "ephemeral", "vintage", "scholarly", "meditative"],
       "usage": "Subtle decorative accent, corner embellishments, ambient botanical elements for a refined natural aesthetic"
     },
@@ -44,31 +54,74 @@
       "filename": "statues.jpg",
       "description": "Museum visitors viewing Botticelli's 'Primavera' (La Primavera, c. 1480) at the Uffizi Gallery in Florence. The famous Renaissance masterpiece is displayed in an ornate golden frame against white gallery walls. Multiple visitors are photographing the artwork with smartphones. A woman in a mustard/ochre coat with a blonde braid is prominently featured in the foreground.",
       "style": "Documentary photography, museum/gallery setting, candid visitor shot",
-      "colors": ["white gallery walls", "gold ornate frame", "deep greens", "reds", "flesh tones", "mustard ochre"],
-      "mood": ["cultural", "appreciative", "awe-inspiring", "artistic pilgrimage"],
+      "colors": [
+        "white gallery walls",
+        "gold ornate frame",
+        "deep greens",
+        "reds",
+        "flesh tones",
+        "mustard ochre"
+      ],
+      "mood": [
+        "cultural",
+        "appreciative",
+        "awe-inspiring",
+        "artistic pilgrimage"
+      ],
       "usage": "Hero background for gallery feature, representing the experience of viewing masterpieces. Perfect for the Galeri feature context."
     },
     {
       "filename": "art-gallery.jpg",
       "description": "The Tribune (Tribuna) of the Uffizi Gallery in Florence - one of the world's most famous museum rooms. Features an octagonal layout with deep burgundy/oxblood walls adorned with Old Master paintings in ornate gold frames. Classical marble and bronze sculptures on gilded pedestals are arranged throughout, including the Medici Venus at center. The room has an intricate inlaid marble floor with swirling black and white patterns. A domed ceiling with turquoise and gold Renaissance frescoes and natural light from upper windows.",
       "style": "Architectural photography, museum interior, Renaissance gallery aesthetic",
-      "colors": ["deep burgundy", "oxblood", "gold frames", "white marble", "turquoise ceiling", "black and white marble floor"],
-      "mood": ["majestic", "reverent", "luxurious", "historically rich", "treasure chamber"],
+      "colors": [
+        "deep burgundy",
+        "oxblood",
+        "gold frames",
+        "white marble",
+        "turquoise ceiling",
+        "black and white marble floor"
+      ],
+      "mood": [
+        "majestic",
+        "reverent",
+        "luxurious",
+        "historically rich",
+        "treasure chamber"
+      ],
       "usage": "Premium background for the Galeri feature, representing the aspiration of building a personal art collection. Evokes the feeling of a private Renaissance gallery."
     },
     {
       "filename": "journal-detail.jpg",
       "description": "A traditional Chinese calligraphy brush resting on a decorative red-brown ceramic brush rest shaped like a foo dog/shishi lion. The brush has a black lacquered handle and white bristle tip. Below is rice paper with traditional vertical red guidelines filled with handwritten Chinese/Japanese calligraphy characters in black ink. The composition evokes the meditative practice of traditional writing.",
       "style": "Still life photography, Asian calligraphy art, warm natural lighting with shallow depth of field",
-      "colors": ["rich terracotta red", "black lacquer", "cream rice paper", "red guidelines", "black ink"],
-      "mood": ["meditative", "traditional", "scholarly", "contemplative", "artistic discipline"],
+      "colors": [
+        "rich terracotta red",
+        "black lacquer",
+        "cream rice paper",
+        "red guidelines",
+        "black ink"
+      ],
+      "mood": [
+        "meditative",
+        "traditional",
+        "scholarly",
+        "contemplative",
+        "artistic discipline"
+      ],
       "usage": "Background or accent for journaling features, representing the timeless art of writing and reflection. Connects journaling to classical literary traditions."
     },
     {
       "filename": "single-bush.png",
       "description": "A soft, painterly illustration of a flowering bush or shrub. The bush has a rounded, dome-like shape with layered green leaves in varying shades from light mint to deep forest green. Delicate pink five-petaled flowers with yellow centers are scattered throughout the foliage. The illustration has a watercolor-like quality with soft edges and gentle gradients.",
       "style": "Soft watercolor illustration, painterly digital art, transparent/white background",
-      "colors": ["mint green", "sage green", "forest green", "soft pink", "yellow centers"],
+      "colors": [
+        "mint green",
+        "sage green",
+        "forest green",
+        "soft pink",
+        "yellow centers"
+      ],
       "mood": ["gentle", "whimsical", "garden-like", "peaceful", "spring-like"],
       "usage": "Decorative footer element, garden/nature accent, ambient background decoration. Could be used to add organic softness to page layouts."
     }

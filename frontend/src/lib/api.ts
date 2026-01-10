@@ -22,7 +22,7 @@ export function useApiClient() {
   const request = useCallback(
     async <T>(
       endpoint: string,
-      options?: RequestOptions
+      options?: RequestOptions,
     ): Promise<ApiResponse<T>> => {
       try {
         const headers: Record<string, string> = {
@@ -76,13 +76,13 @@ export function useApiClient() {
         }
       }
     },
-    [getToken, isSignedIn]
+    [getToken, isSignedIn],
   )
 
   const get = useCallback(
     <T>(endpoint: string, options?: RequestOptions) =>
       request<T>(endpoint, { ...options, method: 'GET' }),
-    [request]
+    [request],
   )
 
   const post = useCallback(
@@ -92,7 +92,7 @@ export function useApiClient() {
         method: 'POST',
         body: body ? JSON.stringify(body) : undefined,
       }),
-    [request]
+    [request],
   )
 
   const put = useCallback(
@@ -102,7 +102,7 @@ export function useApiClient() {
         method: 'PUT',
         body: body ? JSON.stringify(body) : undefined,
       }),
-    [request]
+    [request],
   )
 
   const patch = useCallback(
@@ -112,13 +112,13 @@ export function useApiClient() {
         method: 'PATCH',
         body: body ? JSON.stringify(body) : undefined,
       }),
-    [request]
+    [request],
   )
 
   const del = useCallback(
     <T>(endpoint: string, options?: RequestOptions) =>
       request<T>(endpoint, { ...options, method: 'DELETE' }),
-    [request]
+    [request],
   )
 
   return { request, get, post, put, patch, delete: del }
@@ -146,11 +146,13 @@ export const apiKeys = {
   artworks: () => [...apiKeys.all, 'artworks'] as const,
   artwork: (id: string) => [...apiKeys.artworks(), id] as const,
   userArtworks: () => [...apiKeys.all, 'user-artworks'] as const,
-  userArtwork: (artworkId: string) => [...apiKeys.userArtworks(), artworkId] as const,
+  userArtwork: (artworkId: string) =>
+    [...apiKeys.userArtworks(), artworkId] as const,
   currentArtwork: () => [...apiKeys.userArtworks(), 'current'] as const,
   // Weekly summaries
   weeklySummaries: () => [...apiKeys.all, 'weekly-summaries'] as const,
-  weeklySummary: (weekStart: string) => [...apiKeys.weeklySummaries(), weekStart] as const,
+  weeklySummary: (weekStart: string) =>
+    [...apiKeys.weeklySummaries(), weekStart] as const,
 }
 
 // Type definitions for API responses
@@ -176,8 +178,8 @@ export interface EntriesListResponse {
 }
 
 /**
- * User stats for gamification (Tinta Emas & Marmer)
- * Matches backend user_stats table
+ * User stats for gamification (Tinta Emas, Marmer, and leveling)
+ * Matches backend UserStatsResponse
  */
 export interface UserStats {
   user_id: string
@@ -188,6 +190,12 @@ export interface UserStats {
   last_active_date: string | null
   created_at: string
   updated_at: string
+  // Leveling fields
+  level: number
+  current_xp: number
+  total_xp: number
+  xp_to_next_level: number
+  level_progress: number // 0-100 percentage
 }
 
 /**
@@ -208,6 +216,13 @@ export interface Session {
   ended_at: string | null
   created_at: string
   updated_at: string
+}
+
+/**
+ * Session with first user message preview (for history list)
+ */
+export interface SessionWithPreview extends Session {
+  first_user_message: string
 }
 
 /**
@@ -286,6 +301,10 @@ export interface SessionRewards {
   tinta_emas: number
   marmer: number
   new_streak: number
+  xp_earned: number
+  level: number
+  leveled_up: boolean
+  xp_to_next_level: number
 }
 
 /**
@@ -295,7 +314,7 @@ export interface AIRespondResponse {
   message: Message
   user_message: Message
   message_count: number
-  depth_level: number  // 1=surface, 2=light, 3=deep
+  depth_level: number // 1=surface, 2=light, 3=deep
   rewards: SessionRewards | null
 }
 
@@ -312,9 +331,9 @@ export interface StartSessionResponse {
  */
 export interface TodaySessionResponse {
   session: Session
-  messages: Message[]
+  messages: Array<Message>
   is_new: boolean
-  depth_level: number  // 1=surface, 2=light, 3=deep
+  depth_level: number // 1=surface, 2=light, 3=deep
 }
 
 /**

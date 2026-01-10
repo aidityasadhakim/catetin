@@ -1,13 +1,13 @@
 import type { Message } from '../hooks'
 
 interface JournalHistoryProps {
-  messages: Message[]
+  messages: Array<Message>
 }
 
 export default function JournalHistory({ messages }: JournalHistoryProps) {
   // We only show pairs of (Prompt + Response)
   // Filter messages to group them
-  
+
   if (messages.length === 0) return null
 
   return (
@@ -15,7 +15,7 @@ export default function JournalHistory({ messages }: JournalHistoryProps) {
       <h3 className="font-heading text-lg text-slate mb-8 text-center tracking-widest uppercase opacity-70">
         Riwayat Sesi Ini
       </h3>
-      
+
       <div className="space-y-12">
         {messages.map((msg) => {
           // AI Message (Prompt)
@@ -29,7 +29,7 @@ export default function JournalHistory({ messages }: JournalHistoryProps) {
               </div>
             )
           }
-          
+
           // User Message (Entry)
           return (
             <div key={msg.id} className="relative px-8 md:px-12">
@@ -38,9 +38,12 @@ export default function JournalHistory({ messages }: JournalHistoryProps) {
                 {msg.content}
               </p>
               <div className="mt-2 text-right">
-                 <span className="font-mono text-xs text-slate/50">
-                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                 </span>
+                <span className="font-mono text-xs text-slate/50">
+                  {new Date(msg.created_at).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
               </div>
             </div>
           )

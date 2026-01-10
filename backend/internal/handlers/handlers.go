@@ -2,6 +2,7 @@
 package handlers
 
 import (
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,19 +18,33 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// uuidToString converts a pgtype.UUID to a string
+func uuidToString(u pgtype.UUID) string {
+	if !u.Valid {
+		return ""
+	}
+	return hex.EncodeToString(u.Bytes[0:4]) + "-" +
+		hex.EncodeToString(u.Bytes[4:6]) + "-" +
+		hex.EncodeToString(u.Bytes[6:8]) + "-" +
+		hex.EncodeToString(u.Bytes[8:10]) + "-" +
+		hex.EncodeToString(u.Bytes[10:16])
+}
+
 // Handler holds dependencies for HTTP handlers
 type Handler struct {
 	queries      *db.Queries
 	pujangga     *ai.PujanggaService
 	gamification *services.GamificationService
+	leveling     *services.LevelingService
 }
 
 // New creates a new Handler with the given dependencies
-func New(queries *db.Queries, pujangga *ai.PujanggaService, gamification *services.GamificationService) *Handler {
+func New(queries *db.Queries, pujangga *ai.PujanggaService, gamification *services.GamificationService, leveling *services.LevelingService) *Handler {
 	return &Handler{
 		queries:      queries,
 		pujangga:     pujangga,
 		gamification: gamification,
+		leveling:     leveling,
 	}
 }
 
@@ -82,6 +97,20 @@ func (h *Handler) DeleteEntry(c echo.Context) error {
 
 // ==================== USER STATS ====================
 
+// UserStatsResponse is the response for GetUserStats with level progress info
+type UserStatsResponse struct {
+	UserID        string `json:"user_id"`
+	GoldenInk     int32  `json:"golden_ink"`
+	Marble        int32  `json:"marble"`
+	CurrentStreak int32  `json:"current_streak"`
+	LongestStreak int32  `json:"longest_streak"`
+	Level         int32  `json:"level"`
+	CurrentXP     int32  `json:"current_xp"`
+	TotalXP       int32  `json:"total_xp"`
+	XPToNextLevel int32  `json:"xp_to_next_level"`
+	LevelProgress int32  `json:"level_progress"` // 0-100 percentage
+}
+
 // GetUserStats returns the user's stats, creating them if they don't exist
 func (h *Handler) GetUserStats(c echo.Context) error {
 	userID, err := middleware.RequireUserID(c)
@@ -94,7 +123,27 @@ func (h *Handler) GetUserStats(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user stats")
 	}
 
-	return c.JSON(http.StatusOK, stats)
+	// Calculate level progress info
+	var xpToNextLevel int32 = 100
+	var levelProgress int32 = 0
+
+	if h.leveling != nil {
+		xpToNextLevel = h.leveling.XPToNextLevel(stats.Level, stats.TotalXp)
+		levelProgress = h.leveling.GetLevelProgress(stats.Level, stats.TotalXp)
+	}
+
+	return c.JSON(http.StatusOK, UserStatsResponse{
+		UserID:        stats.UserID,
+		GoldenInk:     stats.GoldenInk,
+		Marble:        stats.Marble,
+		CurrentStreak: stats.CurrentStreak,
+		LongestStreak: stats.LongestStreak,
+		Level:         stats.Level,
+		CurrentXP:     stats.CurrentXp,
+		TotalXP:       stats.TotalXp,
+		XPToNextLevel: xpToNextLevel,
+		LevelProgress: levelProgress,
+	})
 }
 
 // ==================== SESSIONS ====================
@@ -114,7 +163,7 @@ func (h *Handler) CreateSession(c echo.Context) error {
 	return c.JSON(http.StatusCreated, session)
 }
 
-// ListSessions returns a paginated list of the user's sessions
+// ListSessions returns a paginated list of the user's sessions with first message preview
 func (h *Handler) ListSessions(c echo.Context) error {
 	userID, err := middleware.RequireUserID(c)
 	if err != nil {
@@ -136,7 +185,7 @@ func (h *Handler) ListSessions(c echo.Context) error {
 		}
 	}
 
-	sessions, err := h.queries.ListSessionsByUser(c.Request().Context(), db.ListSessionsByUserParams{
+	sessions, err := h.queries.ListSessionsWithPreview(c.Request().Context(), db.ListSessionsWithPreviewParams{
 		UserID: userID,
 		Limit:  limit,
 		Offset: offset,
@@ -145,8 +194,51 @@ func (h *Handler) ListSessions(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to list sessions")
 	}
 
+	// Transform to response format with proper string handling for first_user_message
+	type SessionWithPreview struct {
+		ID               string  `json:"id"`
+		UserID           string  `json:"user_id"`
+		Status           string  `json:"status"`
+		TotalMessages    int32   `json:"total_messages"`
+		GoldenInkEarned  int32   `json:"golden_ink_earned"`
+		StartedAt        string  `json:"started_at"`
+		EndedAt          *string `json:"ended_at"`
+		CreatedAt        string  `json:"created_at"`
+		UpdatedAt        string  `json:"updated_at"`
+		FirstUserMessage string  `json:"first_user_message"`
+	}
+
+	result := make([]SessionWithPreview, len(sessions))
+	for i, s := range sessions {
+		var endedAt *string
+		if s.EndedAt.Valid {
+			t := s.EndedAt.Time.Format(time.RFC3339)
+			endedAt = &t
+		}
+
+		firstMsg := ""
+		if s.FirstUserMessage != nil {
+			if str, ok := s.FirstUserMessage.(string); ok {
+				firstMsg = str
+			}
+		}
+
+		result[i] = SessionWithPreview{
+			ID:               uuidToString(s.ID),
+			UserID:           s.UserID,
+			Status:           s.Status,
+			TotalMessages:    s.TotalMessages,
+			GoldenInkEarned:  s.GoldenInkEarned,
+			StartedAt:        s.StartedAt.Time.Format(time.RFC3339),
+			EndedAt:          endedAt,
+			CreatedAt:        s.CreatedAt.Time.Format(time.RFC3339),
+			UpdatedAt:        s.UpdatedAt.Time.Format(time.RFC3339),
+			FirstUserMessage: firstMsg,
+		}
+	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"sessions": sessions,
+		"sessions": result,
 		"limit":    limit,
 		"offset":   offset,
 	})
@@ -377,9 +469,13 @@ type RespondResponse struct {
 
 // Rewards represents gamification rewards earned
 type Rewards struct {
-	TintaEmas int32 `json:"tinta_emas"`
-	Marmer    int32 `json:"marmer"`
-	NewStreak int32 `json:"new_streak"`
+	TintaEmas     int32 `json:"tinta_emas"`
+	Marmer        int32 `json:"marmer"`
+	NewStreak     int32 `json:"new_streak"`
+	XPEarned      int32 `json:"xp_earned"`
+	Level         int32 `json:"level"`
+	LeveledUp     bool  `json:"leveled_up"`
+	XPToNextLevel int32 `json:"xp_to_next_level"`
 }
 
 // Respond generates an AI response for the user's message
@@ -502,10 +598,21 @@ func (h *Handler) Respond(c echo.Context) error {
 
 	// Calculate rewards for THIS message (incremental rewards)
 	var rewards *Rewards
-	if h.gamification != nil {
-		wordCount := services.CountWords(req.Content)
+	wordCount := services.CountWords(req.Content)
 
-		// Calculate rewards for this message only
+	// Initialize rewards with default level info
+	rewards = &Rewards{
+		TintaEmas:     0,
+		Marmer:        0,
+		NewStreak:     0,
+		XPEarned:      0,
+		Level:         1,
+		LeveledUp:     false,
+		XPToNextLevel: 100,
+	}
+
+	// Calculate gamification rewards (Tinta Emas, Marmer, Streak)
+	if h.gamification != nil {
 		messageReward, err := h.gamification.CalculateMessageReward(ctx, userID, wordCount)
 		if err != nil {
 			c.Logger().Errorf("failed to calculate message reward: %v", err)
@@ -515,15 +622,26 @@ func (h *Handler) Respond(c echo.Context) error {
 			if err != nil {
 				c.Logger().Errorf("failed to apply rewards: %v", err)
 			} else {
-				rewards = &Rewards{
-					TintaEmas: messageReward.TintaEmas,
-					Marmer:    messageReward.Marmer,
-					NewStreak: messageReward.NewStreak,
-				}
+				rewards.TintaEmas = messageReward.TintaEmas
+				rewards.Marmer = messageReward.Marmer
+				rewards.NewStreak = messageReward.NewStreak
 
 				// Add earned golden ink to session
 				_, _ = h.gamification.AddSessionReward(ctx, sessionUUID, messageReward.TintaEmas)
 			}
+		}
+	}
+
+	// Calculate leveling rewards (XP and Level)
+	if h.leveling != nil {
+		levelReward, err := h.leveling.AwardXP(ctx, userID, wordCount)
+		if err != nil {
+			c.Logger().Errorf("failed to award XP: %v", err)
+		} else {
+			rewards.XPEarned = levelReward.XPEarned
+			rewards.Level = levelReward.Level
+			rewards.LeveledUp = levelReward.LeveledUp
+			rewards.XPToNextLevel = levelReward.XPToNextLevel
 		}
 	}
 

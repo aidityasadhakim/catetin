@@ -73,8 +73,15 @@ func main() {
 		log.Println("Gamification service initialized")
 	}
 
+	// Initialize leveling service
+	var levelingService *services.LevelingService
+	if queries != nil {
+		levelingService = services.NewLevelingService(queries, nil)
+		log.Println("Leveling service initialized")
+	}
+
 	// Create handler with dependencies
-	h := handlers.New(queries, pujanggaService, gamificationService)
+	h := handlers.New(queries, pujanggaService, gamificationService, levelingService)
 
 	e := echo.New()
 

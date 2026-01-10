@@ -1,16 +1,16 @@
 {
-  "$schema": "Catetin Design System v1.0",
-  "description": "Classical Renaissance-inspired design system for a journaling app that transforms reflection into art",
+  "$schema": "Catetin Design System v2.0",
+  "description": "Pixel Renaissance Design System - A fusion of classical art, pixel aesthetics, and gothic typography",
 
   "philosophy": {
-    "core": "Journaling as art creation - every reflection reveals a masterpiece",
-    "aesthetic": "Renaissance meets minimal brutalism - classical art with modern restraint",
+    "core": "Digital Classicism - Resurrection of the sublime through the digital lens",
+    "aesthetic": "Pixelated Renaissance - Gothic typography, dithered textures, classical majesty",
     "principles": [
-      "Let classical art breathe - UI should frame, not compete",
-      "Typography carries meaning - scale creates drama",
-      "Warmth over sterility - cream over white, depth over flat",
-      "Motion with purpose - reveal, not distract",
-      "Earned complexity - start simple, layer meaning"
+      "The pixel is the brushstroke - embrace digital texture",
+      "Gothic authority - typography that commands attention",
+      "Nature as architecture - lush gardens and vibrant skies as structural elements",
+      "Framed elegance - interfaces that float like paintings",
+      "Timeless grandeur - evoke history without mimicking it"
     ],
     "antiPatterns": [
       "NO purple/blue gradients on white",
@@ -28,539 +28,151 @@
   "typography": {
     "families": {
       "headline": {
-        "name": "Cinzel",
-        "fallback": "Georgia, 'Times New Roman', serif",
-        "use": "Page titles, section headers, dramatic moments",
-        "character": "Classical, chiseled, authoritative"
+        "name": "UnifrakturMaguntia",
+        "fallback": "'Chomsky', 'Cloister Black', cursive",
+        "use": "Hero sections, major campaign titles, dramatic statements",
+        "character": "Gothic, ornate, historical, commanding"
+      },
+      "subheadline": {
+        "name": "Cinzel Decorative",
+        "fallback": "serif",
+        "use": "Section headers, collection titles",
+        "character": "Roman, inscribed, elegant"
       },
       "body": {
-        "name": "Lora",
-        "fallback": "Georgia, serif",
-        "use": "Journal content, readable paragraphs, descriptions",
-        "character": "Literary, warm, inviting"
+        "name": "EB Garamond",
+        "fallback": "'Times New Roman', serif",
+        "use": "Paragraphs, descriptions, journal entries",
+        "character": "Academic, timeless, highly readable"
+      },
+      "ui": {
+        "name": "Cinzel",
+        "fallback": "serif",
+        "use": "Navigation, buttons, labels, pills",
+        "character": "Formal, structured, precise"
       },
       "mono": {
         "name": "JetBrains Mono",
-        "fallback": "'Fira Code', 'Courier New', monospace",
-        "use": "Stats, labels, metadata, counters",
-        "character": "Technical, precise, trustworthy"
-      },
-      "accent": {
-        "name": "Merriweather",
-        "fallback": "Georgia, serif",
-        "use": "Quotes, special text, AI companion dialogue",
-        "character": "Thoughtful, distinguished"
-      },
-      "display": {
-        "name": "Playfair Display",
-        "fallback": "Georgia, serif",
-        "use": "Hero text, dramatic headlines (optional alternative to Cinzel)",
-        "character": "Elegant, high-contrast serifs"
+        "fallback": "monospace",
+        "use": "Technical details, coordinates, dates",
+        "character": "Modern contrast to classical elements"
       }
     },
     "scale": {
-      "xs": { "size": "12px", "lineHeight": 1.6, "use": "Captions, metadata, timestamps" },
-      "sm": { "size": "14px", "lineHeight": 1.6, "use": "Secondary text, labels, hints" },
-      "base": { "size": "16px", "lineHeight": 1.6, "use": "Body text, journal entries" },
-      "lg": { "size": "18px", "lineHeight": 1.55, "use": "Emphasized body, lead paragraphs" },
-      "xl": { "size": "20px", "lineHeight": 1.4, "use": "Small headings, card titles" },
-      "2xl": { "size": "24px", "lineHeight": 1.35, "use": "Section headings" },
-      "3xl": { "size": "30px", "lineHeight": 1.25, "use": "Page headings" },
-      "4xl": { "size": "36px", "lineHeight": 1.2, "use": "Large headings" },
-      "5xl": { "size": "48px", "lineHeight": 1.15, "use": "Display, statement text" },
-      "6xl": { "size": "60px", "lineHeight": 1.1, "use": "Hero headlines" },
-      "7xl": { "size": "72px", "lineHeight": 1.05, "use": "Dramatic display (sparingly)" }
-    },
-    "fluid": {
-      "body": "clamp(1rem, 2.5vw, 1.25rem)",
-      "heading": "clamp(1.5rem, 5vw, 3rem)",
-      "hero": "clamp(2.5rem, 8vw, 4.5rem)",
-      "display": "clamp(3rem, 10vw, 6rem)"
-    },
-    "letterSpacing": {
-      "tight": "-0.02em",
-      "headlines": "-0.01em",
-      "normal": "0",
-      "wide": "0.025em",
-      "allCaps": "0.08em",
-      "tracking": "0.1em"
-    },
-    "fontWeight": {
-      "normal": 400,
-      "medium": 500,
-      "semibold": 600,
-      "bold": 700
-    },
-    "maxWidth": {
-      "prose": "65ch",
-      "narrow": "45ch",
-      "wide": "80ch"
-    },
-    "microTypography": {
-      "quotes": "Use curly quotes \" \" not straight quotes",
-      "dashes": "En-dash – for ranges, em-dash — for breaks",
-      "ellipsis": "Use … character, not three dots"
+      "xs": { "size": "11px", "lineHeight": 1.4, "letterSpacing": "0.05em" },
+      "sm": { "size": "13px", "lineHeight": 1.5, "letterSpacing": "0.02em" },
+      "base": { "size": "16px", "lineHeight": 1.6, "letterSpacing": "0" },
+      "lg": { "size": "20px", "lineHeight": 1.5, "letterSpacing": "-0.01em" },
+      "xl": { "size": "28px", "lineHeight": 1.3, "letterSpacing": "-0.02em" },
+      "2xl": { "size": "36px", "lineHeight": 1.2, "letterSpacing": "-0.02em" },
+      "3xl": { "size": "48px", "lineHeight": 1.1, "letterSpacing": "-0.03em" },
+      "4xl": { "size": "64px", "lineHeight": 1.05, "letterSpacing": "-0.03em" },
+      "5xl": { "size": "80px", "lineHeight": 1.0, "letterSpacing": "-0.04em" },
+      "hero": { "size": "clamp(3.5rem, 8vw, 6rem)", "lineHeight": 0.95, "letterSpacing": "-0.02em" }
     }
   },
 
   "colors": {
-    "format": "HSL for all colors - makes relationships obvious",
+    "note": "Palette extracted from Orion pixel-art imagery - vibrant nature tones and stone",
     
-    "light": {
-      "background": {
-        "primary": "hsl(40, 33%, 96%)",
-        "secondary": "hsl(40, 30%, 93%)",
-        "tertiary": "hsl(40, 25%, 90%)",
-        "elevated": "hsl(40, 35%, 98%)",
-        "muted": "hsl(40, 20%, 88%)"
-      },
-      "surface": {
-        "card": "hsl(40, 35%, 97%)",
-        "cardHover": "hsl(40, 38%, 95%)",
-        "input": "hsl(40, 30%, 99%)",
-        "overlay": "hsla(30, 20%, 20%, 0.6)"
-      },
-      "text": {
-        "primary": "hsl(30, 10%, 15%)",
-        "secondary": "hsl(30, 8%, 35%)",
-        "tertiary": "hsl(30, 6%, 50%)",
-        "muted": "hsl(30, 5%, 60%)",
-        "inverse": "hsl(40, 33%, 96%)"
-      },
-      "border": {
-        "default": "hsl(30, 15%, 85%)",
-        "subtle": "hsl(30, 10%, 90%)",
-        "strong": "hsl(30, 20%, 70%)",
-        "decorative": "hsl(35, 50%, 65%)"
-      }
+    "nature": {
+      "sky": "hsl(198, 85%, 65%)",
+      "skyDeep": "hsl(205, 75%, 45%)",
+      "foliage": "hsl(138, 45%, 35%)",
+      "foliageDark": "hsl(145, 55%, 20%)",
+      "foliageLight": "hsl(130, 50%, 45%)",
+      "sunlight": "hsl(55, 90%, 85%)"
+    },
+    
+    "earth": {
+      "gold": "hsl(45, 85%, 65%)",
+      "goldDim": "hsl(42, 65%, 50%)",
+      "path": "hsl(35, 70%, 60%)",
+      "stone": "hsl(40, 15%, 85%)",
+      "stoneShadow": "hsl(40, 10%, 65%)",
+      "marble": "hsl(40, 20%, 94%)"
     },
 
-    "dark": {
-      "background": {
-        "primary": "hsl(220, 40%, 8%)",
-        "secondary": "hsl(220, 38%, 11%)",
-        "tertiary": "hsl(220, 35%, 14%)",
-        "elevated": "hsl(220, 42%, 12%)",
-        "muted": "hsl(220, 30%, 18%)"
-      },
-      "surface": {
-        "card": "hsl(220, 35%, 12%)",
-        "cardHover": "hsl(220, 38%, 15%)",
-        "input": "hsl(220, 40%, 10%)",
-        "overlay": "hsla(220, 50%, 5%, 0.8)"
-      },
-      "text": {
-        "primary": "hsl(40, 30%, 93%)",
-        "secondary": "hsl(40, 20%, 75%)",
-        "tertiary": "hsl(40, 15%, 60%)",
-        "muted": "hsl(40, 10%, 50%)",
-        "inverse": "hsl(220, 40%, 8%)"
-      },
-      "border": {
-        "default": "hsl(220, 25%, 22%)",
-        "subtle": "hsl(220, 20%, 18%)",
-        "strong": "hsl(220, 30%, 30%)",
-        "decorative": "hsl(35, 45%, 45%)"
-      }
-    },
-
-    "brand": {
-      "gold": {
-        "50": "hsl(42, 65%, 95%)",
-        "100": "hsl(42, 60%, 90%)",
-        "200": "hsl(42, 55%, 80%)",
-        "300": "hsl(42, 55%, 70%)",
-        "400": "hsl(42, 55%, 60%)",
-        "500": "hsl(42, 60%, 50%)",
-        "600": "hsl(42, 65%, 42%)",
-        "700": "hsl(42, 70%, 35%)",
-        "800": "hsl(42, 75%, 25%)",
-        "900": "hsl(42, 80%, 18%)"
-      },
-      "coral": {
-        "50": "hsl(12, 85%, 97%)",
-        "100": "hsl(12, 80%, 92%)",
-        "200": "hsl(12, 75%, 82%)",
-        "300": "hsl(12, 70%, 70%)",
-        "400": "hsl(12, 68%, 60%)",
-        "500": "hsl(12, 70%, 52%)",
-        "600": "hsl(12, 75%, 45%)",
-        "700": "hsl(12, 80%, 38%)",
-        "800": "hsl(12, 85%, 28%)",
-        "900": "hsl(12, 90%, 20%)"
-      },
-      "teal": {
-        "50": "hsl(175, 50%, 95%)",
-        "100": "hsl(175, 45%, 88%)",
-        "200": "hsl(175, 42%, 75%)",
-        "300": "hsl(175, 40%, 60%)",
-        "400": "hsl(175, 45%, 48%)",
-        "500": "hsl(175, 55%, 40%)",
-        "600": "hsl(175, 60%, 32%)",
-        "700": "hsl(175, 65%, 25%)",
-        "800": "hsl(175, 70%, 18%)",
-        "900": "hsl(175, 75%, 12%)"
-      }
+    "ui": {
+      "background": "hsl(40, 20%, 96%)",
+      "surface": "hsla(40, 20%, 96%, 0.8)",
+      "surfaceBlur": "blur(12px)",
+      "text": "hsl(145, 60%, 10%)",
+      "textMuted": "hsl(145, 30%, 30%)",
+      "border": "hsla(145, 30%, 30%, 0.2)"
     },
 
     "semantic": {
-      "success": "hsl(145, 55%, 42%)",
-      "warning": "hsl(38, 90%, 50%)",
-      "error": "hsl(0, 70%, 55%)",
-      "info": "hsl(200, 65%, 50%)"
-    },
-
-    "gray": {
-      "note": "Warm grays with subtle saturation - never pure gray",
-      "50": "hsl(30, 8%, 97%)",
-      "100": "hsl(30, 7%, 93%)",
-      "200": "hsl(30, 6%, 85%)",
-      "300": "hsl(30, 5%, 75%)",
-      "400": "hsl(30, 4%, 60%)",
-      "500": "hsl(30, 4%, 48%)",
-      "600": "hsl(30, 5%, 38%)",
-      "700": "hsl(30, 6%, 28%)",
-      "800": "hsl(30, 7%, 18%)",
-      "900": "hsl(30, 8%, 12%)"
-    }
-  },
-
-  "spacing": {
-    "note": "Use only these values - no arbitrary spacing",
-    "scale": {
-      "0": "0",
-      "1": "4px",
-      "2": "8px",
-      "3": "12px",
-      "4": "16px",
-      "6": "24px",
-      "8": "32px",
-      "12": "48px",
-      "16": "64px",
-      "24": "96px",
-      "32": "128px"
-    },
-    "semantic": {
-      "micro": "4px",
-      "small": "8px",
-      "mediumSmall": "12px",
-      "medium": "16px",
-      "large": "24px",
-      "xlarge": "32px",
-      "section": "48px",
-      "page": "64px",
-      "hero": "96px"
-    },
-    "principles": [
-      "Start with too much space, reduce until right",
-      "Related elements closer than unrelated",
-      "Fixed widths often beat fluid grids",
-      "Group spacing - related items cluster together"
-    ]
-  },
-
-  "shadows": {
-    "note": "Light comes from above. Use sparingly - shadows for elevation, not decoration",
-    
-    "light": {
-      "xs": "0 1px 2px hsla(30, 20%, 20%, 0.05)",
-      "sm": "0 1px 3px hsla(30, 20%, 20%, 0.08), 0 1px 2px hsla(30, 20%, 20%, 0.05)",
-      "md": "0 4px 6px hsla(30, 20%, 20%, 0.08), 0 2px 4px hsla(30, 20%, 20%, 0.05)",
-      "lg": "0 10px 15px hsla(30, 20%, 20%, 0.08), 0 4px 6px hsla(30, 20%, 20%, 0.04)",
-      "xl": "0 20px 25px hsla(30, 20%, 20%, 0.08), 0 10px 10px hsla(30, 20%, 20%, 0.03)",
-      "glow": "0 0 20px hsla(42, 60%, 50%, 0.15)"
-    },
-    "dark": {
-      "note": "In dark mode, use layered surfaces instead of shadows. Subtle light edges for depth.",
-      "xs": "0 1px 2px hsla(220, 60%, 5%, 0.3)",
-      "sm": "0 2px 4px hsla(220, 60%, 5%, 0.4)",
-      "md": "0 4px 8px hsla(220, 60%, 5%, 0.4)",
-      "lg": "0 8px 16px hsla(220, 60%, 5%, 0.5)",
-      "xl": "0 16px 32px hsla(220, 60%, 5%, 0.6)",
-      "glow": "0 0 30px hsla(42, 60%, 50%, 0.1)",
-      "edgeLight": "inset 0 1px 0 hsla(40, 30%, 90%, 0.05)"
-    },
-    "usage": {
-      "buttons": "xs to sm",
-      "cards": "sm to md (only when elevated)",
-      "dropdowns": "md to lg",
-      "modals": "lg to xl",
-      "floatingElements": "lg with glow"
-    }
-  },
-
-  "borderRadius": {
-    "note": "Vary by element size - not same radius everywhere",
-    "none": "0",
-    "sm": "4px",
-    "md": "8px",
-    "lg": "12px",
-    "xl": "16px",
-    "2xl": "24px",
-    "full": "9999px",
-    "usage": {
-      "buttons": "lg (12px) to xl (16px)",
-      "cards": "xl (16px) to 2xl (24px)",
-      "inputs": "md (8px) to lg (12px)",
-      "badges": "full",
-      "avatars": "full",
-      "modals": "2xl (24px)"
-    }
-  },
-
-  "borders": {
-    "width": {
-      "thin": "1px",
-      "medium": "2px",
-      "thick": "3px",
-      "decorative": "2px double"
-    },
-    "styles": {
-      "subtle": "1px solid var(--border-subtle)",
-      "default": "1px solid var(--border-default)",
-      "strong": "2px solid var(--border-strong)",
-      "decorative": "2px double var(--border-decorative)",
-      "renaissance": "3px double var(--gold-400)"
-    }
-  },
-
-  "motion": {
-    "durations": {
-      "instant": "50ms",
-      "fast": "150ms",
-      "normal": "250ms",
-      "slow": "400ms",
-      "deliberate": "600ms",
-      "dramatic": "800ms"
-    },
-    "easings": {
-      "default": "cubic-bezier(0.4, 0, 0.2, 1)",
-      "in": "cubic-bezier(0.4, 0, 1, 1)",
-      "out": "cubic-bezier(0, 0, 0.2, 1)",
-      "inOut": "cubic-bezier(0.4, 0, 0.2, 1)",
-      "spring": "cubic-bezier(0.34, 1.56, 0.64, 1)",
-      "gentle": "cubic-bezier(0.25, 0.1, 0.25, 1)"
-    },
-    "patterns": {
-      "pageLoad": {
-        "description": "Orchestrated reveal sequence",
-        "stages": [
-          { "delay": "0ms", "elements": "Background, navigation" },
-          { "delay": "200ms", "elements": "Primary content, headlines" },
-          { "delay": "400ms", "elements": "Secondary content, cards" },
-          { "delay": "600ms", "elements": "Decorative elements, CTAs" }
-        ]
-      },
-      "scrollReveal": {
-        "description": "Fade-in-up on scroll",
-        "transform": "translateY(20px) -> translateY(0)",
-        "opacity": "0 -> 1",
-        "duration": "600ms",
-        "easing": "out"
-      },
-      "hover": {
-        "scale": "1 -> 1.02",
-        "duration": "250ms",
-        "easing": "spring"
-      },
-      "artReveal": {
-        "description": "Progressive artwork reveal (Catetin-specific)",
-        "method": "Clip-path or mask revealing classical artwork",
-        "duration": "800ms to 1200ms",
-        "easing": "gentle"
-      }
-    },
-    "reducedMotion": {
-      "note": "Respect prefers-reduced-motion",
-      "substitute": "Instant opacity changes, no transforms"
+      "primary": "hsl(45, 85%, 65%)",
+      "secondary": "hsl(138, 45%, 35%)",
+      "accent": "hsl(198, 85%, 65%)"
     }
   },
 
   "components": {
     "buttons": {
-      "primary": {
-        "background": "var(--gold-500)",
-        "text": "var(--text-inverse)",
-        "hover": "var(--gold-600)",
-        "borderRadius": "var(--radius-lg)",
-        "padding": "12px 24px",
-        "fontWeight": 600,
-        "shadow": "var(--shadow-sm)"
+      "pill": {
+        "borderRadius": "9999px",
+        "padding": "12px 32px",
+        "fontFamily": "Cinzel",
+        "textTransform": "none",
+        "background": "hsla(40, 20%, 96%, 0.9)",
+        "border": "1px solid hsla(145, 30%, 30%, 0.1)",
+        "backdropFilter": "blur(4px)",
+        "boxShadow": "0 4px 12px hsla(0, 0%, 0%, 0.1)"
       },
-      "secondary": {
-        "background": "transparent",
-        "text": "var(--text-primary)",
-        "border": "2px solid var(--border-default)",
-        "hover": "var(--surface-card)",
-        "borderRadius": "var(--radius-lg)",
-        "padding": "10px 22px"
-      },
-      "ghost": {
-        "background": "transparent",
-        "text": "var(--text-secondary)",
-        "hover": "var(--background-tertiary)",
-        "borderRadius": "var(--radius-md)"
+      "cta": {
+        "background": "var(--catetin-nature-sky)",
+        "text": "white",
+        "borderRadius": "9999px",
+        "padding": "16px 48px",
+        "fontFamily": "Cinzel",
+        "boxShadow": "0 10px 25px hsla(198, 85%, 65%, 0.4)"
       }
     },
     "cards": {
-      "default": {
-        "background": "var(--surface-card)",
-        "border": "1px solid var(--border-subtle)",
-        "borderRadius": "var(--radius-xl)",
-        "padding": "24px",
-        "shadow": "none or var(--shadow-sm)"
+      "glass": {
+        "background": "hsla(40, 20%, 96%, 0.6)",
+        "backdropFilter": "blur(16px)",
+        "border": "1px solid hsla(255, 100%, 100%, 0.3)",
+        "borderRadius": "0px",
+        "boxShadow": "0 8px 32px hsla(0, 0%, 0%, 0.05)"
       },
-      "elevated": {
-        "background": "var(--background-elevated)",
-        "border": "none",
-        "borderRadius": "var(--radius-2xl)",
-        "padding": "32px",
-        "shadow": "var(--shadow-md)"
-      },
-      "parchment": {
-        "note": "For journal entries - warm, textured feel",
-        "background": "linear-gradient(135deg, var(--background-primary) 0%, var(--background-secondary) 100%)",
-        "border": "2px double var(--border-decorative)",
-        "borderRadius": "var(--radius-lg)",
-        "padding": "24px 32px"
-      }
-    },
-    "inputs": {
-      "default": {
-        "background": "var(--surface-input)",
-        "border": "1px solid var(--border-default)",
-        "borderRadius": "var(--radius-md)",
-        "padding": "12px 16px",
-        "fontSize": "16px",
-        "focus": {
-          "border": "2px solid var(--gold-400)",
-          "shadow": "0 0 0 3px hsla(42, 60%, 50%, 0.15)"
-        }
-      }
-    },
-    "badges": {
-      "default": {
-        "background": "var(--background-muted)",
-        "text": "var(--text-secondary)",
-        "borderRadius": "var(--radius-full)",
-        "padding": "4px 12px",
-        "fontSize": "12px",
-        "fontFamily": "var(--font-mono)"
-      },
-      "gold": {
-        "background": "var(--gold-100)",
-        "text": "var(--gold-700)",
-        "border": "1px solid var(--gold-300)"
+      "frame": {
+        "border": "1px solid var(--catetin-earth-gold)",
+        "background": "transparent",
+        "padding": "2px"
       }
     }
   },
 
-  "patterns": {
-    "artBackground": {
-      "description": "Classical artwork as immersive backgrounds (from reference images)",
-      "overlay": "Linear gradient overlay for text readability",
-      "lightOverlay": "linear-gradient(to right, hsla(40, 30%, 96%, 0.85) 0%, hsla(40, 30%, 96%, 0.3) 50%, transparent 100%)",
-      "darkOverlay": "linear-gradient(to right, hsla(220, 40%, 8%, 0.9) 0%, hsla(220, 40%, 8%, 0.4) 50%, transparent 100%)"
+  "effects": {
+    "dither": {
+      "description": "Pixel art dithering effect for backgrounds or images",
+      "style": "url('/textures/dither-pattern.png') repeat"
     },
-    "decorativeStars": {
-      "description": "Subtle sparkle/star decorative elements (from Orion reference)",
-      "use": "Accent decorations, not primary visual elements",
-      "color": "var(--gold-400) with subtle glow"
+    "grain": {
+      "opacity": "0.05",
+      "blendMode": "overlay"
     },
-    "floatingCards": {
-      "description": "Cards that appear to float over artwork backgrounds",
-      "shadow": "var(--shadow-lg)",
-      "backdrop": "blur(8px)",
-      "background": "hsla(40, 30%, 96%, 0.9)"
-    },
-    "dramaticTypography": {
-      "description": "Large-scale serif headlines with weight contrast (from Patrick David reference)",
-      "primaryWord": "font-weight: 700, larger size",
-      "secondaryWord": "font-weight: 400, slightly smaller or different color"
+    "gradients": {
+      "atmosphere": "linear-gradient(to bottom, var(--catetin-nature-sky) 0%, var(--catetin-nature-skyDeep) 100%)",
+      "overlay": "linear-gradient(to top, hsla(145, 55%, 10%, 0.8) 0%, transparent 50%)"
     }
   },
 
   "layout": {
-    "containers": {
-      "narrow": "640px",
-      "default": "768px",
-      "wide": "1024px",
-      "full": "1280px",
-      "max": "1440px"
-    },
     "grid": {
-      "columns": 12,
-      "gap": "24px",
-      "mobileGap": "16px"
+      "base": "12px",
+      "gutter": "24px"
     },
-    "breakpoints": {
-      "sm": "640px",
-      "md": "768px",
-      "lg": "1024px",
-      "xl": "1280px",
-      "2xl": "1536px"
-    }
-  },
-
-  "zIndex": {
-    "base": 0,
-    "dropdown": 100,
-    "sticky": 200,
-    "fixed": 300,
-    "modalBackdrop": 400,
-    "modal": 500,
-    "popover": 600,
-    "tooltip": 700,
-    "toast": 800
-  },
-
-  "hierarchy": {
-    "note": "Size isn't everything - use multiple tools for emphasis",
-    "techniques": {
-      "fontWeight": "400-500 normal, 600-700 emphasis",
-      "color": "Dark = primary, gray = secondary, light = tertiary",
-      "spacing": "More breathing room = more prominence",
-      "deEmphasis": "Make competing elements quieter to emphasize target"
-    },
-    "colorBalance": {
-      "rule": "60-30-10",
-      "dominant": "60% - backgrounds, large surfaces",
-      "secondary": "30% - content areas, cards",
-      "accent": "10% - CTAs, highlights, decorative"
+    "container": {
+      "maxWidth": "1600px",
+      "padding": "48px"
     }
   },
 
   "cssCustomProperties": {
-    "prefix": "--catetin-",
-    "example": {
-      "colors": "--catetin-gold-500",
-      "spacing": "--catetin-space-4",
-      "radius": "--catetin-radius-lg"
-    }
-  },
-
-  "accessibility": {
-    "minContrastRatio": {
-      "normalText": 4.5,
-      "largeText": 3,
-      "uiComponents": 3
-    },
-    "focusIndicator": {
-      "offset": "2px",
-      "width": "2px",
-      "style": "solid",
-      "color": "var(--gold-500)"
-    },
-    "touchTargets": {
-      "minimum": "44px",
-      "recommended": "48px"
-    }
-  },
-
-  "performance": {
-    "fontDisplay": "swap",
-    "criticalCSS": "Inline above-fold styles",
-    "lazyLoad": "Images below the fold",
-    "animationStrategy": "CSS transitions/keyframes over JS libraries"
+    "prefix": "--catetin-"
   }
 }

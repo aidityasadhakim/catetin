@@ -38,8 +38,8 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@clerk/clerk-react'
-import {  apiKeys, useApiClient } from '../lib/api'
-import type {UserStats} from '../lib/api';
+import { apiKeys, useApiClient } from '../lib/api'
+import type { UserStats } from '../lib/api'
 
 /**
  * Fetches the current user's gamification stats (Tinta Emas, Marmer, streaks).

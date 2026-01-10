@@ -48,6 +48,28 @@ SET
 WHERE user_id = $1
 RETURNING *;
 
+-- name: AddXP :one
+UPDATE user_stats
+SET 
+    current_xp = current_xp + $2,
+    total_xp = total_xp + $2,
+    updated_at = NOW()
+WHERE user_id = $1
+RETURNING *;
+
+-- name: UpdateLevel :one
+UPDATE user_stats
+SET 
+    level = $2,
+    current_xp = $3,
+    updated_at = NOW()
+WHERE user_id = $1
+RETURNING *;
+
+-- name: GetUserLevel :one
+SELECT level, current_xp, total_xp FROM user_stats
+WHERE user_id = $1;
+
 -- ==================== SESSIONS ====================
 
 -- name: CreateSession :one
@@ -77,6 +99,22 @@ LIMIT 1;
 SELECT * FROM sessions
 WHERE user_id = $1
 ORDER BY started_at DESC
+LIMIT $2 OFFSET $3;
+
+-- name: ListSessionsWithPreview :many
+SELECT 
+    s.*,
+    COALESCE(
+        (SELECT LEFT(m.content, 150)
+         FROM messages m 
+         WHERE m.session_id = s.id AND m.role = 'user' 
+         ORDER BY m.created_at ASC 
+         LIMIT 1),
+        ''
+    ) as first_user_message
+FROM sessions s
+WHERE s.user_id = $1
+ORDER BY s.started_at DESC
 LIMIT $2 OFFSET $3;
 
 -- name: EndSession :one

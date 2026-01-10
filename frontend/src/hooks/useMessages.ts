@@ -38,7 +38,7 @@ export function useMessages(sessionId: string | undefined) {
     queryKey: [...apiKeys.session(sessionId ?? ''), 'messages'],
     queryFn: async (): Promise<Array<Message>> => {
       const { data, error } = await api.get<MessagesListResponse>(
-        `/api/sessions/${sessionId}/messages`
+        `/api/sessions/${sessionId}/messages`,
       )
       if (error) {
         throw new Error(error)
@@ -82,7 +82,7 @@ export function useSendMessage() {
     }): Promise<Message> => {
       const { data, error } = await api.post<Message>(
         `/api/sessions/${sessionId}/messages`,
-        { role, content }
+        { role, content },
       )
       if (error) {
         throw new Error(error)
@@ -115,7 +115,7 @@ export function useSendMessage() {
         }
         queryClient.setQueryData<Array<Message>>(
           [...apiKeys.session(sessionId), 'messages'],
-          [...previousMessages, optimisticMessage]
+          [...previousMessages, optimisticMessage],
         )
       }
 
@@ -126,7 +126,7 @@ export function useSendMessage() {
       if (context?.previousMessages) {
         queryClient.setQueryData(
           [...apiKeys.session(sessionId), 'messages'],
-          context.previousMessages
+          context.previousMessages,
         )
       }
     },

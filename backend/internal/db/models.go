@@ -60,6 +60,9 @@ type UserStat struct {
 	LastActiveDate pgtype.Date        `json:"last_active_date"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	Level          int32              `json:"level"`
+	CurrentXp      int32              `json:"current_xp"`
+	TotalXp        int32              `json:"total_xp"`
 }
 
 type WeeklySummary struct {

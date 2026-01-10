@@ -9,7 +9,11 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiKeys, useApiClient } from '../lib/api'
-import type { AIRespondResponse, StartSessionResponse, TodaySessionResponse } from '../lib/api'
+import type {
+  AIRespondResponse,
+  StartSessionResponse,
+  TodaySessionResponse,
+} from '../lib/api'
 
 /**
  * Gets today's active session or creates a new one.
@@ -31,7 +35,7 @@ export function useTodaySession() {
     queryKey: apiKeys.sessionToday(),
     queryFn: async (): Promise<TodaySessionResponse> => {
       const { data, error } = await api.get<TodaySessionResponse>(
-        '/api/sessions/today'
+        '/api/sessions/today',
       )
       if (error) {
         throw new Error(error)
@@ -68,7 +72,7 @@ export function useStartSession() {
   return useMutation({
     mutationFn: async (): Promise<StartSessionResponse> => {
       const { data, error } = await api.post<StartSessionResponse>(
-        '/api/sessions/start'
+        '/api/sessions/start',
       )
       if (error) {
         throw new Error(error)
@@ -121,7 +125,7 @@ export function useAIRespond() {
     }): Promise<AIRespondResponse> => {
       const { data, error } = await api.post<AIRespondResponse>(
         `/api/sessions/${sessionId}/respond`,
-        { content }
+        { content },
       )
       if (error) {
         throw new Error(error)
