@@ -56,23 +56,23 @@ function LandingPage() {
       <main className="relative z-10 flex min-h-[80vh] flex-col justify-center px-8 md:px-12">
         <div className="max-w-4xl">
           {/* Hero Headline */}
-          <h1 className="animate-fade-in-up font-headline font-bold text-6xl leading-[0.9] tracking-tight text-white drop-shadow-lg md:text-8xl lg:text-[7rem]">
+          <h1 className="animate-fade-in-up font-headline font-bold text-4xl sm:text-6xl leading-[0.9] tracking-tight text-white drop-shadow-lg md:text-8xl lg:text-[7rem]">
             Tulis masalahnya <br />
-            <span className="ml-12 md:ml-24">Klaim reward-nya.</span>
+            <span className="ml-4 sm:ml-12 md:ml-24">Klaim reward-nya.</span>
           </h1>
 
           {/* Subtext */}
-          <div className="mt-8 max-w-lg animate-fade-in-up space-y-4 font-body text-xl font-semibold text-white/90 drop-shadow-md [animation-delay:200ms]">
+          <div className="mt-6 sm:mt-8 max-w-lg animate-fade-in-up space-y-4 font-body text-lg sm:text-xl font-semibold text-white/90 drop-shadow-md [animation-delay:200ms]">
             <p>
               Hidup adalah game, dan jurnal ini adalah save point-mu. <br />
               Selesaikan misi harian dengan mencatat, dan bangun pilar ketenanganmu.</p>
           </div>
 
           {/* CTA Buttons */}
-          <div className="mt-10 flex animate-fade-in-up items-center gap-6 [animation-delay:400ms]">
+          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row animate-fade-in-up items-start sm:items-center gap-4 sm:gap-6 [animation-delay:400ms]">
             <Link
               to="/refleksi"
-              className="rounded-full bg-earth-gold px-8 py-3 font-ui font-semibold text-nature-foliage-dark shadow-[0_0_20px_rgba(212,168,75,0.4)] transition-transform hover:scale-105 hover:bg-white hover:text-nature-foliage-dark"
+              className="rounded-full bg-earth-gold px-6 sm:px-8 py-3 font-ui font-semibold text-nature-foliage-dark shadow-[0_0_20px_rgba(212,168,75,0.4)] transition-transform hover:scale-105 hover:bg-white hover:text-nature-foliage-dark"
             >
               Mulai Sekarang
             </Link>
@@ -82,8 +82,8 @@ function LandingPage() {
           </div>
         </div>
 
-        {/* Floating Collection Card (Bottom Right) */}
-        <div className="absolute bottom-12 right-8 w-64 animate-float md:bottom-24 md:right-16">
+        {/* Floating Collection Card (Bottom Right) - Hidden on mobile */}
+        <div className="absolute bottom-12 right-8 w-64 animate-float hidden md:block md:bottom-24 md:right-16">
           <div className="group relative overflow-hidden border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur-xl transition-all hover:bg-white/20">
             <div className="absolute right-0 top-0 p-2 opacity-50">
               <svg
@@ -114,12 +114,12 @@ function LandingPage() {
           </div>
         </div>
 
-        {/* Bottom Scroll/Collection Indicators */}
-        <div className="absolute bottom-8 left-8 flex animate-fade-in-up items-center gap-2 font-mono text-xs text-white/60 [animation-delay:600ms]">
+        {/* Bottom Scroll/Collection Indicators - Hidden on mobile */}
+        <div className="absolute bottom-8 left-8 hidden sm:flex animate-fade-in-up items-center gap-2 font-mono text-xs text-white/60 [animation-delay:600ms]">
           <span className="animate-bounce">↓</span> Gulir
         </div>
 
-        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 animate-fade-in-up items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 backdrop-blur-md [animation-delay:600ms]">
+        <div className="absolute bottom-8 left-1/2 hidden sm:flex -translate-x-1/2 animate-fade-in-up items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 backdrop-blur-md [animation-delay:600ms]">
           <div
             className="h-4 w-6 rounded-sm bg-cover bg-center"
             style={{

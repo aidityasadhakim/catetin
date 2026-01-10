@@ -34,7 +34,7 @@ export default function JournalEntry({
   }
 
   return (
-    <div className="w-full mb-12">
+    <div className="w-full mb-4">
       <div className="flex items-end gap-3">
         {/* Text input area */}
         <div className="flex-1 relative">
