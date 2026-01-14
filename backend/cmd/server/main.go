@@ -81,7 +81,7 @@ func main() {
 	}
 
 	// Create handler with dependencies
-	h := handlers.New(queries, pujanggaService, gamificationService, levelingService)
+	h := handlers.New(queries, pujanggaService, gamificationService, levelingService, cfg.SupportEmail)
 
 	e := echo.New()
 

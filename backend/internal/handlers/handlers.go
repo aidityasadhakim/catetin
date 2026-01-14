@@ -36,15 +36,17 @@ type Handler struct {
 	pujangga     *ai.PujanggaService
 	gamification *services.GamificationService
 	leveling     *services.LevelingService
+	supportEmail string
 }
 
 // New creates a new Handler with the given dependencies
-func New(queries *db.Queries, pujangga *ai.PujanggaService, gamification *services.GamificationService, leveling *services.LevelingService) *Handler {
+func New(queries *db.Queries, pujangga *ai.PujanggaService, gamification *services.GamificationService, leveling *services.LevelingService, supportEmail string) *Handler {
 	return &Handler{
 		queries:      queries,
 		pujangga:     pujangga,
 		gamification: gamification,
 		leveling:     leveling,
+		supportEmail: supportEmail,
 	}
 }
 
@@ -529,6 +531,28 @@ func (h *Handler) Respond(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
+
+	// Check subscription and message limit for free users
+	sub, err := h.queries.UpsertUserSubscription(ctx, userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to check subscription")
+	}
+
+	if sub.Plan == "free" {
+		messagesToday, err := h.queries.CountTodayUserMessages(ctx, userID)
+		if err != nil {
+			c.Logger().Errorf("failed to count today's messages: %v", err)
+		} else if messagesToday >= FreePlanMessageLimit {
+			return c.JSON(http.StatusForbidden, map[string]interface{}{
+				"error":          "LIMIT_REACHED",
+				"message":        "Kamu sudah mencapai batas harian (3 pesan). Upgrade untuk melanjutkan.",
+				"upgrade_url":    "/pricing",
+				"support_email":  h.supportEmail,
+				"messages_today": messagesToday,
+				"message_limit":  FreePlanMessageLimit,
+			})
+		}
+	}
 
 	// Save the user's message first
 	userMessage, err := h.queries.CreateMessage(ctx, db.CreateMessageParams{
