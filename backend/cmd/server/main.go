@@ -51,10 +51,10 @@ func main() {
 	// Initialize AI client
 	var aiClient *ai.Client
 	var pujanggaService *ai.PujanggaService
-	if cfg.GeminiAPIKey != "" {
+	if cfg.OpenRouterAPIKey != "" {
 		var err error
 		aiClient, err = ai.NewClient(ctx, ai.ClientConfig{
-			APIKey: cfg.GeminiAPIKey,
+			APIKey: cfg.OpenRouterAPIKey,
 		})
 		if err != nil {
 			log.Printf("WARNING: Failed to initialize AI client: %v", err)
@@ -63,7 +63,7 @@ func main() {
 			log.Println("AI client initialized successfully")
 		}
 	} else {
-		log.Println("WARNING: GEMINI_API_KEY not set, AI features will not work")
+		log.Println("WARNING: OPENROUTER_API_KEY not set, AI features will not work")
 	}
 
 	// Initialize gamification service

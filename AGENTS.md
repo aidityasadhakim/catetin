@@ -62,25 +62,33 @@ make sqlc         # Generate SQLC code
 make db-shell     # Connect to PostgreSQL
 ```
 
-## Gemini AI Integration
+## OpenRouter AI Integration
+
+The application uses OpenRouter API for AI model access, providing access to multiple AI providers through a unified API.
+
+### Environment Variable
+
+```bash
+OPENROUTER_API_KEY=your-openrouter-api-key
+```
 
 ### Client Setup
 
 ```go
-import "google.golang.org/genai"
+import "catetin/backend/internal/ai"
 
 // Initialize client with API key
-geminiClient, err := genai.NewClient(context.Background(), &genai.ClientConfig{
-    APIKey: os.Getenv("GEMINI_API_KEY"),
+aiClient, err := ai.NewClient(ctx, ai.ClientConfig{
+    APIKey: os.Getenv("OPENROUTER_API_KEY"),
 })
 if err != nil {
-    log.Fatal("Failed to create Gemini client:", err)
+    log.Fatal("Failed to create AI client:", err)
 }
 ```
 
 ### Structured JSON Output
 
-Use `ResponseJsonSchema` to enforce structured responses:
+Use `GenerateContentWithSchema` to enforce structured responses:
 
 ```go
 // Define schema for structured output
@@ -111,28 +119,25 @@ quizSchema := map[string]interface{}{
 }
 
 // Generate content with schema
-response, err := geminiClient.Models.GenerateContent(ctx,
-    "gemini-2.5-flash",
-    genai.Text("Your prompt here"),
-    &genai.GenerateContentConfig{
-        ResponseMIMEType:   "application/json",
-        ResponseJsonSchema: quizSchema,
-    },
-)
+responseText, err := aiClient.GenerateContentWithSchema(ctx, "Your prompt here", quizSchema)
+if err != nil {
+    return err
+}
 
 // Parse response into struct
 var result MyStruct
-if err := json.Unmarshal([]byte(response.Text()), &result); err != nil {
+if err := json.Unmarshal([]byte(responseText), &result); err != nil {
     return err
 }
 ```
 
 ### Key Patterns
 
-- **Model:** Use `gemini-2.5-flash` for fast responses
-- **JSON Mode:** Set `ResponseMIMEType: "application/json"` + `ResponseJsonSchema` for structured output
-- **Context:** Pass request context for cancellation: `c.Request().Context()`
-- **Error Handling:** Check both API errors and JSON parsing errors
+- **Primary Model:** `google/gemini-2.5-flash-lite` (fast, cost-effective)
+- **Fallback Model:** `google/gemini-2.5-flash` (more capable, used if primary fails)
+- **JSON Mode:** Use `GenerateContentWithSchema` for structured output
+- **App Attribution:** Requests include HTTP-Referer and X-Title headers for OpenRouter leaderboards
+- **Error Handling:** Client automatically retries with fallback model on failure
 
 ## Adding New Features
 

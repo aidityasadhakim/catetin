@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"google.golang.org/genai"
 )
 
 // PujanggaService handles conversations with Sang Pujangga AI companion
@@ -301,15 +299,4 @@ Respond in JSON format:
 	}
 
 	return response.Summary, nil
-}
-
-// ChatConfig returns the chat configuration with system instructions
-func (p *PujanggaService) ChatConfig() *genai.GenerateContentConfig {
-	return &genai.GenerateContentConfig{
-		SystemInstruction: &genai.Content{
-			Parts: []*genai.Part{
-				genai.NewPartFromText(SystemPrompt),
-			},
-		},
-	}
 }

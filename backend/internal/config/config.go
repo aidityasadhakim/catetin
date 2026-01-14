@@ -7,21 +7,21 @@ import (
 
 // Config holds all configuration for the application
 type Config struct {
-	DatabaseURL    string
-	BackendPort    string
-	BackendHost    string
-	ClerkSecretKey string
-	GeminiAPIKey   string
+	DatabaseURL      string
+	BackendPort      string
+	BackendHost      string
+	ClerkSecretKey   string
+	OpenRouterAPIKey string
 }
 
 // Load returns a new Config with values from environment variables
 func Load() *Config {
 	return &Config{
-		DatabaseURL:    getEnv("DATABASE_URL", "postgres://catetin:catetin_secret@localhost:5432/catetin_db?sslmode=disable"),
-		BackendPort:    getEnv("BACKEND_PORT", "8080"),
-		BackendHost:    getEnv("BACKEND_HOST", "0.0.0.0"),
-		ClerkSecretKey: getEnv("CLERK_SECRET_KEY", ""),
-		GeminiAPIKey:   getEnv("GEMINI_API_KEY", ""),
+		DatabaseURL:      getEnv("DATABASE_URL", "postgres://catetin:catetin_secret@localhost:5432/catetin_db?sslmode=disable"),
+		BackendPort:      getEnv("BACKEND_PORT", "8080"),
+		BackendHost:      getEnv("BACKEND_HOST", "0.0.0.0"),
+		ClerkSecretKey:   getEnv("CLERK_SECRET_KEY", ""),
+		OpenRouterAPIKey: getEnv("OPENROUTER_API_KEY", ""),
 	}
 }
 
