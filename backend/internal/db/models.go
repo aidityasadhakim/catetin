@@ -27,6 +27,20 @@ type Message struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
+type PendingUpgrade struct {
+	ID                    pgtype.UUID        `json:"id"`
+	TrakteerTransactionID string             `json:"trakteer_transaction_id"`
+	SupporterEmail        string             `json:"supporter_email"`
+	SupporterName         string             `json:"supporter_name"`
+	PaymentAmount         int32              `json:"payment_amount"`
+	Status                string             `json:"status"`
+	ResolvedAt            pgtype.Timestamptz `json:"resolved_at"`
+	ResolvedUserID        pgtype.Text        `json:"resolved_user_id"`
+	ErrorMessage          pgtype.Text        `json:"error_message"`
+	RawPayload            []byte             `json:"raw_payload"`
+	CreatedAt             pgtype.Timestamptz `json:"created_at"`
+}
+
 type Session struct {
 	ID              pgtype.UUID        `json:"id"`
 	UserID          string             `json:"user_id"`
@@ -63,6 +77,17 @@ type UserStat struct {
 	Level          int32              `json:"level"`
 	CurrentXp      int32              `json:"current_xp"`
 	TotalXp        int32              `json:"total_xp"`
+}
+
+type UserSubscription struct {
+	UserID                string             `json:"user_id"`
+	Plan                  string             `json:"plan"`
+	UpgradedAt            pgtype.Timestamptz `json:"upgraded_at"`
+	TrakteerTransactionID pgtype.Text        `json:"trakteer_transaction_id"`
+	TrakteerSupporterName pgtype.Text        `json:"trakteer_supporter_name"`
+	PaymentAmount         pgtype.Int4        `json:"payment_amount"`
+	CreatedAt             pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt             pgtype.Timestamptz `json:"updated_at"`
 }
 
 type WeeklySummary struct {

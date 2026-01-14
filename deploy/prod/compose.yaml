@@ -9,7 +9,7 @@
 # Prerequisites:
 #   - PostgreSQL running on host (port 5432)
 #   - Frontend built: cd ../../frontend && bun run build
-#   - .env file with DATABASE_URL, CLERK_SECRET_KEY, OPENROUTER_API_KEY
+#   - .env file with DATABASE_URL, CLERK_SECRET_KEY, OPENROUTER_API_KEY, TRAKTEER_WEBHOOK_TOKEN, SUPPORT_EMAIL
 
 services:
   # ================================
@@ -28,6 +28,8 @@ services:
       - BACKEND_HOST=127.0.0.1
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - TRAKTEER_WEBHOOK_TOKEN=${TRAKTEER_WEBHOOK_TOKEN}
+      - SUPPORT_EMAIL=${SUPPORT_EMAIL}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3459/api/health"]
       interval: 10s

@@ -253,3 +253,100 @@ SELECT * FROM weekly_summaries
 WHERE user_id = $1
 ORDER BY week_start DESC
 LIMIT $2 OFFSET $3;
+
+-- name: GetLatestWeeklySummary :one
+SELECT * FROM weekly_summaries
+WHERE user_id = $1
+ORDER BY week_start DESC
+LIMIT 1;
+
+-- name: GetWeekMessages :many
+SELECT m.content, m.created_at, s.started_at
+FROM messages m
+JOIN sessions s ON m.session_id = s.id
+WHERE s.user_id = $1
+  AND m.role = 'user'
+  AND s.started_at >= $2
+  AND s.started_at <= $3
+ORDER BY m.created_at ASC;
+
+-- name: CountWeekSessions :one
+SELECT 
+    COUNT(DISTINCT s.id)::integer as session_count, 
+    COUNT(m.id)::integer as message_count
+FROM sessions s
+LEFT JOIN messages m ON m.session_id = s.id AND m.role = 'user'
+WHERE s.user_id = $1
+  AND s.started_at >= $2
+  AND s.started_at <= $3;
+
+-- ==================== USER SUBSCRIPTIONS ====================
+
+-- name: GetUserSubscription :one
+SELECT * FROM user_subscriptions WHERE user_id = $1;
+
+-- name: UpsertUserSubscription :one
+INSERT INTO user_subscriptions (user_id, plan)
+VALUES ($1, 'free')
+ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
+RETURNING *;
+
+-- name: UpgradeUserToPaid :one
+UPDATE user_subscriptions
+SET 
+    plan = 'paid',
+    upgraded_at = NOW(),
+    trakteer_transaction_id = $2,
+    trakteer_supporter_name = $3,
+    payment_amount = $4,
+    updated_at = NOW()
+WHERE user_id = $1
+RETURNING *;
+
+-- name: CreateUserSubscriptionAsPaid :one
+INSERT INTO user_subscriptions (user_id, plan, upgraded_at, trakteer_transaction_id, trakteer_supporter_name, payment_amount)
+VALUES ($1, 'paid', NOW(), $2, $3, $4)
+ON CONFLICT (user_id) DO UPDATE SET 
+    plan = 'paid',
+    upgraded_at = NOW(),
+    trakteer_transaction_id = EXCLUDED.trakteer_transaction_id,
+    trakteer_supporter_name = EXCLUDED.trakteer_supporter_name,
+    payment_amount = EXCLUDED.payment_amount,
+    updated_at = NOW()
+RETURNING *;
+
+-- name: CountTodayUserMessages :one
+SELECT COUNT(*)::integer FROM messages m
+JOIN sessions s ON m.session_id = s.id
+WHERE s.user_id = $1 
+  AND m.role = 'user'
+  AND s.started_at::date = CURRENT_DATE;
+
+-- ==================== PENDING UPGRADES ====================
+
+-- name: CreatePendingUpgrade :one
+INSERT INTO pending_upgrades (trakteer_transaction_id, supporter_email, supporter_name, payment_amount, raw_payload, error_message)
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (trakteer_transaction_id) DO NOTHING
+RETURNING *;
+
+-- name: GetPendingUpgrade :one
+SELECT * FROM pending_upgrades WHERE id = $1;
+
+-- name: ListPendingUpgrades :many
+SELECT * FROM pending_upgrades 
+WHERE status = 'pending'
+ORDER BY created_at DESC;
+
+-- name: ResolvePendingUpgrade :one
+UPDATE pending_upgrades
+SET status = 'resolved', resolved_at = NOW(), resolved_user_id = $2
+WHERE id = $1
+RETURNING *;
+
+-- name: CheckTransactionProcessed :one
+SELECT EXISTS(
+    SELECT 1 FROM user_subscriptions us WHERE us.trakteer_transaction_id = $1
+    UNION
+    SELECT 1 FROM pending_upgrades pu WHERE pu.trakteer_transaction_id = $1
+) as processed;

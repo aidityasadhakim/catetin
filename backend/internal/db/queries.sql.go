@@ -138,6 +138,21 @@ func (q *Queries) AddXP(ctx context.Context, arg AddXPParams) (UserStat, error) 
 	return i, err
 }
 
+const checkTransactionProcessed = `-- name: CheckTransactionProcessed :one
+SELECT EXISTS(
+    SELECT 1 FROM user_subscriptions us WHERE us.trakteer_transaction_id = $1
+    UNION
+    SELECT 1 FROM pending_upgrades pu WHERE pu.trakteer_transaction_id = $1
+) as processed
+`
+
+func (q *Queries) CheckTransactionProcessed(ctx context.Context, trakteerTransactionID pgtype.Text) (bool, error) {
+	row := q.db.QueryRow(ctx, checkTransactionProcessed, trakteerTransactionID)
+	var processed bool
+	err := row.Scan(&processed)
+	return processed, err
+}
+
 const countMessagesBySession = `-- name: CountMessagesBySession :one
 SELECT COUNT(*) FROM messages
 WHERE session_id = $1
@@ -150,6 +165,21 @@ func (q *Queries) CountMessagesBySession(ctx context.Context, sessionID pgtype.U
 	return count, err
 }
 
+const countTodayUserMessages = `-- name: CountTodayUserMessages :one
+SELECT COUNT(*)::integer FROM messages m
+JOIN sessions s ON m.session_id = s.id
+WHERE s.user_id = $1 
+  AND m.role = 'user'
+  AND s.started_at::date = CURRENT_DATE
+`
+
+func (q *Queries) CountTodayUserMessages(ctx context.Context, userID string) (int32, error) {
+	row := q.db.QueryRow(ctx, countTodayUserMessages, userID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const countUserMessagesBySession = `-- name: CountUserMessagesBySession :one
 SELECT COUNT(*) FROM messages
 WHERE session_id = $1 AND role = 'user'
@@ -160,6 +190,35 @@ func (q *Queries) CountUserMessagesBySession(ctx context.Context, sessionID pgty
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const countWeekSessions = `-- name: CountWeekSessions :one
+SELECT 
+    COUNT(DISTINCT s.id)::integer as session_count, 
+    COUNT(m.id)::integer as message_count
+FROM sessions s
+LEFT JOIN messages m ON m.session_id = s.id AND m.role = 'user'
+WHERE s.user_id = $1
+  AND s.started_at >= $2
+  AND s.started_at <= $3
+`
+
+type CountWeekSessionsParams struct {
+	UserID      string             `json:"user_id"`
+	StartedAt   pgtype.Timestamptz `json:"started_at"`
+	StartedAt_2 pgtype.Timestamptz `json:"started_at_2"`
+}
+
+type CountWeekSessionsRow struct {
+	SessionCount int32 `json:"session_count"`
+	MessageCount int32 `json:"message_count"`
+}
+
+func (q *Queries) CountWeekSessions(ctx context.Context, arg CountWeekSessionsParams) (CountWeekSessionsRow, error) {
+	row := q.db.QueryRow(ctx, countWeekSessions, arg.UserID, arg.StartedAt, arg.StartedAt_2)
+	var i CountWeekSessionsRow
+	err := row.Scan(&i.SessionCount, &i.MessageCount)
+	return i, err
 }
 
 const createArtwork = `-- name: CreateArtwork :one
@@ -227,6 +286,50 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (M
 	return i, err
 }
 
+const createPendingUpgrade = `-- name: CreatePendingUpgrade :one
+
+INSERT INTO pending_upgrades (trakteer_transaction_id, supporter_email, supporter_name, payment_amount, raw_payload, error_message)
+VALUES ($1, $2, $3, $4, $5, $6)
+ON CONFLICT (trakteer_transaction_id) DO NOTHING
+RETURNING id, trakteer_transaction_id, supporter_email, supporter_name, payment_amount, status, resolved_at, resolved_user_id, error_message, raw_payload, created_at
+`
+
+type CreatePendingUpgradeParams struct {
+	TrakteerTransactionID string      `json:"trakteer_transaction_id"`
+	SupporterEmail        string      `json:"supporter_email"`
+	SupporterName         string      `json:"supporter_name"`
+	PaymentAmount         int32       `json:"payment_amount"`
+	RawPayload            []byte      `json:"raw_payload"`
+	ErrorMessage          pgtype.Text `json:"error_message"`
+}
+
+// ==================== PENDING UPGRADES ====================
+func (q *Queries) CreatePendingUpgrade(ctx context.Context, arg CreatePendingUpgradeParams) (PendingUpgrade, error) {
+	row := q.db.QueryRow(ctx, createPendingUpgrade,
+		arg.TrakteerTransactionID,
+		arg.SupporterEmail,
+		arg.SupporterName,
+		arg.PaymentAmount,
+		arg.RawPayload,
+		arg.ErrorMessage,
+	)
+	var i PendingUpgrade
+	err := row.Scan(
+		&i.ID,
+		&i.TrakteerTransactionID,
+		&i.SupporterEmail,
+		&i.SupporterName,
+		&i.PaymentAmount,
+		&i.Status,
+		&i.ResolvedAt,
+		&i.ResolvedUserID,
+		&i.ErrorMessage,
+		&i.RawPayload,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createSession = `-- name: CreateSession :one
 
 INSERT INTO sessions (user_id)
@@ -273,6 +376,47 @@ func (q *Queries) CreateUserStats(ctx context.Context, userID string) (UserStat,
 		&i.Level,
 		&i.CurrentXp,
 		&i.TotalXp,
+	)
+	return i, err
+}
+
+const createUserSubscriptionAsPaid = `-- name: CreateUserSubscriptionAsPaid :one
+INSERT INTO user_subscriptions (user_id, plan, upgraded_at, trakteer_transaction_id, trakteer_supporter_name, payment_amount)
+VALUES ($1, 'paid', NOW(), $2, $3, $4)
+ON CONFLICT (user_id) DO UPDATE SET 
+    plan = 'paid',
+    upgraded_at = NOW(),
+    trakteer_transaction_id = EXCLUDED.trakteer_transaction_id,
+    trakteer_supporter_name = EXCLUDED.trakteer_supporter_name,
+    payment_amount = EXCLUDED.payment_amount,
+    updated_at = NOW()
+RETURNING user_id, plan, upgraded_at, trakteer_transaction_id, trakteer_supporter_name, payment_amount, created_at, updated_at
+`
+
+type CreateUserSubscriptionAsPaidParams struct {
+	UserID                string      `json:"user_id"`
+	TrakteerTransactionID pgtype.Text `json:"trakteer_transaction_id"`
+	TrakteerSupporterName pgtype.Text `json:"trakteer_supporter_name"`
+	PaymentAmount         pgtype.Int4 `json:"payment_amount"`
+}
+
+func (q *Queries) CreateUserSubscriptionAsPaid(ctx context.Context, arg CreateUserSubscriptionAsPaidParams) (UserSubscription, error) {
+	row := q.db.QueryRow(ctx, createUserSubscriptionAsPaid,
+		arg.UserID,
+		arg.TrakteerTransactionID,
+		arg.TrakteerSupporterName,
+		arg.PaymentAmount,
+	)
+	var i UserSubscription
+	err := row.Scan(
+		&i.UserID,
+		&i.Plan,
+		&i.UpgradedAt,
+		&i.TrakteerTransactionID,
+		&i.TrakteerSupporterName,
+		&i.PaymentAmount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -476,6 +620,53 @@ func (q *Queries) GetCurrentArtwork(ctx context.Context, userID string) (GetCurr
 	return i, err
 }
 
+const getLatestWeeklySummary = `-- name: GetLatestWeeklySummary :one
+SELECT id, user_id, week_start, week_end, summary, session_count, message_count, emotions, created_at FROM weekly_summaries
+WHERE user_id = $1
+ORDER BY week_start DESC
+LIMIT 1
+`
+
+func (q *Queries) GetLatestWeeklySummary(ctx context.Context, userID string) (WeeklySummary, error) {
+	row := q.db.QueryRow(ctx, getLatestWeeklySummary, userID)
+	var i WeeklySummary
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.WeekStart,
+		&i.WeekEnd,
+		&i.Summary,
+		&i.SessionCount,
+		&i.MessageCount,
+		&i.Emotions,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getPendingUpgrade = `-- name: GetPendingUpgrade :one
+SELECT id, trakteer_transaction_id, supporter_email, supporter_name, payment_amount, status, resolved_at, resolved_user_id, error_message, raw_payload, created_at FROM pending_upgrades WHERE id = $1
+`
+
+func (q *Queries) GetPendingUpgrade(ctx context.Context, id pgtype.UUID) (PendingUpgrade, error) {
+	row := q.db.QueryRow(ctx, getPendingUpgrade, id)
+	var i PendingUpgrade
+	err := row.Scan(
+		&i.ID,
+		&i.TrakteerTransactionID,
+		&i.SupporterEmail,
+		&i.SupporterName,
+		&i.PaymentAmount,
+		&i.Status,
+		&i.ResolvedAt,
+		&i.ResolvedUserID,
+		&i.ErrorMessage,
+		&i.RawPayload,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getRecentMessages = `-- name: GetRecentMessages :many
 SELECT id, session_id, role, content, created_at FROM messages
 WHERE session_id = $1
@@ -639,6 +830,71 @@ func (q *Queries) GetUserStats(ctx context.Context, userID string) (UserStat, er
 	return i, err
 }
 
+const getUserSubscription = `-- name: GetUserSubscription :one
+
+SELECT user_id, plan, upgraded_at, trakteer_transaction_id, trakteer_supporter_name, payment_amount, created_at, updated_at FROM user_subscriptions WHERE user_id = $1
+`
+
+// ==================== USER SUBSCRIPTIONS ====================
+func (q *Queries) GetUserSubscription(ctx context.Context, userID string) (UserSubscription, error) {
+	row := q.db.QueryRow(ctx, getUserSubscription, userID)
+	var i UserSubscription
+	err := row.Scan(
+		&i.UserID,
+		&i.Plan,
+		&i.UpgradedAt,
+		&i.TrakteerTransactionID,
+		&i.TrakteerSupporterName,
+		&i.PaymentAmount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getWeekMessages = `-- name: GetWeekMessages :many
+SELECT m.content, m.created_at, s.started_at
+FROM messages m
+JOIN sessions s ON m.session_id = s.id
+WHERE s.user_id = $1
+  AND m.role = 'user'
+  AND s.started_at >= $2
+  AND s.started_at <= $3
+ORDER BY m.created_at ASC
+`
+
+type GetWeekMessagesParams struct {
+	UserID      string             `json:"user_id"`
+	StartedAt   pgtype.Timestamptz `json:"started_at"`
+	StartedAt_2 pgtype.Timestamptz `json:"started_at_2"`
+}
+
+type GetWeekMessagesRow struct {
+	Content   string             `json:"content"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	StartedAt pgtype.Timestamptz `json:"started_at"`
+}
+
+func (q *Queries) GetWeekMessages(ctx context.Context, arg GetWeekMessagesParams) ([]GetWeekMessagesRow, error) {
+	rows, err := q.db.Query(ctx, getWeekMessages, arg.UserID, arg.StartedAt, arg.StartedAt_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetWeekMessagesRow{}
+	for rows.Next() {
+		var i GetWeekMessagesRow
+		if err := rows.Scan(&i.Content, &i.CreatedAt, &i.StartedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWeeklySummary = `-- name: GetWeeklySummary :one
 SELECT id, user_id, week_start, week_end, summary, session_count, message_count, emotions, created_at FROM weekly_summaries
 WHERE user_id = $1 AND week_start = $2
@@ -748,6 +1004,44 @@ func (q *Queries) ListMessagesBySession(ctx context.Context, sessionID pgtype.UU
 			&i.SessionID,
 			&i.Role,
 			&i.Content,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPendingUpgrades = `-- name: ListPendingUpgrades :many
+SELECT id, trakteer_transaction_id, supporter_email, supporter_name, payment_amount, status, resolved_at, resolved_user_id, error_message, raw_payload, created_at FROM pending_upgrades 
+WHERE status = 'pending'
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListPendingUpgrades(ctx context.Context) ([]PendingUpgrade, error) {
+	rows, err := q.db.Query(ctx, listPendingUpgrades)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PendingUpgrade{}
+	for rows.Next() {
+		var i PendingUpgrade
+		if err := rows.Scan(
+			&i.ID,
+			&i.TrakteerTransactionID,
+			&i.SupporterEmail,
+			&i.SupporterName,
+			&i.PaymentAmount,
+			&i.Status,
+			&i.ResolvedAt,
+			&i.ResolvedUserID,
+			&i.ErrorMessage,
+			&i.RawPayload,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -982,6 +1276,37 @@ func (q *Queries) ListWeeklySummaries(ctx context.Context, arg ListWeeklySummari
 	return items, nil
 }
 
+const resolvePendingUpgrade = `-- name: ResolvePendingUpgrade :one
+UPDATE pending_upgrades
+SET status = 'resolved', resolved_at = NOW(), resolved_user_id = $2
+WHERE id = $1
+RETURNING id, trakteer_transaction_id, supporter_email, supporter_name, payment_amount, status, resolved_at, resolved_user_id, error_message, raw_payload, created_at
+`
+
+type ResolvePendingUpgradeParams struct {
+	ID             pgtype.UUID `json:"id"`
+	ResolvedUserID pgtype.Text `json:"resolved_user_id"`
+}
+
+func (q *Queries) ResolvePendingUpgrade(ctx context.Context, arg ResolvePendingUpgradeParams) (PendingUpgrade, error) {
+	row := q.db.QueryRow(ctx, resolvePendingUpgrade, arg.ID, arg.ResolvedUserID)
+	var i PendingUpgrade
+	err := row.Scan(
+		&i.ID,
+		&i.TrakteerTransactionID,
+		&i.SupporterEmail,
+		&i.SupporterName,
+		&i.PaymentAmount,
+		&i.Status,
+		&i.ResolvedAt,
+		&i.ResolvedUserID,
+		&i.ErrorMessage,
+		&i.RawPayload,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const spendGoldenInk = `-- name: SpendGoldenInk :one
 UPDATE user_stats
 SET golden_ink = golden_ink - $2, updated_at = NOW()
@@ -1177,6 +1502,47 @@ func (q *Queries) UpdateStreak(ctx context.Context, arg UpdateStreakParams) (Use
 	return i, err
 }
 
+const upgradeUserToPaid = `-- name: UpgradeUserToPaid :one
+UPDATE user_subscriptions
+SET 
+    plan = 'paid',
+    upgraded_at = NOW(),
+    trakteer_transaction_id = $2,
+    trakteer_supporter_name = $3,
+    payment_amount = $4,
+    updated_at = NOW()
+WHERE user_id = $1
+RETURNING user_id, plan, upgraded_at, trakteer_transaction_id, trakteer_supporter_name, payment_amount, created_at, updated_at
+`
+
+type UpgradeUserToPaidParams struct {
+	UserID                string      `json:"user_id"`
+	TrakteerTransactionID pgtype.Text `json:"trakteer_transaction_id"`
+	TrakteerSupporterName pgtype.Text `json:"trakteer_supporter_name"`
+	PaymentAmount         pgtype.Int4 `json:"payment_amount"`
+}
+
+func (q *Queries) UpgradeUserToPaid(ctx context.Context, arg UpgradeUserToPaidParams) (UserSubscription, error) {
+	row := q.db.QueryRow(ctx, upgradeUserToPaid,
+		arg.UserID,
+		arg.TrakteerTransactionID,
+		arg.TrakteerSupporterName,
+		arg.PaymentAmount,
+	)
+	var i UserSubscription
+	err := row.Scan(
+		&i.UserID,
+		&i.Plan,
+		&i.UpgradedAt,
+		&i.TrakteerTransactionID,
+		&i.TrakteerSupporterName,
+		&i.PaymentAmount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const upsertUserStats = `-- name: UpsertUserStats :one
 INSERT INTO user_stats (user_id)
 VALUES ($1)
@@ -1199,6 +1565,29 @@ func (q *Queries) UpsertUserStats(ctx context.Context, userID string) (UserStat,
 		&i.Level,
 		&i.CurrentXp,
 		&i.TotalXp,
+	)
+	return i, err
+}
+
+const upsertUserSubscription = `-- name: UpsertUserSubscription :one
+INSERT INTO user_subscriptions (user_id, plan)
+VALUES ($1, 'free')
+ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
+RETURNING user_id, plan, upgraded_at, trakteer_transaction_id, trakteer_supporter_name, payment_amount, created_at, updated_at
+`
+
+func (q *Queries) UpsertUserSubscription(ctx context.Context, userID string) (UserSubscription, error) {
+	row := q.db.QueryRow(ctx, upsertUserSubscription, userID)
+	var i UserSubscription
+	err := row.Scan(
+		&i.UserID,
+		&i.Plan,
+		&i.UpgradedAt,
+		&i.TrakteerTransactionID,
+		&i.TrakteerSupporterName,
+		&i.PaymentAmount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
