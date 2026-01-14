@@ -9,9 +9,14 @@ import (
 )
 
 // Register sets up all routes for the application
-func Register(e *echo.Echo, h *handlers.Handler) {
+func Register(e *echo.Echo, h *handlers.Handler, wh *handlers.WebhookHandler) {
 	// Health check (public)
 	e.GET("/api/health", h.Health)
+
+	// Webhooks (public, no auth - validated by token)
+	if wh != nil {
+		e.POST("/api/webhooks/trakteer", wh.TrakteerWebhook)
+	}
 
 	// Protected routes (require authentication)
 	api := e.Group("/api")

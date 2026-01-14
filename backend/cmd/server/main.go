@@ -80,8 +80,25 @@ func main() {
 		log.Println("Leveling service initialized")
 	}
 
+	// Initialize webhook processor
+	var webhookProcessor *services.WebhookProcessor
+	if queries != nil {
+		webhookProcessor = services.NewWebhookProcessor(queries)
+		log.Println("Webhook processor initialized")
+	}
+
 	// Create handler with dependencies
 	h := handlers.New(queries, pujanggaService, gamificationService, levelingService, cfg.SupportEmail)
+
+	// Create webhook handler
+	var wh *handlers.WebhookHandler
+	if cfg.TrakteerWebhookToken != "" {
+		wh = handlers.NewWebhookHandler(webhookProcessor, cfg.TrakteerWebhookToken)
+		log.Println("Trakteer webhook handler initialized")
+	} else {
+		log.Println("WARNING: TRAKTEER_WEBHOOK_TOKEN not set, webhook endpoint will reject all requests")
+		wh = handlers.NewWebhookHandler(webhookProcessor, "") // Will reject all requests
+	}
 
 	e := echo.New()
 
@@ -95,7 +112,7 @@ func main() {
 	}))
 
 	// Register routes
-	routes.Register(e, h)
+	routes.Register(e, h, wh)
 
 	// Get port from configuration
 	port := cfg.BackendPort
