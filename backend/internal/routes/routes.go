@@ -27,6 +27,9 @@ func Register(e *echo.Echo, h *handlers.Handler) {
 	// User stats
 	api.GET("/stats", h.GetUserStats)
 
+	// Subscription
+	api.GET("/subscription", h.GetSubscription)
+
 	// Sessions
 	api.POST("/sessions", h.CreateSession)
 	api.POST("/sessions/start", h.StartSession)           // Creates session with AI opening
