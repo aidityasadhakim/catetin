@@ -49,4 +49,8 @@ func Register(e *echo.Echo, h *handlers.Handler, wh *handlers.WebhookHandler) {
 
 	// AI Response
 	api.POST("/sessions/:id/respond", h.Respond)
+
+	// Weekly Summaries (Risalah Mingguan - premium only)
+	api.GET("/summaries", h.ListSummaries)
+	api.GET("/summaries/latest", h.GetLatestSummary)
 }

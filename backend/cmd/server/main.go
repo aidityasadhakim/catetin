@@ -87,8 +87,15 @@ func main() {
 		log.Println("Webhook processor initialized")
 	}
 
+	// Initialize weekly summary service
+	var weeklySummaryService *services.WeeklySummaryService
+	if queries != nil && pujanggaService != nil {
+		weeklySummaryService = services.NewWeeklySummaryService(queries, pujanggaService)
+		log.Println("Weekly summary service initialized")
+	}
+
 	// Create handler with dependencies
-	h := handlers.New(queries, pujanggaService, gamificationService, levelingService, cfg.SupportEmail)
+	h := handlers.New(queries, pujanggaService, gamificationService, levelingService, weeklySummaryService, cfg.SupportEmail)
 
 	// Create webhook handler
 	var wh *handlers.WebhookHandler

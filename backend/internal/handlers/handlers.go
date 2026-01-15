@@ -3,6 +3,7 @@ package handlers
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -32,21 +33,23 @@ func uuidToString(u pgtype.UUID) string {
 
 // Handler holds dependencies for HTTP handlers
 type Handler struct {
-	queries      *db.Queries
-	pujangga     *ai.PujanggaService
-	gamification *services.GamificationService
-	leveling     *services.LevelingService
-	supportEmail string
+	queries       *db.Queries
+	pujangga      *ai.PujanggaService
+	gamification  *services.GamificationService
+	leveling      *services.LevelingService
+	weeklySummary *services.WeeklySummaryService
+	supportEmail  string
 }
 
 // New creates a new Handler with the given dependencies
-func New(queries *db.Queries, pujangga *ai.PujanggaService, gamification *services.GamificationService, leveling *services.LevelingService, supportEmail string) *Handler {
+func New(queries *db.Queries, pujangga *ai.PujanggaService, gamification *services.GamificationService, leveling *services.LevelingService, weeklySummary *services.WeeklySummaryService, supportEmail string) *Handler {
 	return &Handler{
-		queries:      queries,
-		pujangga:     pujangga,
-		gamification: gamification,
-		leveling:     leveling,
-		supportEmail: supportEmail,
+		queries:       queries,
+		pujangga:      pujangga,
+		gamification:  gamification,
+		leveling:      leveling,
+		weeklySummary: weeklySummary,
+		supportEmail:  supportEmail,
 	}
 }
 
@@ -888,4 +891,135 @@ func (h *Handler) GetSubscription(c echo.Context) error {
 		MessageLimit:   messageLimit,
 		CanSendMessage: canSendMessage,
 	})
+}
+
+// ==================== WEEKLY SUMMARIES ====================
+
+// WeeklySummaryResponse represents a weekly summary for API responses
+type WeeklySummaryResponse struct {
+	ID           string                 `json:"id"`
+	UserID       string                 `json:"user_id"`
+	WeekStart    string                 `json:"week_start"`
+	WeekEnd      string                 `json:"week_end"`
+	Summary      string                 `json:"summary"`
+	SessionCount int32                  `json:"session_count"`
+	MessageCount int32                  `json:"message_count"`
+	Emotions     map[string]interface{} `json:"emotions"`
+	CreatedAt    string                 `json:"created_at"`
+}
+
+// ListSummariesResponse represents the list of weekly summaries
+type ListSummariesResponse struct {
+	Summaries []WeeklySummaryResponse `json:"summaries"`
+	Total     int                     `json:"total"`
+}
+
+// convertWeeklySummary converts a db.WeeklySummary to WeeklySummaryResponse
+func convertWeeklySummary(s *db.WeeklySummary) WeeklySummaryResponse {
+	emotions := make(map[string]interface{})
+	if s.Emotions != nil {
+		_ = json.Unmarshal(s.Emotions, &emotions)
+	}
+
+	return WeeklySummaryResponse{
+		ID:           uuidToString(s.ID),
+		UserID:       s.UserID,
+		WeekStart:    s.WeekStart.Time.Format("2006-01-02"),
+		WeekEnd:      s.WeekEnd.Time.Format("2006-01-02"),
+		Summary:      s.Summary,
+		SessionCount: s.SessionCount,
+		MessageCount: s.MessageCount,
+		Emotions:     emotions,
+		CreatedAt:    s.CreatedAt.Time.Format(time.RFC3339),
+	}
+}
+
+// requirePaidPlan checks if user has paid plan and returns error if not
+func (h *Handler) requirePaidPlan(c echo.Context) error {
+	userID := middleware.GetUserID(c)
+
+	sub, err := h.queries.UpsertUserSubscription(c.Request().Context(), userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get subscription")
+	}
+
+	if sub.Plan != "paid" {
+		return c.JSON(http.StatusForbidden, map[string]interface{}{
+			"error":       "PREMIUM_REQUIRED",
+			"message":     "Risalah Mingguan hanya tersedia untuk pengguna Premium",
+			"upgrade_url": "/pricing",
+		})
+	}
+
+	return nil
+}
+
+// ListSummaries returns paginated list of weekly summaries for the user
+// GET /api/summaries
+func (h *Handler) ListSummaries(c echo.Context) error {
+	// Check premium access
+	if err := h.requirePaidPlan(c); err != nil {
+		return err
+	}
+
+	userID := middleware.GetUserID(c)
+	ctx := c.Request().Context()
+
+	// Parse pagination params
+	limit := int32(10)
+	offset := int32(0)
+
+	if l := c.QueryParam("limit"); l != "" {
+		if parsed, err := strconv.ParseInt(l, 10, 32); err == nil && parsed > 0 && parsed <= 50 {
+			limit = int32(parsed)
+		}
+	}
+	if o := c.QueryParam("offset"); o != "" {
+		if parsed, err := strconv.ParseInt(o, 10, 32); err == nil && parsed >= 0 {
+			offset = int32(parsed)
+		}
+	}
+
+	summaries, err := h.weeklySummary.ListSummaries(ctx, userID, limit, offset)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to list summaries")
+	}
+
+	response := make([]WeeklySummaryResponse, len(summaries))
+	for i := range summaries {
+		response[i] = convertWeeklySummary(&summaries[i])
+	}
+
+	return c.JSON(http.StatusOK, ListSummariesResponse{
+		Summaries: response,
+		Total:     len(response),
+	})
+}
+
+// GetLatestSummary returns the most recent weekly summary, generating if needed
+// GET /api/summaries/latest
+func (h *Handler) GetLatestSummary(c echo.Context) error {
+	// Check premium access
+	if err := h.requirePaidPlan(c); err != nil {
+		return err
+	}
+
+	userID := middleware.GetUserID(c)
+	ctx := c.Request().Context()
+
+	// Generate or get summary for last completed week
+	summary, err := h.weeklySummary.GenerateOrGetSummary(ctx, userID)
+	if err != nil {
+		c.Logger().Errorf("failed to generate/get summary: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate summary")
+	}
+
+	if summary == nil {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"summary": nil,
+			"message": "Belum ada jurnal minggu lalu. Mulai menulis untuk mendapatkan Risalah Mingguan!",
+		})
+	}
+
+	return c.JSON(http.StatusOK, convertWeeklySummary(summary))
 }
