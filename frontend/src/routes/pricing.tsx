@@ -1,13 +1,27 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowLeft, Check, ExternalLink, Sparkles } from 'lucide-react'
+import { useUser } from '@clerk/clerk-react'
+import { useState } from 'react'
+import { ArrowLeft, Check, Copy, ExternalLink, HelpCircle, Minus, Sparkles } from 'lucide-react'
 
 export const Route = createFileRoute('/pricing')({
   component: PricingPage,
 })
 
 const TRAKTEER_URL = 'https://trakteer.id/catetin/tip'
+const SUPPORT_EMAIL = 'support@catetin.app'
 
 function PricingPage() {
+  const { user } = useUser()
+  const userEmail = user?.primaryEmailAddress?.emailAddress || ''
+  const [copied, setCopied] = useState(false)
+
+  const copyEmail = async () => {
+    if (!userEmail) return
+    await navigator.clipboard.writeText(userEmail)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -33,6 +47,101 @@ function PricingPage() {
             Refleksi tanpa batas, akses Risalah Mingguan, dan dukung pengembangan Catetin.
           </p>
         </div>
+
+        {/* Comparison Table */}
+        <div className="max-w-3xl mx-auto mb-12 overflow-hidden rounded-2xl border border-[var(--color-earth-stone)] shadow-lg">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-[var(--color-earth-stone)]/30 dark:bg-[var(--color-nature-foliage-dark)]/50">
+                <th className="py-4 px-6 text-left font-subheadline text-foreground">Fitur</th>
+                <th className="py-4 px-6 text-center font-subheadline text-foreground">Gratis</th>
+                <th className="py-4 px-6 text-center font-subheadline text-[var(--color-earth-gold)]">
+                  Premium
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--color-earth-stone)]/50">
+              <tr className="bg-[var(--color-earth-marble)] dark:bg-[var(--color-nature-foliage-dark)]/20">
+                <td className="py-4 px-6 font-body text-foreground">Pesan per hari</td>
+                <td className="py-4 px-6 text-center font-mono text-muted-foreground">3</td>
+                <td className="py-4 px-6 text-center font-mono text-[var(--color-earth-gold)]">Tanpa batas</td>
+              </tr>
+              <tr className="bg-[var(--color-earth-marble)] dark:bg-[var(--color-nature-foliage-dark)]/20">
+                <td className="py-4 px-6 font-body text-foreground">AI Companion (Sang Pujangga)</td>
+                <td className="py-4 px-6 text-center">
+                  <Check className="h-5 w-5 text-[var(--color-nature-foliage)] mx-auto" />
+                </td>
+                <td className="py-4 px-6 text-center">
+                  <Check className="h-5 w-5 text-[var(--color-earth-gold)] mx-auto" />
+                </td>
+              </tr>
+              <tr className="bg-[var(--color-earth-marble)] dark:bg-[var(--color-nature-foliage-dark)]/20">
+                <td className="py-4 px-6 font-body text-foreground">Gamifikasi (Tinta Emas & Marmer)</td>
+                <td className="py-4 px-6 text-center">
+                  <Check className="h-5 w-5 text-[var(--color-nature-foliage)] mx-auto" />
+                </td>
+                <td className="py-4 px-6 text-center">
+                  <Check className="h-5 w-5 text-[var(--color-earth-gold)] mx-auto" />
+                </td>
+              </tr>
+              <tr className="bg-[var(--color-earth-marble)] dark:bg-[var(--color-nature-foliage-dark)]/20">
+                <td className="py-4 px-6 font-body text-foreground">Galeri Mahakarya</td>
+                <td className="py-4 px-6 text-center">
+                  <Check className="h-5 w-5 text-[var(--color-nature-foliage)] mx-auto" />
+                </td>
+                <td className="py-4 px-6 text-center">
+                  <Check className="h-5 w-5 text-[var(--color-earth-gold)] mx-auto" />
+                </td>
+              </tr>
+              <tr className="bg-[var(--color-earth-marble)] dark:bg-[var(--color-nature-foliage-dark)]/20">
+                <td className="py-4 px-6 font-body text-foreground">Risalah Mingguan</td>
+                <td className="py-4 px-6 text-center">
+                  <Minus className="h-5 w-5 text-muted-foreground mx-auto" />
+                </td>
+                <td className="py-4 px-6 text-center">
+                  <Check className="h-5 w-5 text-[var(--color-earth-gold)] mx-auto" />
+                </td>
+              </tr>
+              <tr className="bg-[var(--color-earth-marble)] dark:bg-[var(--color-nature-foliage-dark)]/20">
+                <td className="py-4 px-6 font-body text-foreground">Harga</td>
+                <td className="py-4 px-6 text-center font-mono text-muted-foreground">Rp 0</td>
+                <td className="py-4 px-6 text-center font-mono font-bold text-[var(--color-earth-gold)]">
+                  Rp 50.000
+                  <span className="block text-xs font-normal text-muted-foreground">sekali bayar</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* User Email Card */}
+        {userEmail && (
+          <div className="max-w-md mx-auto mb-8 p-4 rounded-xl bg-[var(--color-nature-foliage)]/10 dark:bg-[var(--color-nature-foliage-dark)]/30 border border-[var(--color-nature-foliage)]/30">
+            <p className="font-body text-sm text-muted-foreground mb-2">
+              Email akun Catetin-mu:
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 font-mono text-sm bg-background px-3 py-2 rounded-lg border border-[var(--color-earth-stone)] text-foreground overflow-x-auto">
+                {userEmail}
+              </code>
+              <button
+                onClick={copyEmail}
+                className="shrink-0 p-2 rounded-lg bg-[var(--color-nature-foliage)] text-white hover:bg-[var(--color-nature-foliage-dark)] transition-colors"
+                title="Salin email"
+              >
+                <Copy size={18} />
+              </button>
+            </div>
+            {copied && (
+              <p className="mt-2 text-sm text-[var(--color-nature-foliage)] font-ui">
+                Tersalin!
+              </p>
+            )}
+            <p className="mt-2 text-xs text-muted-foreground">
+              Gunakan email ini saat checkout di Trakteer.
+            </p>
+          </div>
+        )}
 
         {/* Pricing Card */}
         <div className="max-w-md mx-auto">
@@ -108,7 +217,7 @@ function PricingPage() {
             <li className="flex gap-3">
               <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--color-nature-foliage)] text-white flex items-center justify-center text-sm font-bold">3</span>
               <span>
-                <strong>PENTING:</strong> Gunakan email yang sama dengan akun Catetin-mu sebagai "supporter email"
+                <strong>PENTING:</strong> Masukkan email akun Catetin-mu{userEmail ? ` (${userEmail})` : ''} sebagai "supporter email"
               </span>
             </li>
             <li className="flex gap-3">
@@ -118,19 +227,65 @@ function PricingPage() {
           </ol>
         </div>
 
+        {/* FAQ */}
+        <div className="max-w-2xl mx-auto mt-12">
+          <h2 className="font-subheadline text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-[var(--color-earth-gold)]" />
+            Pertanyaan Umum
+          </h2>
+          <div className="space-y-4">
+            <FAQItem
+              question="Bagaimana jika saya menggunakan email berbeda di Trakteer?"
+              answer="Hubungi kami di support@catetin.app dengan bukti pembayaran dan email Catetin-mu. Kami akan mengaktifkan premium secara manual."
+            />
+            <FAQItem
+              question="Berapa lama hingga akun saya ter-upgrade?"
+              answer="Biasanya dalam hitungan menit setelah pembayaran berhasil. Jika lebih dari 1 jam belum ter-upgrade, hubungi kami."
+            />
+            <FAQItem
+              question="Apakah ini pembayaran berlangganan?"
+              answer="Tidak. Ini pembayaran sekali saja dan kamu mendapat akses Premium selamanya. Tidak ada biaya bulanan atau tahunan."
+            />
+            <FAQItem
+              question="Bisa minta refund?"
+              answer="Karena ini produk digital dengan akses langsung, kami tidak menyediakan refund. Pastikan kamu sudah yakin sebelum membeli."
+            />
+            <FAQItem
+              question="Metode pembayaran apa saja yang tersedia?"
+              answer="Trakteer mendukung berbagai metode pembayaran Indonesia: transfer bank, e-wallet (GoPay, OVO, Dana, dll), dan kartu kredit/debit."
+            />
+          </div>
+        </div>
+
         {/* Support */}
-        <div className="text-center mt-8">
-          <p className="font-body text-muted-foreground">
-            Ada masalah atau pertanyaan?{' '}
-            <a
-              href="mailto:support@catetin.app"
-              className="text-[var(--color-nature-foliage)] hover:underline dark:text-[var(--color-nature-sunlight)]"
-            >
-              Hubungi kami
-            </a>
+        <div className="text-center mt-12 p-6 rounded-xl bg-[var(--color-earth-stone)]/20 dark:bg-[var(--color-nature-foliage-dark)]/20">
+          <p className="font-body text-foreground mb-2">
+            Ada masalah atau pertanyaan lain?
           </p>
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="inline-flex items-center gap-2 font-ui text-[var(--color-nature-foliage)] hover:underline dark:text-[var(--color-nature-sunlight)]"
+          >
+            {SUPPORT_EMAIL}
+          </a>
         </div>
       </main>
     </div>
+  )
+}
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  return (
+    <details className="group rounded-xl border border-[var(--color-earth-stone)] bg-[var(--color-earth-marble)] dark:bg-[var(--color-nature-foliage-dark)]/20 overflow-hidden">
+      <summary className="flex items-center justify-between p-4 cursor-pointer font-ui font-semibold text-foreground hover:bg-[var(--color-earth-stone)]/20 transition-colors">
+        {question}
+        <span className="ml-2 text-muted-foreground group-open:rotate-180 transition-transform">
+          ▼
+        </span>
+      </summary>
+      <div className="px-4 pb-4">
+        <p className="font-body text-muted-foreground">{answer}</p>
+      </div>
+    </details>
   )
 }
