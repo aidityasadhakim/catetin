@@ -245,8 +245,18 @@ func getDepthInstruction(depth DepthLevel) string {
 	}
 }
 
+// WeeklySummaryResult contains the full weekly summary with emotions analysis
+type WeeklySummaryResult struct {
+	Summary           string   `json:"summary"`
+	DominantEmotion   string   `json:"dominant_emotion"`
+	SecondaryEmotions []string `json:"secondary_emotions"`
+	Trend             string   `json:"trend"` // "improving", "stable", or "challenging"
+	Insights          []string `json:"insights"`
+	Encouragement     string   `json:"encouragement"`
+}
+
 // GenerateWeeklySummary generates a weekly emotional summary (Risalah Mingguan)
-func (p *PujanggaService) GenerateWeeklySummary(ctx context.Context, weekMessages []Message) (string, error) {
+func (p *PujanggaService) GenerateWeeklySummary(ctx context.Context, weekMessages []Message, sessionCount, messageCount int) (*WeeklySummaryResult, error) {
 	// Compile all user messages from the week
 	userMessages := ""
 	for _, msg := range weekMessages {
@@ -255,8 +265,16 @@ func (p *PujanggaService) GenerateWeeklySummary(ctx context.Context, weekMessage
 		}
 	}
 
-	if userMessages == "" {
-		return "Minggu ini kamu belum sempat nulis. Nggak apa-apa, kadang memang butuh jeda. Semoga minggu depan lebih ringan ya.", nil
+	// Handle empty week gracefully
+	if userMessages == "" || messageCount == 0 {
+		return &WeeklySummaryResult{
+			Summary:           "Minggu ini kamu belum sempat nulis. Nggak apa-apa, kadang memang butuh jeda. Semoga minggu depan lebih ringan ya.",
+			DominantEmotion:   "neutral",
+			SecondaryEmotions: []string{},
+			Trend:             "stable",
+			Insights:          []string{"Minggu ini adalah jeda dari rutinitas menulis"},
+			Encouragement:     "Setiap jeda punya maknanya sendiri. Kembali kapanpun kamu siap.",
+		}, nil
 	}
 
 	prompt := fmt.Sprintf(`%s
@@ -267,36 +285,70 @@ Ini bukan analisis psikologis formal, tapi lebih seperti surat dari teman yang s
 CATATAN USER MINGGU INI:
 %s
 
-Buat ringkasan dalam format "Surat Masa Lalu" - maksimal 3-4 kalimat yang:
-1. Menyebutkan tema emosional utama minggu ini
-2. Memberikan perspektif atau validasi yang hangat
-3. Tidak menggurui atau terlalu filosofis
+Total sesi: %d
+Total pesan: %d
 
-Respond in JSON format:
-{"summary": "your weekly summary in Indonesian"}`, SystemPrompt, userMessages)
+Buat "Surat Masa Lalu" dengan analisis emosional. Berikan output dalam format JSON dengan struktur berikut:
+
+1. "summary": Ringkasan 2-3 kalimat tentang minggu ini dalam bahasa Indonesia yang hangat
+2. "dominant_emotion": Emosi utama minggu ini (satu kata, lowercase)
+3. "secondary_emotions": Array emosi lain yang muncul (maksimal 3, lowercase)
+4. "trend": Salah satu dari "improving", "stable", atau "challenging"
+5. "insights": Array 2-3 insight spesifik berdasarkan konten jurnal
+6. "encouragement": Kata penyemangat singkat 1 kalimat
+
+Aturan:
+- Gunakan bahasa Indonesia yang santai tapi bermakna
+- Hindari klise dan bahasa yang terlalu puitis
+- Insights harus spesifik berdasarkan konten jurnal yang ditulis
+- Emotions dalam bahasa Indonesia atau English yang umum dipahami`, SystemPrompt, userMessages, sessionCount, messageCount)
 
 	schema := map[string]interface{}{
 		"type": "object",
 		"properties": map[string]interface{}{
 			"summary": map[string]interface{}{
 				"type":        "string",
-				"description": "The weekly summary in natural Indonesian",
+				"description": "The weekly summary in natural Indonesian (2-3 sentences)",
+			},
+			"dominant_emotion": map[string]interface{}{
+				"type":        "string",
+				"description": "The main emotion of the week (single word, lowercase)",
+			},
+			"secondary_emotions": map[string]interface{}{
+				"type":        "array",
+				"items":       map[string]interface{}{"type": "string"},
+				"maxItems":    3,
+				"description": "Other emotions present (max 3, lowercase)",
+			},
+			"trend": map[string]interface{}{
+				"type":        "string",
+				"enum":        []string{"improving", "stable", "challenging"},
+				"description": "Emotional trend: improving, stable, or challenging",
+			},
+			"insights": map[string]interface{}{
+				"type":        "array",
+				"items":       map[string]interface{}{"type": "string"},
+				"minItems":    1,
+				"maxItems":    3,
+				"description": "Specific insights from the journal content",
+			},
+			"encouragement": map[string]interface{}{
+				"type":        "string",
+				"description": "A short encouraging message (1 sentence)",
 			},
 		},
-		"required": []string{"summary"},
+		"required": []string{"summary", "dominant_emotion", "secondary_emotions", "trend", "insights", "encouragement"},
 	}
 
 	responseText, err := p.client.GenerateContentWithSchema(ctx, prompt, schema)
 	if err != nil {
-		return "", fmt.Errorf("failed to generate weekly summary: %w", err)
+		return nil, fmt.Errorf("failed to generate weekly summary: %w", err)
 	}
 
-	var response struct {
-		Summary string `json:"summary"`
-	}
-	if err := json.Unmarshal([]byte(responseText), &response); err != nil {
-		return "", fmt.Errorf("failed to parse response: %w", err)
+	var result WeeklySummaryResult
+	if err := json.Unmarshal([]byte(responseText), &result); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
-	return response.Summary, nil
+	return &result, nil
 }
