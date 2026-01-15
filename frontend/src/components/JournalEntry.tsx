@@ -1,5 +1,9 @@
 import { Loader2, Send } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import {
+  MAX_MESSAGE_LENGTH,
+  MESSAGE_WARNING_THRESHOLD,
+} from '@/lib/constants'
 
 interface JournalEntryProps {
   value: string
@@ -17,6 +21,11 @@ export default function JournalEntry({
   placeholder = 'Ketuk untuk menulis...',
 }: JournalEntryProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Character count state
+  const charCount = value.length
+  const isNearLimit = charCount >= MAX_MESSAGE_LENGTH * MESSAGE_WARNING_THRESHOLD
+  const isAtLimit = charCount >= MAX_MESSAGE_LENGTH
 
   // Auto-resize textarea
   useEffect(() => {
@@ -46,9 +55,22 @@ export default function JournalEntry({
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               disabled={isSubmitting}
-              className="w-full bg-transparent font-body text-base text-foreground placeholder-muted-foreground/60 resize-none focus:outline-none p-4 leading-relaxed min-h-[52px] max-h-[150px]"
+              maxLength={MAX_MESSAGE_LENGTH}
+              className="w-full bg-transparent font-body text-base text-foreground placeholder-muted-foreground/60 resize-none focus:outline-none p-4 pb-8 leading-relaxed min-h-[52px] max-h-[150px]"
               rows={1}
             />
+            {/* Character counter - floating inside textarea */}
+            <div
+              className={`absolute bottom-2 right-3 font-mono text-xs transition-colors duration-200 ${
+                isAtLimit
+                  ? 'text-red-500 font-semibold'
+                  : isNearLimit
+                    ? 'text-amber-600'
+                    : 'text-[var(--color-earth-stone)]'
+              }`}
+            >
+              {charCount}/{MAX_MESSAGE_LENGTH}
+            </div>
           </div>
         </div>
 

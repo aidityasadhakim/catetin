@@ -3,6 +3,7 @@ import { RedirectToSignIn, SignedIn, SignedOut } from '@clerk/clerk-react'
 import { useEffect, useState } from 'react'
 import { Loader2, Sparkles, Star, Trophy } from 'lucide-react'
 import { useAIRespond, useTodaySession, useSubscription } from '../hooks'
+import { MAX_MESSAGE_LENGTH } from '@/lib/constants'
 
 import NotepadChat from '../components/NotepadChat'
 import JournalEntry from '../components/JournalEntry'
@@ -64,6 +65,13 @@ function JournalInterface() {
     if (!inputValue.trim() || !sessionId || isSending) return
 
     const content = inputValue.trim()
+
+    // Safety check: validate message length (textarea maxLength should prevent this)
+    if (content.length > MAX_MESSAGE_LENGTH) {
+      console.warn('Message exceeds limit - this should not happen')
+      return
+    }
+
     setInputValue('')
 
     // Optimistically add user message
