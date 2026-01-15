@@ -49,7 +49,7 @@ export function useCanSendMessage() {
         ? Infinity
         : Math.max(
             0,
-            (subscription?.message_limit ?? 3) -
+            (subscription?.message_limit ?? 8) -
               (subscription?.messages_today ?? 0),
           ),
     isLoading,

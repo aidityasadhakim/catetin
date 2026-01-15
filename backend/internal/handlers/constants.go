@@ -5,4 +5,4 @@ package handlers
 const MaxMessageLength = 1000
 
 // FreePlanMessageLimit is the max messages per day for free users
-const FreePlanMessageLimit = 3
+const FreePlanMessageLimit = 8

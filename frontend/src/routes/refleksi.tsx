@@ -171,7 +171,7 @@ function JournalInterface() {
           className="flex-1 min-h-0 mb-4"
           showPaywall={limitReached || (subscription?.can_send_message === false)}
           messagesUsed={subscription?.messages_today ?? 0}
-          messageLimit={subscription?.message_limit ?? 3}
+          messageLimit={subscription?.message_limit ?? 8}
         />
 
         {/* Input Area with Reward Toast */}

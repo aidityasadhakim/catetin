@@ -88,7 +88,7 @@ func (h *Handler) Respond(c echo.Context) error {
 		} else if messagesToday >= FreePlanMessageLimit {
 			return c.JSON(http.StatusForbidden, map[string]interface{}{
 				"error":          "LIMIT_REACHED",
-				"message":        "Kamu sudah mencapai batas harian (3 pesan). Upgrade untuk melanjutkan.",
+				"message":        fmt.Sprintf("Kamu sudah mencapai batas harian (%d pesan). Upgrade untuk melanjutkan.", FreePlanMessageLimit),
 				"upgrade_url":    "/pricing",
 				"support_email":  h.supportEmail,
 				"messages_today": messagesToday,
