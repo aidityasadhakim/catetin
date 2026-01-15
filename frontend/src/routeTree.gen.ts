@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RisalahRouteImport } from './routes/risalah'
 import { Route as RefleksiRouteImport } from './routes/refleksi'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HistorySessionIdRouteImport } from './routes/history.$sessionId'
 
+const RisalahRoute = RisalahRouteImport.update({
+  id: '/risalah',
+  path: '/risalah',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RefleksiRoute = RefleksiRouteImport.update({
   id: '/refleksi',
   path: '/refleksi',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRouteWithChildren
   '/pricing': typeof PricingRoute
   '/refleksi': typeof RefleksiRoute
+  '/risalah': typeof RisalahRoute
   '/history/$sessionId': typeof HistorySessionIdRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRouteWithChildren
   '/pricing': typeof PricingRoute
   '/refleksi': typeof RefleksiRoute
+  '/risalah': typeof RisalahRoute
   '/history/$sessionId': typeof HistorySessionIdRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,33 @@ export interface FileRoutesById {
   '/history': typeof HistoryRouteWithChildren
   '/pricing': typeof PricingRoute
   '/refleksi': typeof RefleksiRoute
+  '/risalah': typeof RisalahRoute
   '/history/$sessionId': typeof HistorySessionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/history' | '/pricing' | '/refleksi' | '/history/$sessionId'
+  fullPaths:
+    | '/'
+    | '/history'
+    | '/pricing'
+    | '/refleksi'
+    | '/risalah'
+    | '/history/$sessionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/history' | '/pricing' | '/refleksi' | '/history/$sessionId'
+  to:
+    | '/'
+    | '/history'
+    | '/pricing'
+    | '/refleksi'
+    | '/risalah'
+    | '/history/$sessionId'
   id:
     | '__root__'
     | '/'
     | '/history'
     | '/pricing'
     | '/refleksi'
+    | '/risalah'
     | '/history/$sessionId'
   fileRoutesById: FileRoutesById
 }
@@ -82,10 +104,18 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRouteWithChildren
   PricingRoute: typeof PricingRoute
   RefleksiRoute: typeof RefleksiRoute
+  RisalahRoute: typeof RisalahRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/risalah': {
+      id: '/risalah'
+      path: '/risalah'
+      fullPath: '/risalah'
+      preLoaderRoute: typeof RisalahRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/refleksi': {
       id: '/refleksi'
       path: '/refleksi'
@@ -140,6 +170,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRouteWithChildren,
   PricingRoute: PricingRoute,
   RefleksiRoute: RefleksiRoute,
+  RisalahRoute: RisalahRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

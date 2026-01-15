@@ -287,6 +287,17 @@ export interface UserArtworkWithDetails extends UserArtwork {
 }
 
 /**
+ * Emotions analysis from weekly summary
+ */
+export interface WeeklySummaryEmotions {
+  dominant_emotion: string
+  secondary_emotions: Array<string>
+  trend: 'improving' | 'stable' | 'challenging'
+  insights: Array<string>
+  encouragement: string
+}
+
+/**
  * Weekly emotional summary (Risalah Mingguan)
  */
 export interface WeeklySummary {
@@ -297,8 +308,16 @@ export interface WeeklySummary {
   summary: string
   session_count: number
   message_count: number
-  emotions: Array<string>
+  emotions: WeeklySummaryEmotions
   created_at: string
+}
+
+/**
+ * Response from list summaries endpoint
+ */
+export interface ListSummariesResponse {
+  summaries: Array<WeeklySummary>
+  total: number
 }
 
 /**

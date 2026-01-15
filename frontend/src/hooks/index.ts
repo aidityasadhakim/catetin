@@ -33,6 +33,9 @@ export { useMessages, useSendMessage } from './useMessages'
 // AI interactions (Sang Pujangga)
 export { useStartSession, useAIRespond, useTodaySession } from './useAI'
 
+// Weekly Summaries (Risalah Mingguan)
+export { useSummaries, useLatestSummary } from './useSummaries'
+
 // Re-export types for convenience
 export type {
   UserStats,
@@ -45,6 +48,8 @@ export type {
   UserArtworkStatus,
   UserArtworkWithDetails,
   WeeklySummary,
+  WeeklySummaryEmotions,
+  ListSummariesResponse,
   SessionRewards,
   AIRespondResponse,
   StartSessionResponse,
