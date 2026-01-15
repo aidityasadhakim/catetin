@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RefleksiRouteImport } from './routes/refleksi'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HistorySessionIdRouteImport } from './routes/history.$sessionId'
@@ -17,6 +18,11 @@ import { Route as HistorySessionIdRouteImport } from './routes/history.$sessionI
 const RefleksiRoute = RefleksiRouteImport.update({
   id: '/refleksi',
   path: '/refleksi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -38,12 +44,14 @@ const HistorySessionIdRoute = HistorySessionIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/history': typeof HistoryRouteWithChildren
+  '/pricing': typeof PricingRoute
   '/refleksi': typeof RefleksiRoute
   '/history/$sessionId': typeof HistorySessionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/history': typeof HistoryRouteWithChildren
+  '/pricing': typeof PricingRoute
   '/refleksi': typeof RefleksiRoute
   '/history/$sessionId': typeof HistorySessionIdRoute
 }
@@ -51,20 +59,28 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/history': typeof HistoryRouteWithChildren
+  '/pricing': typeof PricingRoute
   '/refleksi': typeof RefleksiRoute
   '/history/$sessionId': typeof HistorySessionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/history' | '/refleksi' | '/history/$sessionId'
+  fullPaths: '/' | '/history' | '/pricing' | '/refleksi' | '/history/$sessionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/history' | '/refleksi' | '/history/$sessionId'
-  id: '__root__' | '/' | '/history' | '/refleksi' | '/history/$sessionId'
+  to: '/' | '/history' | '/pricing' | '/refleksi' | '/history/$sessionId'
+  id:
+    | '__root__'
+    | '/'
+    | '/history'
+    | '/pricing'
+    | '/refleksi'
+    | '/history/$sessionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HistoryRoute: typeof HistoryRouteWithChildren
+  PricingRoute: typeof PricingRoute
   RefleksiRoute: typeof RefleksiRoute
 }
 
@@ -75,6 +91,13 @@ declare module '@tanstack/react-router' {
       path: '/refleksi'
       fullPath: '/refleksi'
       preLoaderRoute: typeof RefleksiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -115,6 +138,7 @@ const HistoryRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HistoryRoute: HistoryRouteWithChildren,
+  PricingRoute: PricingRoute,
   RefleksiRoute: RefleksiRoute,
 }
 export const routeTree = rootRouteImport

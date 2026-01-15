@@ -1,16 +1,26 @@
 import { useEffect, useRef } from 'react'
 import type { Message } from '../hooks'
+import Paywall from './Paywall'
 
 interface NotepadChatProps {
   messages: Array<Message>
   isLoading: boolean
   className?: string
+  // Paywall props
+  showPaywall?: boolean
+  messagesUsed?: number
+  messageLimit?: number
+  supportEmail?: string
 }
 
 export default function NotepadChat({
   messages,
   isLoading,
   className = '',
+  showPaywall = false,
+  messagesUsed = 0,
+  messageLimit = 3,
+  supportEmail,
 }: NotepadChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -18,7 +28,7 @@ export default function NotepadChat({
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isLoading])
+  }, [messages, isLoading, showPaywall])
 
   const today = new Date().toLocaleDateString('id-ID', {
     weekday: 'long',
@@ -65,6 +75,15 @@ export default function NotepadChat({
 
             {/* Loading indicator */}
             {isLoading && <LoadingIndicator />}
+
+            {/* Paywall when message limit reached */}
+            {showPaywall && (
+              <Paywall
+                messagesUsed={messagesUsed}
+                messageLimit={messageLimit}
+                supportEmail={supportEmail}
+              />
+            )}
           </div>
 
           {/* Scroll anchor */}

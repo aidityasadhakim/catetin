@@ -15,6 +15,9 @@ export { useTheme, initializeTheme, type Theme } from './useTheme'
 // User gamification stats
 export { useUserStats } from './useUserStats'
 
+// Subscription (plan status)
+export { useSubscription, useCanSendMessage } from './useSubscription'
+
 // Sessions (journaling conversations)
 export {
   useCreateSession,
@@ -46,6 +49,9 @@ export type {
   AIRespondResponse,
   StartSessionResponse,
   TodaySessionResponse,
+  SubscriptionStatus,
+  SubscriptionPlan,
+  LimitReachedError,
 } from '../lib/api'
 
 // Re-export apiKeys for custom queries

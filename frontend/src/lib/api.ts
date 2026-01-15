@@ -56,9 +56,14 @@ export function useApiClient() {
         const data = await response.json()
 
         if (!response.ok) {
+          // Include error code if present (e.g. LIMIT_REACHED)
+          const errorCode = data.error || ''
+          const errorMessage = data.message || 'Request failed'
+          const fullError = errorCode ? `${errorCode}: ${errorMessage}` : errorMessage
+          
           return {
             data: null,
-            error: data.message || data.error || 'Request failed',
+            error: fullError,
             status: response.status,
           }
         }
@@ -137,6 +142,8 @@ export const apiKeys = {
   entry: (id: string) => [...apiKeys.entries(), id] as const,
   // User stats (gamification resources)
   stats: () => [...apiKeys.all, 'stats'] as const,
+  // Subscription status
+  subscription: () => [...apiKeys.all, 'subscription'] as const,
   // Sessions (journaling conversations)
   sessions: () => [...apiKeys.all, 'sessions'] as const,
   session: (id: string) => [...apiKeys.sessions(), id] as const,
@@ -343,4 +350,30 @@ export const DepthLevelNames: Record<number, string> = {
   1: 'Permukaan',
   2: 'Ringan',
   3: 'Dalam',
+}
+
+/**
+ * User subscription status (free/paid plan)
+ */
+export type SubscriptionPlan = 'free' | 'paid'
+
+export interface SubscriptionStatus {
+  user_id: string
+  plan: SubscriptionPlan
+  upgraded_at: string | null
+  messages_today: number
+  message_limit: number // -1 for unlimited
+  can_send_message: boolean
+}
+
+/**
+ * Error response when message limit is reached
+ */
+export interface LimitReachedError {
+  error: 'LIMIT_REACHED'
+  message: string
+  upgrade_url: string
+  support_email: string
+  messages_today: number
+  message_limit: number
 }

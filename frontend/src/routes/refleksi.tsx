@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { RedirectToSignIn, SignedIn, SignedOut } from '@clerk/clerk-react'
 import { useEffect, useState } from 'react'
 import { Loader2, Sparkles, Star, Trophy } from 'lucide-react'
-import { useAIRespond, useTodaySession } from '../hooks'
+import { useAIRespond, useTodaySession, useSubscription } from '../hooks'
 
 import NotepadChat from '../components/NotepadChat'
 import JournalEntry from '../components/JournalEntry'
@@ -30,6 +30,10 @@ function JournalInterface() {
   const [localMessages, setLocalMessages] = useState<Array<Message>>([])
   const [lastReward, setLastReward] = useState<SessionRewards | null>(null)
   const [showRewardToast, setShowRewardToast] = useState(false)
+  const [limitReached, setLimitReached] = useState(false)
+
+  // Get subscription status for message limit
+  const { data: subscription, refetch: refetchSubscription } = useSubscription()
 
   // Get or create today's session
   const {
@@ -93,6 +97,14 @@ function JournalInterface() {
         },
         onError: (sendError) => {
           console.error('Failed to send message:', sendError)
+          
+          // Check if this is a LIMIT_REACHED error
+          if (sendError.message?.includes('LIMIT_REACHED')) {
+            setLimitReached(true)
+            // Refetch subscription to update message count
+            refetchSubscription()
+          }
+          
           // Remove optimistic message on error
           setLocalMessages((prev) =>
             prev.filter((m) => !m.id.startsWith('temp-')),
@@ -149,6 +161,9 @@ function JournalInterface() {
           messages={localMessages}
           isLoading={isWaitingForAI}
           className="flex-1 min-h-0 mb-4"
+          showPaywall={limitReached || (subscription?.can_send_message === false)}
+          messagesUsed={subscription?.messages_today ?? 0}
+          messageLimit={subscription?.message_limit ?? 3}
         />
 
         {/* Input Area with Reward Toast */}
