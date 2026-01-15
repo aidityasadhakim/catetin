@@ -22,13 +22,6 @@ func Register(e *echo.Echo, h *handlers.Handler, wh *handlers.WebhookHandler) {
 	api := e.Group("/api")
 	api.Use(appMiddleware.ClerkAuth())
 
-	// Journal entries (legacy/TODO)
-	api.GET("/entries", h.ListEntries)
-	api.POST("/entries", h.CreateEntry)
-	api.GET("/entries/:id", h.GetEntry)
-	api.PUT("/entries/:id", h.UpdateEntry)
-	api.DELETE("/entries/:id", h.DeleteEntry)
-
 	// User stats
 	api.GET("/stats", h.GetUserStats)
 
