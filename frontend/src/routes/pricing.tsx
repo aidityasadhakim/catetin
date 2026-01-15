@@ -236,7 +236,7 @@ function PricingPage() {
           <div className="space-y-4">
             <FAQItem
               question="Bagaimana jika saya menggunakan email berbeda di Trakteer?"
-              answer="Hubungi kami di support@catetin.app dengan bukti pembayaran dan email Catetin-mu. Kami akan mengaktifkan premium secara manual."
+              answer={`Hubungi kami di ${SUPPORT_EMAIL} dengan bukti pembayaran dan email Catetin-mu. Kami akan mengaktifkan premium secara manual.`}
             />
             <FAQItem
               question="Berapa lama hingga akun saya ter-upgrade?"

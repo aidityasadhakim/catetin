@@ -14,7 +14,7 @@ interface PaywallProps {
 export default function Paywall({
   messagesUsed,
   messageLimit,
-  supportEmail = 'support@catetin.app',
+  supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || 'support@catetin.app',
 }: PaywallProps) {
   return (
     <div className="relative my-6 animate-[fadeIn_0.5s_ease-out]">
