@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useUser } from '@clerk/clerk-react'
 import { useState } from 'react'
 import { ArrowLeft, Check, Copy, ExternalLink, HelpCircle, Minus, Sparkles } from 'lucide-react'
@@ -7,8 +7,8 @@ export const Route = createFileRoute('/pricing')({
   component: PricingPage,
 })
 
-const TRAKTEER_URL = 'https://trakteer.id/catetin/tip'
-const SUPPORT_EMAIL = 'support@catetin.app'
+const TRAKTEER_URL = import.meta.env.VITE_TRAKTEER_URL || 'https://trakteer.id/catetin/tip'
+const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || 'support@catetin.app'
 
 function PricingPage() {
   const { user } = useUser()
